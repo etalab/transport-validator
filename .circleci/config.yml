@@ -7,5 +7,7 @@ jobs:
 
     steps:
       - checkout
+      - run: rustup component add rustfmt-preview
+      - run: cargo fmt --all -- --write-mode=diff
       - run: cargo build
       - run: cargo test

@@ -37,3 +37,19 @@ The validator can also read a zip file, or an url:
 cargo run --release -- -i some_gtfs.zip
 cargo run --release -- -i https://example.com/network.gfts
 ```
+
+4. Lint it
+
+To lint our code we use [rustfmt](https://github.com/rust-lang-nursery/rustfmt)
+
+Install it running:
+
+```
+rustup component add rustfmt-preview
+```
+
+Lint your code running:
+
+```
+cargo fmt --all -- --write-mode=diff
+```

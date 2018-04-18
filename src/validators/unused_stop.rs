@@ -2,7 +2,7 @@ extern crate gtfs_structures;
 use validators::issues::*;
 use std::collections::HashMap;
 
-pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue>{
+pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let mut use_count = HashMap::new();
 
     // A stop can be used for a stop time
@@ -19,13 +19,17 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue>{
         }
     }
 
-    gtfs.stops.iter().filter(|stop| use_count.get(&stop.id).unwrap_or(&0) == &0 ).map(|stop| Issue{
-        severity: Severity::Error,
-        issue_type: IssueType::UnusedStop,
-        object_id: stop.id.to_owned(),
-        object_name: Some(stop.stop_name.to_owned()),
-        related_object_id: None
-    }).collect()
+    gtfs.stops
+        .iter()
+        .filter(|stop| use_count.get(&stop.id).unwrap_or(&0) == &0)
+        .map(|stop| Issue {
+            severity: Severity::Error,
+            issue_type: IssueType::UnusedStop,
+            object_id: stop.id.to_owned(),
+            object_name: Some(stop.stop_name.to_owned()),
+            related_object_id: None,
+        })
+        .collect()
 }
 
 #[test]
