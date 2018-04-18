@@ -21,7 +21,7 @@ git clone https://github.com/etalab/transport-validator-rust/
 cd transport-validator-rust
 ```
 
-3. Run it
+3. Run it as standalone
 
 The release version (significantly faster) can be run as:
 
@@ -53,3 +53,15 @@ Lint your code running:
 ```
 cargo fmt --all -- --write-mode=diff
 ```
+
+5. Run it as a dæmon
+
+The validator can run as a HTTP dæmon to validate any file from a url.
+
+For now the call is synchronous. Be aware that if the file is large, the time required to download the GTFS zip, the request might time out.
+
+`cargo run --release`
+
+You can then ask for a validation:
+
+`curl http://localhost:7878/validate?url=https://example.com/gtfs.zip`
