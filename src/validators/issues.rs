@@ -1,4 +1,3 @@
-
 #[derive(Serialize)]
 pub enum Severity {
     Fatal,
