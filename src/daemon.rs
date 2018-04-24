@@ -9,6 +9,7 @@ use gotham::router::builder::*;
 use gotham::state::{FromState, State};
 use gotham::http::response::create_response;
 use validators::validate;
+use std::env;
 
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 struct QueryStringExtractor {
@@ -47,7 +48,9 @@ fn router() -> Router {
 }
 
 pub fn run_server() {
-    let addr = "127.0.0.1:7878";
+    let port = env::var("PORT").unwrap_or("7878".to_string());
+    let bind = env::var("BIND").unwrap_or("127.0.0.1".to_string());
+    let addr = format!("{}:{}", bind, port);
     println!("Listening for requests at http://{}", addr);
     gotham::start(addr, router())
 }
