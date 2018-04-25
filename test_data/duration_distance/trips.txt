@@ -1,0 +1,7 @@
+route_id,service_id,trip_id,trip_headsign,trip_short_name,direction_id,block_id,wheelchair_accessible,bikes_allowed,trip_desc,shape_id
+route1,service1,close_stops,"85088452",,0,,0,0,,
+route1,service1,near_stops,"85088452",,0,,0,0,,
+route1,service1,null_duration,"85088452",,0,,0,0,,
+route1,service1,too_fast,"85088452",,0,,0,0,,
+route1,service1,too_slow,"85088452",,0,,0,0,,
+route1,service1,time_traveler,"85088452",,0,,0,0,,

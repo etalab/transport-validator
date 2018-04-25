@@ -1,4 +1,4 @@
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Eq, PartialEq)]
 pub enum Severity {
     Fatal,
     Error,
@@ -6,12 +6,18 @@ pub enum Severity {
     Information,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Eq, PartialEq)]
 pub enum IssueType {
     UnusedStop,
+    Slow,
+    ExcessiveSpeed,
+    NegativeTravelTime,
+    CloseStops,
+    NullDuration,
+    InvalidReference,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct Issue {
     pub severity: Severity,
     pub issue_type: IssueType,

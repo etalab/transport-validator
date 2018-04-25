@@ -27,7 +27,7 @@ fn main() {
 
     if let Some(input) = opt.input {
         match validators::validate(&input) {
-            Ok(json) => println!("Validation: {}", json),
+            Ok(json) => println!("{}", json),
             Err(err) => println!("Error: {}", err),
         }
     } else {

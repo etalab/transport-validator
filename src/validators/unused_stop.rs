@@ -6,12 +6,14 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let mut used_stops = HashSet::new();
 
     // A stop can be used for a stop time
-    for stop_time in &gtfs.stop_times {
-        used_stops.insert(stop_time.stop_id.to_owned());
+    for (_, trip) in &gtfs.trips {
+        for stop_time in &trip.stop_times {
+            used_stops.insert(stop_time.stop.id.to_owned());
+        }
     }
 
     // A stop can be the parent station
-    for stop in &gtfs.stops {
+    for (_, stop) in &gtfs.stops {
         for parent in &stop.parent_station {
             if used_stops.contains(&stop.id) {
                 used_stops.insert(parent.to_owned());
@@ -21,8 +23,8 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 
     gtfs.stops
         .iter()
-        .filter(|stop| !used_stops.contains(&stop.id))
-        .map(|stop| Issue {
+        .filter(|&(_, stop)| !used_stops.contains(&stop.id))
+        .map(|(_, stop)| Issue {
             severity: Severity::Error,
             issue_type: IssueType::UnusedStop,
             object_id: stop.id.to_owned(),

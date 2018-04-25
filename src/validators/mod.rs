@@ -1,5 +1,6 @@
 pub mod issues;
 mod unused_stop;
+mod duration_distance;
 
 extern crate serde_json;
 use failure::Error;
@@ -8,6 +9,9 @@ extern crate gtfs_structures;
 
 pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
     unused_stop::validate(gtfs)
+        .into_iter()
+        .chain(duration_distance::validate(gtfs))
+        .collect()
 }
 
 pub fn validate(input: &str) -> Result<String, Error> {
