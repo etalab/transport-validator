@@ -1,27 +1,27 @@
 extern crate gtfs_structures;
 use validators::issues::*;
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let mut use_count = HashMap::new();
+    let mut used_stops = HashSet::new();
 
     // A stop can be used for a stop time
     for stop_time in &gtfs.stop_times {
-        let count = use_count.entry(stop_time.stop_id.to_owned()).or_insert(0);
-        *count += 1;
+        used_stops.insert(stop_time.stop_id.to_owned());
     }
 
     // A stop can be the parent station
     for stop in &gtfs.stops {
         for parent in &stop.parent_station {
-            let count = use_count.entry(parent.to_owned()).or_insert(0);
-            *count += 1;
+            if used_stops.contains(&stop.id) {
+                used_stops.insert(parent.to_owned());
+            }
         }
     }
 
     gtfs.stops
         .iter()
-        .filter(|stop| use_count.get(&stop.id).unwrap_or(&0) == &0)
+        .filter(|stop| !used_stops.contains(&stop.id))
         .map(|stop| Issue {
             severity: Severity::Error,
             issue_type: IssueType::UnusedStop,
