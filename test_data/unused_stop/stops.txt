@@ -9,4 +9,4 @@ NANAA,North Ave / N A Ave (Demo),,36.914944,-116.761472,,,,
 DADAN,Doing Ave / D Ave N (Demo),,36.909489,-116.768242,,,,
 EMSI,E Main St / S Irving St (Demo),,36.905697,-116.76218,,,,
 AMV,Amargosa Valley (Demo),,36.641496,-116.40094,,,,
-PARENT,Moo,36.641496,-116.40094,,,,1,
+PARENT,Moo,,36.641496,-116.40094,,,,1
