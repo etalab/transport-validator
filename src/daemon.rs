@@ -34,7 +34,7 @@ fn validation_handler(mut state: State) -> (State, Response) {
             )),
         ),
     };
-
+    info!("Finnished validation: {}", &query_param.url);
     (state, res)
 }
 
@@ -51,6 +51,5 @@ pub fn run_server() {
     let port = env::var("PORT").unwrap_or("7878".to_string());
     let bind = env::var("BIND").unwrap_or("127.0.0.1".to_string());
     let addr = format!("{}:{}", bind, port);
-    println!("Listening for requests at http://{}", addr);
     gotham::start(addr, router())
 }

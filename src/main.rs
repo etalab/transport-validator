@@ -11,6 +11,9 @@ extern crate structopt;
 #[macro_use]
 extern crate structopt_derive;
 use structopt::StructOpt;
+extern crate env_logger;
+#[macro_use]
+extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
@@ -23,6 +26,8 @@ struct Opt {
 }
 
 fn main() {
+    env_logger::init();
+
     let opt = Opt::from_args();
 
     if let Some(input) = opt.input {
@@ -31,7 +36,7 @@ fn main() {
             Err(err) => println!("Error: {}", err),
         }
     } else {
-        println!("Starting the validator as a dæmon");
+        info!("Starting the validator as a dæmon");
         daemon::run_server()
     }
 }

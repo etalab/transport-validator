@@ -15,6 +15,7 @@ pub enum IssueType {
     CloseStops,
     NullDuration,
     InvalidReference,
+    InvalidArchive,
 }
 
 #[derive(Serialize, Debug)]
