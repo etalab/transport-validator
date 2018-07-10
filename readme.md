@@ -17,8 +17,8 @@ This project allows to validate the format and semantics of the timetable.
 2. Clone the project:
 
 ```
-git clone https://github.com/etalab/transport-validator-rust/
-cd transport-validator-rust
+git clone https://github.com/etalab/transport-validator/
+cd transport-validator
 ```
 
 3. Run it as standalone
