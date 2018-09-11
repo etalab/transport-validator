@@ -20,8 +20,11 @@ extern crate serde_derive;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "gtfs-validator", about = "Validates the gtfs file.")]
 struct Opt {
-    #[structopt(short = "i", long = "input",
-                help = "Path to the gtfs file. Can be a directory or a zip file")]
+    #[structopt(
+        short = "i",
+        long = "input",
+        help = "Path to the gtfs file. Can be a directory or a zip file"
+    )]
     input: Option<String>,
 }
 

@@ -3,29 +3,29 @@ extern crate geo;
 extern crate gtfs_structures;
 extern crate itertools;
 
-use validators::issues::*;
-use gtfs_structures::RouteType::*;
-use self::itertools::Itertools;
 use self::geo::algorithm::haversine_distance::HaversineDistance;
+use self::itertools::Itertools;
+use gtfs_structures::RouteType::*;
+use validators::issues::*;
 
 fn distance_and_duration(
     departure: &gtfs_structures::StopTime,
     arrival: &gtfs_structures::StopTime,
     gtfs: &gtfs_structures::Gtfs,
-) -> Result<(f32, f32), gtfs_structures::ReferenceError> {
+) -> Result<(f64, f64), gtfs_structures::ReferenceError> {
     let dep_stop = gtfs.get_stop(&departure.stop.id)?;
     let arr_stop = gtfs.get_stop(&arrival.stop.id)?;
 
     let dep_point = geo::Point::new(dep_stop.longitude, dep_stop.latitude);
     let arr_point = geo::Point::new(arr_stop.longitude, arr_stop.latitude);
 
-    let duration = arrival.arrival_time as f32 - departure.departure_time as f32;
+    let duration = arrival.arrival_time as f64 - departure.departure_time as f64;
     let distance = dep_point.haversine_distance(&arr_point);
 
     Ok((distance, duration))
 }
 
-fn max_speed(route_type: gtfs_structures::RouteType) -> f32 {
+fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
     // Speeds are in km/h for convenience
     (match route_type {
         Tramway => 100.0,
@@ -100,15 +100,13 @@ fn validate_speeds(
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     validate_speeds(gtfs).unwrap_or_else(|err| {
-        vec![
-            Issue {
-                severity: Severity::Fatal,
-                issue_type: IssueType::InvalidReference,
-                object_id: err.id,
-                object_name: None,
-                related_object_id: None,
-            },
-        ]
+        vec![Issue {
+            severity: Severity::Fatal,
+            issue_type: IssueType::InvalidReference,
+            object_id: err.id,
+            object_name: None,
+            related_object_id: None,
+        }]
     })
 }
 

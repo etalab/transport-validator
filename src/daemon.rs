@@ -3,13 +3,13 @@ extern crate gotham;
 extern crate gtfs_structures;
 extern crate mime;
 
-use hyper::{Response, StatusCode};
-use gotham::router::Router;
-use gotham::router::builder::*;
-use gotham::state::{FromState, State};
 use gotham::http::response::create_response;
-use validators::validate;
+use gotham::router::builder::*;
+use gotham::router::Router;
+use gotham::state::{FromState, State};
+use hyper::{Response, StatusCode};
 use std::env;
+use validators::validate;
 
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 struct QueryStringExtractor {
