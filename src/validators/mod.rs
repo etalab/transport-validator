@@ -14,6 +14,11 @@ pub struct Response {
     pub validations: Vec<issues::Issue>,
 }
 
+#[derive(Serialize, Debug)]
+pub struct Fatal {
+    pub fatal_error: issues::Issue,
+}
+
 pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
     Response {
         metadata: metadatas::extract_metadata(gtfs),
@@ -44,12 +49,14 @@ pub fn validate(input: &str) -> Result<String, Error> {
     gtfs.map(|gtfs| self::validate_and_metada(&gtfs))
         .and_then(|validation| Ok(serde_json::to_string(&validation)?))
         .or_else(|err| {
-            Ok(serde_json::to_string(&[issues::Issue {
-                severity: issues::Severity::Fatal,
-                issue_type: issues::IssueType::InvalidArchive,
-                object_id: format!("{}", err),
-                object_name: None,
-                related_object_id: None,
-            }])?)
+            Ok(serde_json::to_string(&Fatal {
+                fatal_error: issues::Issue {
+                    severity: issues::Severity::Fatal,
+                    issue_type: issues::IssueType::InvalidArchive,
+                    object_id: format!("{}", err),
+                    object_name: None,
+                    related_object_id: None,
+                },
+            })?)
         })
 }
