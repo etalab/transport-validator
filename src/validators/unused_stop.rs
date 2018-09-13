@@ -1,6 +1,6 @@
 extern crate gtfs_structures;
-use validators::issues::*;
 use std::collections::HashSet;
+use validators::issues::*;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let mut used_stops = HashSet::new();
@@ -28,7 +28,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             severity: Severity::Error,
             issue_type: IssueType::UnusedStop,
             object_id: stop.id.to_owned(),
-            object_name: Some(stop.stop_name.to_owned()),
+            object_name: Some(stop.name.to_owned()),
             related_object_id: None,
         })
         .collect()
