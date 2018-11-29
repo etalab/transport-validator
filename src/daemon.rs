@@ -1,9 +1,3 @@
-extern crate failure;
-extern crate gotham;
-extern crate gotham_derive;
-extern crate gtfs_structures;
-extern crate mime;
-
 use gotham::http::response::create_response;
 use gotham::router::{builder::*, Router};
 use gotham::state::{FromState, State};
