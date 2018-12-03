@@ -19,7 +19,7 @@ fn distance_and_duration(
     let dep_point = geo::Point::new(dep_stop.longitude, dep_stop.latitude);
     let arr_point = geo::Point::new(arr_stop.longitude, arr_stop.latitude);
 
-    let duration = arrival.arrival_time as f64 - departure.departure_time as f64;
+    let duration = f64::from(arrival.arrival_time) - f64::from(departure.departure_time);
     let distance = dep_point.haversine_distance(&arr_point);
 
     Ok((distance, duration))

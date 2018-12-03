@@ -42,8 +42,8 @@ fn router() -> Router {
 }
 
 pub fn run_server() {
-    let port = env::var("PORT").unwrap_or("7878".to_string());
-    let bind = env::var("BIND").unwrap_or("127.0.0.1".to_string());
+    let port = env::var("PORT").unwrap_or_else(|_| "7878".to_string());
+    let bind = env::var("BIND").unwrap_or_else(|_| "127.0.0.1".to_string());
     let addr = format!("{}:{}", bind, port);
     gotham::start(addr, router())
 }
