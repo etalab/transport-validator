@@ -8,7 +8,6 @@ extern crate gotham_derive;
 extern crate gtfs_structures;
 extern crate hyper;
 extern crate structopt;
-#[macro_use]
 extern crate structopt_derive;
 use structopt::StructOpt;
 extern crate env_logger;

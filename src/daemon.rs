@@ -1,13 +1,7 @@
-extern crate failure;
-extern crate gotham;
-extern crate gtfs_structures;
-extern crate mime;
-
 use gotham::http::response::create_response;
-use gotham::router::builder::*;
-use gotham::router::Router;
+use gotham::router::{builder::*, Router};
 use gotham::state::{FromState, State};
-use hyper::{Response, StatusCode};
+use hyper::{Body, Response, StatusCode};
 use std::env;
 use validators::validate;
 
@@ -16,7 +10,7 @@ struct QueryStringExtractor {
     url: String,
 }
 
-fn validation_handler(mut state: State) -> (State, Response) {
+fn validation_handler(mut state: State) -> (State, Response<Body>) {
     let query_param = QueryStringExtractor::take_from(&mut state);
 
     let res = match validate(&query_param.url) {
