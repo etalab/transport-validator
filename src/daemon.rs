@@ -1,9 +1,9 @@
+use crate::validators::validate;
 use gotham::http::response::create_response;
 use gotham::router::{builder::*, Router};
 use gotham::state::{FromState, State};
 use hyper::{Body, Response, StatusCode};
 use std::env;
-use crate::validators::validate;
 
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 struct QueryStringExtractor {

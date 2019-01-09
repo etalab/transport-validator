@@ -1,7 +1,7 @@
-use geo::algorithm::haversine_distance::HaversineDistance;
-use itertools::Itertools;
-use gtfs_structures::RouteType::*;
 use crate::validators::issues::*;
+use geo::algorithm::haversine_distance::HaversineDistance;
+use gtfs_structures::RouteType::*;
+use itertools::Itertools;
 
 fn distance_and_duration(
     departure: &gtfs_structures::StopTime,

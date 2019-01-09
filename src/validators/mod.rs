@@ -1,8 +1,8 @@
 mod duration_distance;
 pub mod issues;
 mod metadatas;
-mod unused_stop;
 mod route_name;
+mod unused_stop;
 
 #[derive(Serialize, Debug)]
 pub struct Response {

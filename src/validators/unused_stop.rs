@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::validators::issues::*;
+use std::collections::HashSet;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let mut used_stops = HashSet::new();
@@ -29,7 +29,8 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             object_id: stop.id.to_owned(),
             object_name: Some(stop.name.to_owned()),
             related_object_id: None,
-        }).collect()
+        })
+        .collect()
 }
 
 #[test]
