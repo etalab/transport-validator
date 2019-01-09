@@ -3,6 +3,8 @@ pub mod issues;
 mod metadatas;
 mod route_name;
 mod unused_stop;
+mod check_id;
+mod coordinates;
 
 #[derive(Serialize, Debug)]
 pub struct Response {
@@ -27,6 +29,8 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .into_iter()
         .chain(duration_distance::validate(gtfs))
         .chain(route_name::validate(gtfs))
+        .chain(check_id::validate(gtfs))
+        .chain(coordinates::validate(gtfs))
         .collect()
 }
 
@@ -53,6 +57,7 @@ pub fn validate(input: &str) -> Result<String, failure::Error> {
                     object_id: format!("{}", err),
                     object_name: None,
                     related_object_id: None,
+                    details: None,
                 },
             })?)
         })

@@ -10,6 +10,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             object_id: route.id.to_owned(),
             object_name: None,
             related_object_id: None,
+            details: None,
         })
         .collect()
 }

@@ -17,6 +17,9 @@ pub enum IssueType {
     InvalidReference,
     InvalidArchive,
     MissingRouteName,
+    MissingId,
+    MissingCoordinates,
+    InvalidCoordinates,
 }
 
 #[derive(Serialize, Debug)]
@@ -26,4 +29,5 @@ pub struct Issue {
     pub object_id: String,
     pub object_name: Option<String>,
     pub related_object_id: Option<String>,
+    pub details: Option<String>,
 }

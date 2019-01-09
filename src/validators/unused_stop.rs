@@ -29,6 +29,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             object_id: stop.id.to_owned(),
             object_name: Some(stop.name.to_owned()),
             related_object_id: None,
+            details: None,
         })
         .collect()
 }

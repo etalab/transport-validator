@@ -51,6 +51,7 @@ fn validate_speeds(
                     object_id: departure.stop.id.to_owned(),
                     object_name: Some(format!("Trip: {}", trip_id)),
                     related_object_id: Some(arrival.stop.id.to_owned()),
+                    details: None,
                 })
             // Some timetable are rounded to the minute. For short distances this can result in a null duration
             // If stops are more than 500m appart, they should need at least a minute
@@ -61,6 +62,7 @@ fn validate_speeds(
                     object_id: departure.stop.id.to_owned(),
                     object_name: Some(format!("Trip: {}", trip_id)),
                     related_object_id: Some(arrival.stop.id.to_owned()),
+                    details: None,
                 })
             } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
                 result.push(Issue {
@@ -69,6 +71,7 @@ fn validate_speeds(
                     object_id: departure.stop.id.to_owned(),
                     object_name: Some(format!("Trip: {}", trip_id)),
                     related_object_id: Some(arrival.stop.id.to_owned()),
+                    details: None,
                 })
             } else if duration < 0.0 {
                 result.push(Issue {
@@ -77,6 +80,7 @@ fn validate_speeds(
                     object_id: departure.stop.id.to_owned(),
                     object_name: Some(format!("Trip: {}", trip_id)),
                     related_object_id: Some(arrival.stop.id.to_owned()),
+                    details: None,
                 })
             } else if distance / duration < 0.1 {
                 result.push(Issue {
@@ -85,6 +89,7 @@ fn validate_speeds(
                     object_id: departure.stop.id.to_owned(),
                     object_name: Some(format!("Trip: {}", trip_id)),
                     related_object_id: Some(arrival.stop.id.to_owned()),
+                    details: None,
                 })
             }
         }
@@ -101,6 +106,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             object_id: err.id,
             object_name: None,
             related_object_id: None,
+            details: None,
         }]
     })
 }
