@@ -1,16 +1,11 @@
 mod daemon;
 mod validators;
 
-extern crate failure;
-extern crate gotham;
 #[macro_use]
 extern crate gotham_derive;
-extern crate gtfs_structures;
-extern crate hyper;
-extern crate structopt;
-extern crate structopt_derive;
+
 use structopt::StructOpt;
-extern crate env_logger;
+
 #[macro_use]
 extern crate log;
 #[macro_use]

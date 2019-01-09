@@ -1,7 +1,5 @@
-extern crate chrono;
-extern crate gtfs_structures;
-extern crate itertools;
-use self::itertools::Itertools;
+use gtfs_structures;
+use itertools::Itertools;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {

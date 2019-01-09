@@ -1,4 +1,3 @@
-extern crate gtfs_structures;
 use std::collections::HashSet;
 use crate::validators::issues::*;
 

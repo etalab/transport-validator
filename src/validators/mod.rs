@@ -4,11 +4,6 @@ mod metadatas;
 mod unused_stop;
 mod route_name;
 
-extern crate serde_json;
-use failure::Error;
-
-extern crate gtfs_structures;
-
 #[derive(Serialize, Debug)]
 pub struct Response {
     pub metadata: metadatas::Metadata,
@@ -35,7 +30,7 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .collect()
 }
 
-pub fn validate(input: &str) -> Result<String, Error> {
+pub fn validate(input: &str) -> Result<String, failure::Error> {
     info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
         info!("Starting download of {}", input);

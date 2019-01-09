@@ -1,10 +1,5 @@
-extern crate failure;
-extern crate geo;
-extern crate gtfs_structures;
-extern crate itertools;
-
-use self::geo::algorithm::haversine_distance::HaversineDistance;
-use self::itertools::Itertools;
+use geo::algorithm::haversine_distance::HaversineDistance;
+use itertools::Itertools;
 use gtfs_structures::RouteType::*;
 use crate::validators::issues::*;
 
