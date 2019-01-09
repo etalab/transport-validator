@@ -1,12 +1,7 @@
-extern crate failure;
-extern crate geo;
-extern crate gtfs_structures;
-extern crate itertools;
-
-use self::geo::algorithm::haversine_distance::HaversineDistance;
-use self::itertools::Itertools;
+use crate::validators::issues::*;
+use geo::algorithm::haversine_distance::HaversineDistance;
 use gtfs_structures::RouteType::*;
-use validators::issues::*;
+use itertools::Itertools;
 
 fn distance_and_duration(
     departure: &gtfs_structures::StopTime,

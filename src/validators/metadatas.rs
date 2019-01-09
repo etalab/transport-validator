@@ -1,7 +1,5 @@
-extern crate chrono;
-extern crate gtfs_structures;
-extern crate itertools;
-use self::itertools::Itertools;
+use gtfs_structures;
+use itertools::Itertools;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {
@@ -52,7 +50,8 @@ pub fn extract_metadata(gtfs: &gtfs_structures::Gtfs) -> Metadata {
                 CableCar => "cable_car".to_owned(),
                 Gondola => "gondola".to_owned(),
                 Funicular => "funicular".to_owned(),
-            }).unique()
+            })
+            .unique()
             .collect(),
     }
 }

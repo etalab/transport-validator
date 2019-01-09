@@ -1,13 +1,8 @@
 mod duration_distance;
 pub mod issues;
 mod metadatas;
-mod unused_stop;
 mod route_name;
-
-extern crate serde_json;
-use failure::Error;
-
-extern crate gtfs_structures;
+mod unused_stop;
 
 #[derive(Serialize, Debug)]
 pub struct Response {
@@ -35,12 +30,12 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .collect()
 }
 
-pub fn validate(input: &str) -> Result<String, Error> {
-    info!("Starting validation: {}", input);
+pub fn validate(input: &str) -> Result<String, failure::Error> {
+    log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
-        info!("Starting download of {}", input);
+        log::info!("Starting download of {}", input);
         let result = gtfs_structures::Gtfs::from_url(input);
-        info!("Download done of {}", input);
+        log::info!("Download done of {}", input);
         result
     } else if input.to_lowercase().ends_with(".zip") {
         gtfs_structures::Gtfs::from_zip(input)

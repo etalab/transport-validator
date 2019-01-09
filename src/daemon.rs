@@ -1,9 +1,9 @@
+use crate::validators::validate;
 use gotham::http::response::create_response;
 use gotham::router::{builder::*, Router};
 use gotham::state::{FromState, State};
 use hyper::{Body, Response, StatusCode};
 use std::env;
-use validators::validate;
 
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 struct QueryStringExtractor {
@@ -28,7 +28,7 @@ fn validation_handler(mut state: State) -> (State, Response<Body>) {
             )),
         ),
     };
-    info!("Finnished validation: {}", &query_param.url);
+    log::info!("Finnished validation: {}", &query_param.url);
     (state, res)
 }
 
