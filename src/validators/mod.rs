@@ -2,6 +2,7 @@ mod duration_distance;
 pub mod issues;
 mod metadatas;
 mod unused_stop;
+mod route_name;
 
 extern crate serde_json;
 use failure::Error;
@@ -30,6 +31,7 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
     unused_stop::validate(gtfs)
         .into_iter()
         .chain(duration_distance::validate(gtfs))
+        .chain(route_name::validate(gtfs))
         .collect()
 }
 

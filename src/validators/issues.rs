@@ -16,6 +16,7 @@ pub enum IssueType {
     NullDuration,
     InvalidReference,
     InvalidArchive,
+    MissingRouteName,
 }
 
 #[derive(Serialize, Debug)]
