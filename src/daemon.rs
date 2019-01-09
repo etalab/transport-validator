@@ -28,7 +28,7 @@ fn validation_handler(mut state: State) -> (State, Response<Body>) {
             )),
         ),
     };
-    info!("Finnished validation: {}", &query_param.url);
+    log::info!("Finnished validation: {}", &query_param.url);
     (state, res)
 }
 

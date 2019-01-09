@@ -31,11 +31,11 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
 }
 
 pub fn validate(input: &str) -> Result<String, failure::Error> {
-    info!("Starting validation: {}", input);
+    log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
-        info!("Starting download of {}", input);
+        log::info!("Starting download of {}", input);
         let result = gtfs_structures::Gtfs::from_url(input);
-        info!("Download done of {}", input);
+        log::info!("Download done of {}", input);
         result
     } else if input.to_lowercase().ends_with(".zip") {
         gtfs_structures::Gtfs::from_zip(input)

@@ -7,8 +7,6 @@ extern crate gotham_derive;
 use structopt::StructOpt;
 
 #[macro_use]
-extern crate log;
-#[macro_use]
 extern crate serde_derive;
 
 #[derive(StructOpt, Debug)]
@@ -33,7 +31,7 @@ fn main() {
             Err(err) => println!("Error: {}", err),
         }
     } else {
-        info!("Starting the validator as a dæmon");
+        log::info!("Starting the validator as a dæmon");
         daemon::run_server()
     }
 }
