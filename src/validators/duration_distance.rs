@@ -6,7 +6,7 @@ extern crate itertools;
 use self::geo::algorithm::haversine_distance::HaversineDistance;
 use self::itertools::Itertools;
 use gtfs_structures::RouteType::*;
-use validators::issues::*;
+use crate::validators::issues::*;
 
 fn distance_and_duration(
     departure: &gtfs_structures::StopTime,

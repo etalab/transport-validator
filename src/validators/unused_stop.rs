@@ -1,6 +1,6 @@
 extern crate gtfs_structures;
 use std::collections::HashSet;
-use validators::issues::*;
+use crate::validators::issues::*;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let mut used_stops = HashSet::new();

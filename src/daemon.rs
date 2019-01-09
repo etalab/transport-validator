@@ -3,7 +3,7 @@ use gotham::router::{builder::*, Router};
 use gotham::state::{FromState, State};
 use hyper::{Body, Response, StatusCode};
 use std::env;
-use validators::validate;
+use crate::validators::validate;
 
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 struct QueryStringExtractor {
