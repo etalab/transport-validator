@@ -50,6 +50,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::Gtfs) -> Metadata {
                 CableCar => "cable_car".to_owned(),
                 Gondola => "gondola".to_owned(),
                 Funicular => "funicular".to_owned(),
+                Other(_) => "invalid".to_owned(),
             })
             .unique()
             .collect(),
