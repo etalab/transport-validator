@@ -1,3 +1,5 @@
+mod check_id;
+mod coordinates;
 mod duration_distance;
 pub mod issues;
 mod metadatas;
@@ -27,6 +29,8 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .into_iter()
         .chain(duration_distance::validate(gtfs))
         .chain(route_name::validate(gtfs))
+        .chain(check_id::validate(gtfs))
+        .chain(coordinates::validate(gtfs))
         .collect()
 }
 
@@ -53,6 +57,7 @@ pub fn validate(input: &str) -> Result<String, failure::Error> {
                     object_id: format!("{}", err),
                     object_name: None,
                     related_object_id: None,
+                    details: None,
                 },
             })?)
         })
