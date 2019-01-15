@@ -1,10 +1,10 @@
+mod check_id;
+mod coordinates;
 mod duration_distance;
 pub mod issues;
 mod metadatas;
 mod route_name;
 mod unused_stop;
-mod check_id;
-mod coordinates;
 
 #[derive(Serialize, Debug)]
 pub struct Response {

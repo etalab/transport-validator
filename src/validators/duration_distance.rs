@@ -39,58 +39,50 @@ fn validate_speeds(
 ) -> Result<Vec<Issue>, gtfs_structures::ReferenceError> {
     let mut result = Vec::new();
 
-    for (trip_id, trip) in &gtfs.trips {
+    for (_trip_id, trip) in &gtfs.trips {
         let route = gtfs.get_route(&trip.route_id)?;
         for (departure, arrival) in trip.stop_times.iter().tuple_windows() {
             let (distance, duration) = distance_and_duration(departure, arrival, gtfs)?;
 
             if distance < 10.0 {
-                result.push(Issue {
-                    severity: Severity::Warning,
-                    issue_type: IssueType::CloseStops,
-                    object_id: departure.stop.id.to_owned(),
-                    object_name: Some(format!("Trip: {}", trip_id)),
-                    related_object_id: Some(arrival.stop.id.to_owned()),
-                    details: None,
-                })
+                result.push(
+                    Issue::new_with_obj(Severity::Warning, IssueType::CloseStops, &*departure.stop)
+                        .related_object(&*arrival.stop),
+                )
             // Some timetable are rounded to the minute. For short distances this can result in a null duration
             // If stops are more than 500m appart, they should need at least a minute
             } else if duration == 0.0 && distance > 500.0 {
-                result.push(Issue {
-                    severity: Severity::Warning,
-                    issue_type: IssueType::NullDuration,
-                    object_id: departure.stop.id.to_owned(),
-                    object_name: Some(format!("Trip: {}", trip_id)),
-                    related_object_id: Some(arrival.stop.id.to_owned()),
-                    details: None,
-                })
+                result.push(
+                    Issue::new_with_obj(
+                        Severity::Warning,
+                        IssueType::NullDuration,
+                        &*departure.stop,
+                    )
+                    .related_object(&*arrival.stop),
+                )
             } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
-                result.push(Issue {
-                    severity: Severity::Warning,
-                    issue_type: IssueType::ExcessiveSpeed,
-                    object_id: departure.stop.id.to_owned(),
-                    object_name: Some(format!("Trip: {}", trip_id)),
-                    related_object_id: Some(arrival.stop.id.to_owned()),
-                    details: None,
-                })
+                result.push(
+                    Issue::new_with_obj(
+                        Severity::Warning,
+                        IssueType::ExcessiveSpeed,
+                        &*departure.stop,
+                    )
+                    .related_object(&*arrival.stop),
+                )
             } else if duration < 0.0 {
-                result.push(Issue {
-                    severity: Severity::Error,
-                    issue_type: IssueType::NegativeTravelTime,
-                    object_id: departure.stop.id.to_owned(),
-                    object_name: Some(format!("Trip: {}", trip_id)),
-                    related_object_id: Some(arrival.stop.id.to_owned()),
-                    details: None,
-                })
+                result.push(
+                    Issue::new_with_obj(
+                        Severity::Warning,
+                        IssueType::NegativeTravelTime,
+                        &*departure.stop,
+                    )
+                    .related_object(&*arrival.stop),
+                )
             } else if distance / duration < 0.1 {
-                result.push(Issue {
-                    severity: Severity::Warning,
-                    issue_type: IssueType::Slow,
-                    object_id: departure.stop.id.to_owned(),
-                    object_name: Some(format!("Trip: {}", trip_id)),
-                    related_object_id: Some(arrival.stop.id.to_owned()),
-                    details: None,
-                })
+                result.push(
+                    Issue::new_with_obj(Severity::Warning, IssueType::Slow, &*departure.stop)
+                        .related_object(&*arrival.stop),
+                )
             }
         }
     }
@@ -115,41 +107,36 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 fn test() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/duration_distance").unwrap();
     let mut issues = validate(&gtfs);
-    issues.sort_by(|a, b| a.object_name.cmp(&b.object_name));
+    issues.sort_by(|a, b| a.issue_type.cmp(&b.issue_type));
 
     assert_eq!(5, issues.len());
 
-    assert_eq!(IssueType::CloseStops, issues[0].issue_type);
-    assert_eq!("close1", issues[0].object_id);
-    assert_eq!(Some(String::from("close2")), issues[0].related_object_id);
-    assert_eq!(
-        Some(String::from("Trip: close_stops")),
-        issues[0].object_name
-    );
+    for i in &issues {
+        println!("--- {:?}", i.issue_type);
+    }
 
-    assert_eq!(IssueType::NullDuration, issues[1].issue_type);
+    assert_eq!(IssueType::Slow, issues[0].issue_type);
+    assert_eq!("near1", issues[0].object_id);
+    assert_eq!(Some(String::from("near2")), issues[0].related_object_id);
+    assert_eq!(Some(String::from("Near1")), issues[0].object_name);
+
+    assert_eq!(IssueType::ExcessiveSpeed, issues[1].issue_type);
     assert_eq!("near1", issues[1].object_id);
     assert_eq!(Some(String::from("null")), issues[1].related_object_id);
-    assert_eq!(
-        Some(String::from("Trip: null_duration")),
-        issues[1].object_name
-    );
+    assert_eq!(Some(String::from("Near1")), issues[1].object_name);
 
     assert_eq!(IssueType::NegativeTravelTime, issues[2].issue_type);
     assert_eq!("near1", issues[2].object_id);
     assert_eq!(Some(String::from("near2")), issues[2].related_object_id);
-    assert_eq!(
-        Some(String::from("Trip: time_traveler")),
-        issues[2].object_name
-    );
+    assert_eq!(Some(String::from("Near1")), issues[2].object_name);
 
-    assert_eq!(IssueType::ExcessiveSpeed, issues[3].issue_type);
-    assert_eq!("near1", issues[3].object_id);
-    assert_eq!(Some(String::from("null")), issues[3].related_object_id);
-    assert_eq!(Some(String::from("Trip: too_fast")), issues[3].object_name);
+    assert_eq!(IssueType::CloseStops, issues[3].issue_type);
+    assert_eq!("close1", issues[3].object_id);
+    assert_eq!(Some(String::from("close2")), issues[3].related_object_id);
+    assert_eq!(Some(String::from("Close 1")), issues[3].object_name);
 
-    assert_eq!(IssueType::Slow, issues[4].issue_type);
+    assert_eq!(IssueType::NullDuration, issues[4].issue_type);
     assert_eq!("near1", issues[4].object_id);
-    assert_eq!(Some(String::from("near2")), issues[4].related_object_id);
-    assert_eq!(Some(String::from("Trip: too_slow")), issues[4].object_name);
+    assert_eq!(Some(String::from("null")), issues[4].related_object_id);
+    assert_eq!(Some(String::from("Near1")), issues[4].object_name);
 }

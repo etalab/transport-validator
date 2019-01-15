@@ -23,15 +23,12 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     gtfs.stops
         .iter()
         .filter(|&(_, stop)| !used_stops.contains(&stop.id))
-        .map(|(_, stop)| Issue {
-            severity: Severity::Error,
-            issue_type: IssueType::UnusedStop,
-            object_id: stop.id.to_owned(),
-            object_name: Some(stop.name.to_owned()),
-            related_object_id: None,
-            details: None,
-        })
+        .map(|(_, stop)| make_unused_stop_issue(&**stop))
         .collect()
+}
+
+fn make_unused_stop_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
+    Issue::new_with_obj(Severity::Error, IssueType::MissingId, o)
 }
 
 #[test]
