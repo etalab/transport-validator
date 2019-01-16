@@ -1,4 +1,4 @@
-use crate::validators::issues::*;
+use crate::validators::issues::{Issue, IssueType, Severity};
 use std::collections::HashSet;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
@@ -28,7 +28,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 }
 
 fn make_unused_stop_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::MissingId, o)
+    Issue::new_with_obj(Severity::Error, IssueType::UnusedStop, o)
 }
 
 #[test]

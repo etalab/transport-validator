@@ -1,4 +1,4 @@
-use crate::validators::issues::*;
+use crate::validators::issues::{Issue, IssueType, Severity};
 use geo::algorithm::haversine_distance::HaversineDistance;
 use gtfs_structures::RouteType::*;
 use itertools::Itertools;
@@ -31,7 +31,7 @@ fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
         CableCar => 30.0,
         Gondola => 45.0, // https://fr.wikipedia.org/wiki/Vanoise_Express
         Funicular => 40.0,
-        _ => 120.0, // We suppose it’s a bus if it is invalid
+        Other(_) => 120.0, // We suppose it’s a bus if it is invalid
     }) / 3.6 // convert in m/s
 }
 

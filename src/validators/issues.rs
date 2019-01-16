@@ -20,6 +20,7 @@ pub enum IssueType {
     MissingId,
     MissingCoordinates,
     InvalidCoordinates,
+    InvalidRouteType,
 }
 
 #[derive(Serialize, Debug)]
