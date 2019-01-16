@@ -4,6 +4,7 @@ mod duration_distance;
 pub mod issues;
 mod metadatas;
 mod route_name;
+mod route_type;
 mod unused_stop;
 
 #[derive(Serialize, Debug)]
@@ -31,6 +32,7 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .chain(route_name::validate(gtfs))
         .chain(check_id::validate(gtfs))
         .chain(coordinates::validate(gtfs))
+        .chain(route_type::validate(gtfs))
         .collect()
 }
 

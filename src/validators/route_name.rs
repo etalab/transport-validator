@@ -1,4 +1,4 @@
-use crate::validators::issues::*;
+use crate::validators::issues::{Issue, IssueType, Severity};
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     gtfs.routes

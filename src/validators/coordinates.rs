@@ -1,11 +1,11 @@
-use crate::validators::issues::*;
+use crate::validators::issues::{Issue, IssueType, Severity};
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let missing_coord = gtfs
         .stops
         .values()
         .filter(|stop| !has_coord(stop))
-        .map(|stop| make_no_coord_issue(&**stop).details(missing_coord_details(stop)));
+        .map(|stop| make_missing_coord_issue(&**stop).details(missing_coord_details(stop)));
     let valid = gtfs
         .stops
         .values()
@@ -22,7 +22,7 @@ fn make_invalid_coord_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -
     Issue::new_with_obj(Severity::Error, IssueType::InvalidCoordinates, o)
 }
 
-fn make_no_coord_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
+fn make_missing_coord_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
     Issue::new_with_obj(Severity::Error, IssueType::MissingCoordinates, o)
 }
 
