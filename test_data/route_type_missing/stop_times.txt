@@ -1,0 +1,13 @@
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_time_desc,pickup_type,drop_off_type
+close_stops,14:00:00,14:00:00,close1,0,"",0,0
+close_stops,14:01:00,14:01:00,close2,0,"",0,0
+near_stops,14:00:00,14:00:00,near1,0,"",0,0
+near_stops,14:00:00,14:00:00,near2,0,"",0,0
+null_duration,14:00:00,14:00:00,near1,0,"",0,0
+null_duration,14:00:00,14:00:00,,0,"",0,0
+too_fast,14:00:00,14:00:00,near1,0,"",0,0
+too_fast,14:01:00,14:01:00,,0,"",0,0
+too_slow,14:00:00,14:00:00,near1,0,"",0,0
+too_slow,15:00:00,15:00:00,near2,0,"",0,0
+time_traveler,15:00:00,15:00:00,near1,0,"",0,0
+time_traveler,14:00:00,14:00:00,near2,1,"",0,0
