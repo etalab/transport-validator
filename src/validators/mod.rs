@@ -9,7 +9,7 @@ mod unused_stop;
 
 #[derive(Serialize, Debug)]
 pub struct Response {
-    pub metadata: metadatas::Metadata,
+    pub metadata: Option<metadatas::Metadata>,
     pub validations: Vec<issues::Issue>,
 }
 
@@ -20,7 +20,7 @@ pub struct Fatal {
 
 pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
     Response {
-        metadata: metadatas::extract_metadata(gtfs),
+        metadata: Some(metadatas::extract_metadata(gtfs)),
         validations: validate_gtfs(gtfs),
     }
 }
@@ -36,7 +36,8 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .collect()
 }
 
-pub fn validate(input: &str) -> Result<String, failure::Error> {
+pub fn create_issues(input: &str) -> Response {
+    
     log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
         log::info!("Starting download of {}", input);
@@ -49,18 +50,22 @@ pub fn validate(input: &str) -> Result<String, failure::Error> {
         gtfs_structures::Gtfs::new(input)
     };
 
-    gtfs.map(|gtfs| self::validate_and_metada(&gtfs))
-        .and_then(|validation| Ok(serde_json::to_string(&validation)?))
-        .or_else(|err| {
-            Ok(serde_json::to_string(&Fatal {
-                fatal_error: issues::Issue {
+    match gtfs {
+        Ok(gtfs) => self::validate_and_metada(&gtfs),
+        Err(e) => Response {
+            metadata : None,
+            validations : vec!(issues::Issue {
                     severity: issues::Severity::Fatal,
                     issue_type: issues::IssueType::InvalidArchive,
-                    object_id: format!("{}", err),
+                    object_id: "".to_string(),
                     object_name: None,
                     related_object_id: None,
-                    details: None,
-                },
-            })?)
-        })
+                    details: Some(format!("{}", e)),
+            }),
+        }
+    }
+}
+
+pub fn validate(input: &str) -> Result<String, failure::Error> {
+    Ok(serde_json::to_string(&create_issues(input))?)
 }

@@ -16,11 +16,20 @@ fn has_valid_route_type(route: &gtfs_structures::Route) -> bool {
 }
 
 #[test]
-fn test() {
-    let gtfs = gtfs_structures::Gtfs::new("test_data/route_type").unwrap();
+fn test_valid() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/route_type_invalid").unwrap();
     let issues = validate(&gtfs);
 
     assert_eq!(1, issues.len());
     assert_eq!("CITY", issues[0].object_id);
     assert_eq!(IssueType::InvalidRouteType, issues[0].issue_type);
+}
+
+#[test]
+fn test_missing() {
+    let issues = crate::validators::create_issues("test_data/route_type_missing").validations;
+
+    assert_eq!(1, issues.len());
+    assert_eq!(Severity::Fatal, issues[0].severity);
+    assert_eq!(IssueType::InvalidArchive, issues[0].issue_type);
 }
