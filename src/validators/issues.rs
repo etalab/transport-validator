@@ -24,12 +24,18 @@ pub enum IssueType {
 }
 
 #[derive(Serialize, Debug)]
+pub struct RelatedObject {
+    pub id: String,
+    pub name: Option<String>,
+}
+
+#[derive(Serialize, Debug)]
 pub struct Issue {
     pub severity: Severity,
     pub issue_type: IssueType,
     pub object_id: String,
     pub object_name: Option<String>,
-    pub related_object_id: Option<String>,
+    pub related_objects: Vec<RelatedObject>,
     pub details: Option<String>,
 }
 
@@ -40,7 +46,7 @@ impl Issue {
             issue_type,
             object_id: id.to_owned(),
             object_name: None,
-            related_object_id: None,
+            related_objects: vec![],
             details: None,
         }
     }
@@ -54,7 +60,7 @@ impl Issue {
             issue_type,
             object_id: o.id().to_owned(),
             object_name: Some(format!("{}", o)),
-            related_object_id: None,
+            related_objects: vec![],
             details: None,
         }
     }
@@ -63,8 +69,10 @@ impl Issue {
         self.details = Some(d.to_owned());
         self
     }
-    pub fn related_object<T: gtfs_structures::Id>(mut self, o: &T) -> Self {
-        self.related_object_id = Some(o.id().to_owned());
+    pub fn add_related_object<T: gtfs_structures::Id + std::fmt::Display>(mut self, o: &T) -> Self {
+        self.related_objects.push(RelatedObject {
+            id: o.id().to_owned(),
+            name: None,});
         self
     }
 }
