@@ -59,7 +59,7 @@ pub fn create_issues(input: &str) -> Response {
                     issue_type: issues::IssueType::InvalidArchive,
                     object_id: "".to_string(),
                     object_name: None,
-                    related_object_id: None,
+                    related_objects: vec![],
                     details: Some(format!("{}", e)),
             }),
         }

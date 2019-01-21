@@ -48,7 +48,7 @@ fn validate_speeds(
             if distance < 10.0 {
                 result.push(
                     Issue::new_with_obj(Severity::Warning, IssueType::CloseStops, &*departure.stop)
-                        .related_object(&*arrival.stop),
+                        .add_related_object(&*arrival.stop),
                 )
             // Some timetable are rounded to the minute. For short distances this can result in a null duration
             // If stops are more than 500m appart, they should need at least a minute
@@ -59,7 +59,7 @@ fn validate_speeds(
                         IssueType::NullDuration,
                         &*departure.stop,
                     )
-                    .related_object(&*arrival.stop),
+                    .add_related_object(&*arrival.stop),
                 )
             } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
                 result.push(
@@ -68,7 +68,7 @@ fn validate_speeds(
                         IssueType::ExcessiveSpeed,
                         &*departure.stop,
                     )
-                    .related_object(&*arrival.stop),
+                    .add_related_object(&*arrival.stop),
                 )
             } else if duration < 0.0 {
                 result.push(
@@ -77,12 +77,12 @@ fn validate_speeds(
                         IssueType::NegativeTravelTime,
                         &*departure.stop,
                     )
-                    .related_object(&*arrival.stop),
+                    .add_related_object(&*arrival.stop),
                 )
             } else if distance / duration < 0.1 {
                 result.push(
                     Issue::new_with_obj(Severity::Warning, IssueType::Slow, &*departure.stop)
-                        .related_object(&*arrival.stop),
+                        .add_related_object(&*arrival.stop),
                 )
             }
         }
@@ -98,7 +98,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             issue_type: IssueType::InvalidReference,
             object_id: err.id,
             object_name: None,
-            related_object_id: None,
+            related_objects: vec![],
             details: None,
         }]
     })
@@ -118,26 +118,26 @@ fn test() {
 
     assert_eq!(IssueType::Slow, issues[0].issue_type);
     assert_eq!("near1", issues[0].object_id);
-    assert_eq!(Some(String::from("near2")), issues[0].related_object_id);
+    assert_eq!(String::from("near2"), issues[0].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[0].object_name);
 
     assert_eq!(IssueType::ExcessiveSpeed, issues[1].issue_type);
     assert_eq!("near1", issues[1].object_id);
-    assert_eq!(Some(String::from("null")), issues[1].related_object_id);
+    assert_eq!(String::from("null"), issues[1].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[1].object_name);
 
     assert_eq!(IssueType::NegativeTravelTime, issues[2].issue_type);
     assert_eq!("near1", issues[2].object_id);
-    assert_eq!(Some(String::from("near2")), issues[2].related_object_id);
+    assert_eq!(String::from("near2"), issues[2].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[2].object_name);
 
     assert_eq!(IssueType::CloseStops, issues[3].issue_type);
     assert_eq!("close1", issues[3].object_id);
-    assert_eq!(Some(String::from("close2")), issues[3].related_object_id);
+    assert_eq!(String::from("close2"), issues[3].related_objects[0].id);
     assert_eq!(Some(String::from("Close 1")), issues[3].object_name);
 
     assert_eq!(IssueType::NullDuration, issues[4].issue_type);
     assert_eq!("near1", issues[4].object_id);
-    assert_eq!(Some(String::from("null")), issues[4].related_object_id);
+    assert_eq!(String::from("null"), issues[4].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[4].object_name);
 }
