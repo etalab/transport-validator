@@ -63,7 +63,7 @@ pub fn create_issues(input: &str) -> Response {
                 related_objects: vec![],
                 details: Some(format!("{}", e)),
             }),
-        }
+        },
     }
 }
 
