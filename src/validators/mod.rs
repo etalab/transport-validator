@@ -55,15 +55,15 @@ pub fn create_issues(input: &str) -> Response {
         Ok(gtfs) => self::validate_and_metada(&gtfs),
         Err(e) => Response {
             metadata: None,
-            validations: vec![issues::Issue {
+            validations: vec!(issues::Issue {
                 severity: issues::Severity::Fatal,
                 issue_type: issues::IssueType::InvalidArchive,
                 object_id: "".to_string(),
                 object_name: None,
                 related_objects: vec![],
                 details: Some(format!("{}", e)),
-            }],
-        },
+            }),
+        }
     }
 }
 
