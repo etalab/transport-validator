@@ -72,7 +72,8 @@ impl Issue {
     pub fn add_related_object<T: gtfs_structures::Id + std::fmt::Display>(mut self, o: &T) -> Self {
         self.related_objects.push(RelatedObject {
             id: o.id().to_owned(),
-            name: None,});
+            name: Some(format!("{}", o)),
+        });
         self
     }
 }
