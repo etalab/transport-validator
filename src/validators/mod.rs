@@ -15,11 +15,6 @@ pub struct Response {
     pub validations: Vec<issues::Issue>,
 }
 
-#[derive(Serialize, Debug)]
-pub struct Fatal {
-    pub fatal_error: issues::Issue,
-}
-
 pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
     Response {
         metadata: Some(metadatas::extract_metadata(gtfs)),
