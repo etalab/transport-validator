@@ -5,6 +5,7 @@ pub mod issues;
 mod metadatas;
 mod route_name;
 mod route_type;
+mod shapes;
 mod unused_stop;
 
 #[derive(Serialize, Debug)]
@@ -33,11 +34,11 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .chain(check_id::validate(gtfs))
         .chain(coordinates::validate(gtfs))
         .chain(route_type::validate(gtfs))
+        .chain(shapes::validate(gtfs))
         .collect()
 }
 
 pub fn create_issues(input: &str) -> Response {
-    
     log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
         log::info!("Starting download of {}", input);
@@ -53,16 +54,16 @@ pub fn create_issues(input: &str) -> Response {
     match gtfs {
         Ok(gtfs) => self::validate_and_metada(&gtfs),
         Err(e) => Response {
-            metadata : None,
-            validations : vec!(issues::Issue {
-                    severity: issues::Severity::Fatal,
-                    issue_type: issues::IssueType::InvalidArchive,
-                    object_id: "".to_string(),
-                    object_name: None,
-                    related_objects: vec![],
-                    details: Some(format!("{}", e)),
-            }),
-        }
+            metadata: None,
+            validations: vec![issues::Issue {
+                severity: issues::Severity::Fatal,
+                issue_type: issues::IssueType::InvalidArchive,
+                object_id: "".to_string(),
+                object_name: None,
+                related_objects: vec![],
+                details: Some(format!("{}", e)),
+            }],
+        },
     }
 }
 
