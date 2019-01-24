@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::validators::issues::*;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let r = gtfs
@@ -16,12 +16,24 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .values()
         .filter(|calendar| !has_id(*calendar))
         .map(|calendar| make_missing_id_issue(calendar));
-    let s = gtfs
+    let st = gtfs
         .stops
         .values()
         .filter(|&stop| !has_id(&**stop))
         .map(|stop| make_missing_id_issue(&**stop));
-    r.chain(t).chain(c).chain(s).collect()
+    let sh = gtfs
+        .shapes
+        .keys()
+        .filter(|id| id.is_empty())
+        .map(|_id| Issue {
+            severity: Severity::Error,
+            issue_type: IssueType::MissingId,
+            object_id: "".to_owned(),
+            object_name: None,
+            related_objects: vec![],
+            details: None,
+        });
+    r.chain(t).chain(c).chain(st).chain(sh).collect()
 }
 
 fn has_id(object: &gtfs_structures::Id) -> bool {
