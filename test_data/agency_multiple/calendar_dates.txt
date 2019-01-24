@@ -1,0 +1,4 @@
+service_id,date,exception_type
+,20170101,2
+,20170102,2
+service2,20170101,1
