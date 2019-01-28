@@ -1,3 +1,4 @@
+mod agency;
 mod agency_id;
 mod check_id;
 mod check_name;
@@ -32,6 +33,7 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .chain(route_type::validate(gtfs))
         .chain(shapes::validate(gtfs))
         .chain(agency_id::validate(gtfs))
+        .chain(agency::validate(gtfs))
         .collect()
 }
 
