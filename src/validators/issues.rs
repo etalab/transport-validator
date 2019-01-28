@@ -16,7 +16,7 @@ pub enum IssueType {
     NullDuration,
     InvalidReference,
     InvalidArchive,
-    MissingRouteName,
+    MissingName,
     MissingId,
     MissingCoordinates,
     InvalidCoordinates,
