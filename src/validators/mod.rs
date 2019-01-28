@@ -1,10 +1,10 @@
 mod agency_id;
 mod check_id;
+mod check_name;
 mod coordinates;
 mod duration_distance;
 pub mod issues;
 mod metadatas;
-mod route_name;
 mod route_type;
 mod shapes;
 mod unused_stop;
@@ -26,7 +26,7 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
     unused_stop::validate(gtfs)
         .into_iter()
         .chain(duration_distance::validate(gtfs))
-        .chain(route_name::validate(gtfs))
+        .chain(check_name::validate(gtfs))
         .chain(check_id::validate(gtfs))
         .chain(coordinates::validate(gtfs))
         .chain(route_type::validate(gtfs))
