@@ -25,14 +25,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .shapes
         .keys()
         .filter(|id| id.is_empty())
-        .map(|_id| Issue {
-            severity: Severity::Error,
-            issue_type: IssueType::MissingId,
-            object_id: "".to_owned(),
-            object_name: None,
-            related_objects: vec![],
-            details: None,
-        });
+        .map(|_id| Issue::new(Severity::Error, IssueType::MissingId, ""));
     r.chain(t).chain(c).chain(st).chain(sh).collect()
 }
 

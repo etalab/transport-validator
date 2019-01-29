@@ -7,14 +7,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         gtfs.agencies
             .iter()
             .filter(|agency| !has_id(agency))
-            .map(|agency| Issue {
-                severity: Severity::Error,
-                issue_type: IssueType::MissingId,
-                object_id: "".to_owned(),
-                object_name: Some(format!("{}", agency)),
-                related_objects: vec![],
-                details: None,
-            })
+            .map(|agency| Issue::new_with_obj(Severity::Error, IssueType::MissingId, agency))
             .collect()
     }
 }
