@@ -10,10 +10,12 @@ mod route_type;
 mod shapes;
 mod unused_stop;
 
+use std::collections::BTreeMap;
+
 #[derive(Serialize, Debug)]
 pub struct Response {
     pub metadata: Option<metadatas::Metadata>,
-    pub validations: Vec<issues::Issue>,
+    pub validations: BTreeMap<issues::IssueType, Vec<issues::Issue>>,
 }
 
 pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
@@ -23,8 +25,11 @@ pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
     }
 }
 
-pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
-    unused_stop::validate(gtfs)
+pub fn validate_gtfs(
+    gtfs: &gtfs_structures::Gtfs,
+) -> BTreeMap<issues::IssueType, Vec<issues::Issue>> {
+    let mut validations = BTreeMap::new();
+    let issues = unused_stop::validate(gtfs)
         .into_iter()
         .chain(duration_distance::validate(gtfs))
         .chain(check_name::validate(gtfs))
@@ -32,9 +37,15 @@ pub fn validate_gtfs(gtfs: &gtfs_structures::Gtfs) -> Vec<issues::Issue> {
         .chain(coordinates::validate(gtfs))
         .chain(route_type::validate(gtfs))
         .chain(shapes::validate(gtfs))
-        .chain(agency_id::validate(gtfs))
         .chain(agency::validate(gtfs))
-        .collect()
+        .chain(agency_id::validate(gtfs));
+    for issue in issues {
+        validations
+            .entry(issue.issue_type.clone())
+            .or_insert_with(Vec::new)
+            .push(issue);
+    }
+    validations
 }
 
 pub fn create_issues(input: &str) -> Response {
@@ -52,15 +63,22 @@ pub fn create_issues(input: &str) -> Response {
 
     match gtfs {
         Ok(gtfs) => self::validate_and_metada(&gtfs),
-        Err(e) => Response {
-            metadata: None,
-            validations: vec![issues::Issue::new(
-                issues::Severity::Fatal,
+        Err(e) => {
+            let mut validations = BTreeMap::new();
+            validations.insert(
                 issues::IssueType::InvalidArchive,
-                "",
-            )
-            .details(format!("{}", e).as_ref())],
-        },
+                vec![issues::Issue::new(
+                    issues::Severity::Fatal,
+                    issues::IssueType::InvalidArchive,
+                    "",
+                )
+                .details(format!("{}", e).as_ref())],
+            );
+            Response {
+                metadata: None,
+                validations,
+            }
+        }
     }
 }
 
