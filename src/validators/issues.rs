@@ -22,6 +22,9 @@ pub enum IssueType {
     MissingCoordinates,
     InvalidCoordinates,
     InvalidRouteType,
+    MissingUrl,
+    InvalidUrl,
+    InvalidTimezone,
 }
 
 #[derive(Serialize, Debug)]
