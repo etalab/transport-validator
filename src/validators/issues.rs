@@ -7,7 +7,7 @@ pub enum Severity {
     Information,
 }
 
-#[derive(Serialize, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Serialize, Debug, Eq, PartialEq, Ord, PartialOrd, Clone)]
 pub enum IssueType {
     UnusedStop,
     Slow,
