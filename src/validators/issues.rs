@@ -3,6 +3,7 @@ pub enum Severity {
     Fatal,
     Error,
     Warning,
+    #[allow(dead_code)]
     Information,
 }
 
