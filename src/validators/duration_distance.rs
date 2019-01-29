@@ -40,7 +40,7 @@ fn validate_speeds(
 ) -> Result<Vec<Issue>, gtfs_structures::ReferenceError> {
     let mut result = Vec::new();
 
-    for (_trip_id, trip) in &gtfs.trips {
+    for trip in gtfs.trips.values() {
         let route = gtfs.get_route(&trip.route_id)?;
         for (departure, arrival) in trip.stop_times.iter().tuple_windows() {
             let (distance, duration) = distance_and_duration(departure, arrival, gtfs)?;
