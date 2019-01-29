@@ -27,30 +27,16 @@ fn has_url(agency: &gtfs_structures::Agency) -> bool {
     !agency.url.is_empty()
 }
 
-fn parseable(agency: &gtfs_structures::Agency) -> bool {
-    let r: Result<url::Url, _> = url::Url::parse(agency.url.as_ref());
-    match r {
-        Ok(_) => true,
-        Err(_) => false,
-    }
-}
-
 fn valid_url(agency: &gtfs_structures::Agency) -> bool {
-    if parseable(agency) {
-        let u = url::Url::parse(agency.url.as_ref()).unwrap();
-        if u.scheme() == "https" || u.scheme() == "http" || u.scheme() == "ftp" {
-            return true;
-        }
+    match url::Url::parse(agency.url.as_ref()) {
+        Ok(url) => vec!["https", "http", "ftp"].contains(&url.scheme()),
+        _ => false,
     }
-    false
 }
 
 fn valid_timezone(agency: &gtfs_structures::Agency) -> bool {
     let tz: Result<chrono_tz::Tz, _> = agency.timezone.parse();
-    match tz {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    tz.is_ok()
 }
 
 #[test]
