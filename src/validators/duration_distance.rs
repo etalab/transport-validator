@@ -93,14 +93,11 @@ fn validate_speeds(
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     validate_speeds(gtfs).unwrap_or_else(|err| {
-        vec![Issue {
-            severity: Severity::Fatal,
-            issue_type: IssueType::InvalidReference,
-            object_id: err.id,
-            object_name: None,
-            related_objects: vec![],
-            details: None,
-        }]
+        vec![Issue::new(
+            Severity::Fatal,
+            IssueType::InvalidReference,
+            &err.id,
+        )]
     })
 }
 

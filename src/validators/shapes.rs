@@ -5,26 +5,12 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .shapes
         .iter()
         .filter(|(_id, shapes)| !shapes.iter().all(has_coord))
-        .map(|(id, _shapes)| Issue {
-            severity: Severity::Error,
-            issue_type: IssueType::MissingCoordinates,
-            object_id: id.to_owned(),
-            object_name: None,
-            related_objects: vec![],
-            details: None,
-        });
+        .map(|(id, _shapes)| Issue::new(Severity::Error, IssueType::MissingCoordinates, id));
     let valid = gtfs
         .shapes
         .iter()
         .filter(|(_id, shapes)| !shapes.iter().all(valid_coord))
-        .map(|(id, _shapes)| Issue {
-            severity: Severity::Error,
-            issue_type: IssueType::InvalidCoordinates,
-            object_id: id.to_owned(),
-            object_name: None,
-            related_objects: vec![],
-            details: None,
-        });
+        .map(|(id, _shapes)| Issue::new(Severity::Error, IssueType::InvalidCoordinates, id));
     missing_coord.chain(valid).collect()
 }
 
