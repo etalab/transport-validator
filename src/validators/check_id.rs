@@ -47,7 +47,9 @@ fn has_id(object: &gtfs_structures::Id) -> bool {
     !object.id().is_empty()
 }
 
-fn make_missing_id_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
+fn make_missing_id_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
+    o: &T,
+) -> Issue {
     Issue::new_with_obj(Severity::Error, IssueType::MissingId, o)
 }
 
