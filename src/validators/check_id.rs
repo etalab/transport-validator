@@ -21,11 +21,26 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .values()
         .filter(|&stop| !has_id(&**stop))
         .map(|stop| make_missing_id_issue(&**stop));
-    let sh = gtfs.shapes.keys().filter(|id| id.is_empty()).map(|_id| {
-        Issue::new(Severity::Error, IssueType::MissingId, "")
-            .object_type(gtfs_structures::ObjectType::Shape)
-    });
-    r.chain(t).chain(c).chain(st).chain(sh).collect()
+    let sh = gtfs
+        .shapes
+        .keys()
+        .filter(|id| id.is_empty())
+        .map(|_id| Issue::new(Severity::Error, IssueType::MissingId, ""));
+    let ag = if gtfs.agencies.len() <= 1 {
+        vec![]
+    } else {
+        gtfs.agencies
+            .iter()
+            .filter(|agency| !has_id(*agency))
+            .map(|agency| make_missing_id_issue(agency))
+            .collect()
+    };
+    r.chain(t)
+        .chain(c)
+        .chain(st)
+        .chain(sh)
+        .chain(ag.into_iter())
+        .collect()
 }
 
 fn has_id(object: &gtfs_structures::Id) -> bool {

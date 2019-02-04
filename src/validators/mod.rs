@@ -1,5 +1,4 @@
 mod agency;
-mod agency_id;
 mod check_id;
 mod check_name;
 mod coordinates;
@@ -37,8 +36,7 @@ pub fn validate_gtfs(
         .chain(coordinates::validate(gtfs))
         .chain(route_type::validate(gtfs))
         .chain(shapes::validate(gtfs))
-        .chain(agency::validate(gtfs))
-        .chain(agency_id::validate(gtfs));
+        .chain(agency::validate(gtfs));
     for issue in issues {
         validations
             .entry(issue.issue_type.clone())
