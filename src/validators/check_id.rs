@@ -32,7 +32,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         gtfs.agencies
             .iter()
             .filter(|agency| !has_id(*agency))
-            .map(|agency| Issue::new_with_obj(Severity::Error, IssueType::MissingId, agency))
+            .map(|agency| make_missing_id_issue(agency))
             .collect()
     };
     r.chain(t)
