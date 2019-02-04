@@ -18,11 +18,15 @@ fn has_coord(stop: &gtfs_structures::Stop) -> bool {
     stop.latitude != 0.0 && stop.longitude != 0.0
 }
 
-fn make_invalid_coord_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
+fn make_invalid_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
+    o: &T,
+) -> Issue {
     Issue::new_with_obj(Severity::Error, IssueType::InvalidCoordinates, o)
 }
 
-fn make_missing_coord_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
+fn make_missing_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
+    o: &T,
+) -> Issue {
     Issue::new_with_obj(Severity::Error, IssueType::MissingCoordinates, o)
 }
 
