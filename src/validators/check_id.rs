@@ -21,11 +21,10 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .values()
         .filter(|&stop| !has_id(&**stop))
         .map(|stop| make_missing_id_issue(&**stop));
-    let sh = gtfs
-        .shapes
-        .keys()
-        .filter(|id| id.is_empty())
-        .map(|_id| Issue::new(Severity::Error, IssueType::MissingId, ""));
+    let sh = gtfs.shapes.keys().filter(|id| id.is_empty()).map(|_id| {
+        Issue::new(Severity::Error, IssueType::MissingId, "")
+            .object_type(gtfs_structures::ObjectType::Shape)
+    });
     r.chain(t).chain(c).chain(st).chain(sh).collect()
 }
 
@@ -33,7 +32,9 @@ fn has_id(object: &gtfs_structures::Id) -> bool {
     !object.id().is_empty()
 }
 
-fn make_missing_id_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
+fn make_missing_id_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
+    o: &T,
+) -> Issue {
     Issue::new_with_obj(Severity::Error, IssueType::MissingId, o)
 }
 

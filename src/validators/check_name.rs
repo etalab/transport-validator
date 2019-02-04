@@ -23,8 +23,8 @@ fn has_name<T: std::fmt::Display>(o: &T) -> bool {
     !format!("{}", o).is_empty()
 }
 
-fn make_missing_name_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T) -> Issue {
-    Issue::new(Severity::Error, IssueType::MissingName, o.id())
+fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type>(o: &T) -> Issue {
+    Issue::new(Severity::Error, IssueType::MissingName, o.id()).object_type(o.object_type())
 }
 
 #[test]

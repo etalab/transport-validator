@@ -19,7 +19,10 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     missing_url.chain(invalid_url).chain(invalid_tz).collect()
 }
 
-fn make_issue<T: gtfs_structures::Id + std::fmt::Display>(o: &T, issue_type: IssueType) -> Issue {
+fn make_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
+    o: &T,
+    issue_type: IssueType,
+) -> Issue {
     Issue::new_with_obj(Severity::Error, issue_type, o)
 }
 
