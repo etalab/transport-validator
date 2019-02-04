@@ -26,7 +26,21 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .keys()
         .filter(|id| id.is_empty())
         .map(|_id| Issue::new(Severity::Error, IssueType::MissingId, ""));
-    r.chain(t).chain(c).chain(st).chain(sh).collect()
+    let ag = if gtfs.agencies.len() <= 1 {
+        vec![]
+    } else {
+        gtfs.agencies
+            .iter()
+            .filter(|agency| !has_id(*agency))
+            .map(|agency| Issue::new_with_obj(Severity::Error, IssueType::MissingId, agency))
+            .collect()
+    };
+    r.chain(t)
+        .chain(c)
+        .chain(st)
+        .chain(sh)
+        .chain(ag.into_iter())
+        .collect()
 }
 
 fn has_id(object: &gtfs_structures::Id) -> bool {
