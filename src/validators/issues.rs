@@ -25,6 +25,7 @@ pub enum IssueType {
     MissingUrl,
     InvalidUrl,
     InvalidTimezone,
+    DuplicateStops,
 }
 
 #[derive(Serialize, Debug)]
