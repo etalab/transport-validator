@@ -24,9 +24,9 @@ fn too_close_stops(stop_a: &gtfs_structures::Stop, stop_b: &gtfs_structures::Sto
     let a = Point::new(stop_a.longitude, stop_a.latitude);
     let b = Point::new(stop_b.longitude, stop_b.latitude);
     let min_distance = match stop_a.location_type {
-        gtfs_structures::LocationType::StopPoint => 12.,
+        gtfs_structures::LocationType::StopPoint => 2.,
         gtfs_structures::LocationType::StopArea => 100.,
-        gtfs_structures::LocationType::StationEntrance => 5.,
+        gtfs_structures::LocationType::StationEntrance => 1.,
     };
     a.haversine_distance(&b) < min_distance
 }

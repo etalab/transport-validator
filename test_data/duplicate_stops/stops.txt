@@ -13,6 +13,6 @@ PARENT,Moo,,36.641496,-116.40094,,,,1
 stop1,"Stop Area",,48.796058,2.449386,,,1,
 stop2,"Stop Area",,48.796158,2.449486,,,1,
 stop3,"Stop Point",,58.796058,4.449386,,,0,
-stop4,"Stop Point",,58.796058,4.449186,,,0,
+stop4,"Stop Point",,58.796059,4.449381,,,0,
 stop5,"Station Entrance",,58.796058,4.449386,,,2,
-stop6,"Station Entrance",,58.796019,4.449346,,,2,
+stop6,"Station Entrance",,58.796051,4.449380,,,2,
