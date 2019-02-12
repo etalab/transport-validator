@@ -17,15 +17,16 @@ pub struct Response {
     pub validations: BTreeMap<issues::IssueType, Vec<issues::Issue>>,
 }
 
-pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
+pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs, max_issues: usize) -> Response {
     Response {
         metadata: Some(metadatas::extract_metadata(gtfs)),
-        validations: validate_gtfs(gtfs),
+        validations: validate_gtfs(gtfs, max_issues),
     }
 }
 
 pub fn validate_gtfs(
     gtfs: &gtfs_structures::Gtfs,
+    max_issues: usize,
 ) -> BTreeMap<issues::IssueType, Vec<issues::Issue>> {
     let mut validations = BTreeMap::new();
     let issues = unused_stop::validate(gtfs)
@@ -43,10 +44,15 @@ pub fn validate_gtfs(
             .or_insert_with(Vec::new)
             .push(issue);
     }
+
+    for issues in validations.values_mut() {
+        issues.truncate(max_issues)
+    }
+
     validations
 }
 
-pub fn create_issues(input: &str) -> Response {
+pub fn create_issues(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
         log::info!("Starting download of {}", input);
@@ -60,7 +66,7 @@ pub fn create_issues(input: &str) -> Response {
     };
 
     match gtfs {
-        Ok(gtfs) => self::validate_and_metada(&gtfs),
+        Ok(gtfs) => self::validate_and_metada(&gtfs, max_issues),
         Err(e) => {
             let mut validations = BTreeMap::new();
             validations.insert(
@@ -80,6 +86,6 @@ pub fn create_issues(input: &str) -> Response {
     }
 }
 
-pub fn validate(input: &str) -> Result<String, failure::Error> {
-    Ok(serde_json::to_string(&create_issues(input))?)
+pub fn validate(input: &str, max_issues: usize) -> Result<String, failure::Error> {
+    Ok(serde_json::to_string(&create_issues(input, max_issues))?)
 }
