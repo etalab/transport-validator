@@ -17,18 +17,10 @@ pub struct Response {
     pub validations: BTreeMap<issues::IssueType, Vec<issues::Issue>>,
 }
 
-pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs, max_issues: usize) -> Response {
-    Response {
-        metadata: Some(metadatas::extract_metadata(gtfs)),
-        validations: validate_gtfs(gtfs, max_issues),
-    }
-}
-
-pub fn validate_gtfs(
-    gtfs: &gtfs_structures::Gtfs,
-    max_issues: usize,
-) -> BTreeMap<issues::IssueType, Vec<issues::Issue>> {
+pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) -> Response {
     let mut validations = BTreeMap::new();
+    let mut metadata = metadatas::extract_metadata(gtfs);
+
     let issues = unused_stop::validate(gtfs)
         .into_iter()
         .chain(duration_distance::validate(gtfs))
@@ -38,6 +30,7 @@ pub fn validate_gtfs(
         .chain(route_type::validate(gtfs))
         .chain(shapes::validate(gtfs))
         .chain(agency::validate(gtfs));
+
     for issue in issues {
         validations
             .entry(issue.issue_type.clone())
@@ -45,11 +38,17 @@ pub fn validate_gtfs(
             .push(issue);
     }
 
-    for issues in validations.values_mut() {
-        issues.truncate(max_issues)
+    for (issue_type, issues) in validations.iter_mut() {
+        metadata
+            .issues_count
+            .insert(issue_type.clone(), issues.len());
+        issues.truncate(max_issues);
     }
 
-    validations
+    Response {
+        metadata: Some(metadata),
+        validations,
+    }
 }
 
 pub fn create_issues(input: &str, max_issues: usize) -> Response {
@@ -66,7 +65,7 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
     };
 
     match gtfs {
-        Ok(gtfs) => self::validate_and_metada(&gtfs, max_issues),
+        Ok(gtfs) => self::validate_and_metadata(&gtfs, max_issues),
         Err(e) => {
             let mut validations = BTreeMap::new();
             validations.insert(

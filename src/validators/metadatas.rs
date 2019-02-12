@@ -1,3 +1,4 @@
+use crate::validators::issues::IssueType;
 use gtfs_structures;
 use itertools::Itertools;
 
@@ -10,6 +11,7 @@ pub struct Metadata {
     pub lines_count: usize,
     pub networks: Vec<String>,
     pub modes: Vec<String>,
+    pub issues_count: std::collections::BTreeMap<IssueType, usize>,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::Gtfs) -> Metadata {
@@ -54,5 +56,6 @@ pub fn extract_metadata(gtfs: &gtfs_structures::Gtfs) -> Metadata {
             })
             .unique()
             .collect(),
+        issues_count: std::collections::BTreeMap::new(),
     }
 }
