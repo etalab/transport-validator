@@ -76,3 +76,16 @@ fn test_stop_areas() {
         duplicate_stops_issues[0].object_name.as_ref().unwrap()
     );
 }
+
+#[test]
+fn test_stop_entrances() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/duplicate_stops").unwrap();
+    let issues = validate(&gtfs);
+    let entrance_issues: Vec<_> = issues
+        .iter()
+        .filter(|issue| issue.issue_type == IssueType::DuplicateStops)
+        .filter(|issue| issue.object_name == Some("Stop Entrance".to_string()))
+        .collect();
+
+    assert_eq!(0, entrance_issues.len());
+}
