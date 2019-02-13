@@ -9,7 +9,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     for (stop_a, stop_b) in gtfs
         .stops
         .values()
-        .filter(|stop| !(stop.location_type == gtfs_structures::LocationType::StationEntrance))
+        .filter(|stop| stop.location_type != gtfs_structures::LocationType::StationEntrance)
         .tuple_combinations()
     {
         if duplicate_stops(stop_a, stop_b) {
