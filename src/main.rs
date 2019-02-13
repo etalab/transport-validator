@@ -18,6 +18,13 @@ struct Opt {
         help = "Path to the gtfs file. Can be a directory or a zip file"
     )]
     input: Option<String>,
+    #[structopt(
+        short = "m",
+        long = "max-issues",
+        help = "The maxium number of issues per type",
+        default_value = "1000"
+    )]
+    max_size: usize,
 }
 
 fn main() {
@@ -26,7 +33,7 @@ fn main() {
     let opt = Opt::from_args();
 
     if let Some(input) = opt.input {
-        match validators::validate(&input) {
+        match validators::validate(&input, opt.max_size) {
             Ok(json) => println!("{}", json),
             Err(err) => println!("Error: {}", err),
         }
