@@ -10,7 +10,10 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .feed_info
         .iter()
         .filter(|feed_info| !valid_url(feed_info))
-        .map(|feed_info| make_issue(feed_info, IssueType::InvalidUrl));
+        .map(|feed_info| {
+            make_issue(feed_info, IssueType::InvalidUrl)
+                .details(&format!("Publisher url {} is invalid", feed_info.url))
+        });
     let missing_lang = gtfs
         .feed_info
         .iter()
@@ -20,7 +23,10 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .feed_info
         .iter()
         .filter(|feed_info| !valid_lang(feed_info))
-        .map(|feed_info| make_issue(feed_info, IssueType::InvalidLanguage));
+        .map(|feed_info| {
+            make_issue(feed_info, IssueType::InvalidLanguage)
+                .details(&format!("Language code {} does not exist", feed_info.lang))
+        });
     missing_url
         .chain(invalid_url)
         .chain(missing_lang)
@@ -28,8 +34,8 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .collect()
 }
 
-fn make_issue<T: std::fmt::Display>(o: &T, issue_type: IssueType) -> Issue {
-    Issue::new(Severity::Error, issue_type, "").name(&format!("{}", o))
+fn make_issue(feed: &gtfs_structures::FeedInfo, issue_type: IssueType) -> Issue {
+    Issue::new(Severity::Error, issue_type, "").name(&format!("{}", feed))
 }
 
 fn has_url(feed: &gtfs_structures::FeedInfo) -> bool {
