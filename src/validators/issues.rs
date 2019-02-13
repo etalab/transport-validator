@@ -27,7 +27,6 @@ pub enum IssueType {
     InvalidTimezone,
     MissingPrice,
     InvalidCurrency,
-    InvalidPaymentMethod,
     InvalidTransfers,
     InvalidTransferDuration,
 }

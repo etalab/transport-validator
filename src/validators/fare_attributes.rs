@@ -11,11 +11,6 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .values()
         .filter(|fare_attributes| !valid_currency(*fare_attributes))
         .map(|fare_attributes| make_issue(fare_attributes, IssueType::InvalidCurrency));
-    let invalid_payment_method = gtfs
-        .fare_attributes
-        .values()
-        .filter(|fare_attributes| !valid_payment_method(*fare_attributes))
-        .map(|fare_attributes| make_issue(fare_attributes, IssueType::InvalidPaymentMethod));
     let invalid_transfers = gtfs
         .fare_attributes
         .values()
@@ -28,7 +23,6 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .map(|fare_attributes| make_issue(fare_attributes, IssueType::InvalidTransferDuration));
     missing_price
         .chain(invalid_currency)
-        .chain(invalid_payment_method)
         .chain(invalid_transfers)
         .chain(invalid_duration)
         .collect()
@@ -44,11 +38,6 @@ fn has_price(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
 
 fn valid_currency(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
     iso4217::alpha3(&fare_attributes.currency).is_some()
-}
-
-fn valid_payment_method(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
-    fare_attributes.payment_method == gtfs_structures::PaymentMethod::Aboard
-        || fare_attributes.payment_method == gtfs_structures::PaymentMethod::PreBoarding
 }
 
 fn valid_transfers(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
