@@ -26,6 +26,10 @@ pub enum IssueType {
     InvalidUrl,
     InvalidTimezone,
     DuplicateStops,
+    MissingPrice,
+    InvalidCurrency,
+    InvalidTransfers,
+    InvalidTransferDuration,
 }
 
 #[derive(Serialize, Debug)]

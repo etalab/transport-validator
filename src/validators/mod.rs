@@ -4,6 +4,7 @@ mod check_name;
 mod coordinates;
 mod duplicate_stops;
 mod duration_distance;
+mod fare_attributes;
 pub mod issues;
 mod metadatas;
 mod route_type;
@@ -31,7 +32,8 @@ pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) ->
         .chain(route_type::validate(gtfs))
         .chain(shapes::validate(gtfs))
         .chain(agency::validate(gtfs))
-        .chain(duplicate_stops::validate(gtfs));
+        .chain(duplicate_stops::validate(gtfs))
+        .chain(fare_attributes::validate(gtfs));
     for issue in issues {
         validations
             .entry(issue.issue_type.clone())
