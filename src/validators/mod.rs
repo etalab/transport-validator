@@ -18,17 +18,10 @@ pub struct Response {
     pub validations: BTreeMap<issues::IssueType, Vec<issues::Issue>>,
 }
 
-pub fn validate_and_metada(gtfs: &gtfs_structures::Gtfs) -> Response {
-    Response {
-        metadata: Some(metadatas::extract_metadata(gtfs)),
-        validations: validate_gtfs(gtfs),
-    }
-}
-
-pub fn validate_gtfs(
-    gtfs: &gtfs_structures::Gtfs,
-) -> BTreeMap<issues::IssueType, Vec<issues::Issue>> {
+pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) -> Response {
     let mut validations = BTreeMap::new();
+    let mut metadata = metadatas::extract_metadata(gtfs);
+
     let issues = unused_stop::validate(gtfs)
         .into_iter()
         .chain(duration_distance::validate(gtfs))
@@ -45,10 +38,21 @@ pub fn validate_gtfs(
             .or_insert_with(Vec::new)
             .push(issue);
     }
-    validations
+
+    for (issue_type, issues) in validations.iter_mut() {
+        metadata
+            .issues_count
+            .insert(issue_type.clone(), issues.len());
+        issues.truncate(max_issues);
+    }
+
+    Response {
+        metadata: Some(metadata),
+        validations,
+    }
 }
 
-pub fn create_issues(input: &str) -> Response {
+pub fn create_issues(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
         log::info!("Starting download of {}", input);
@@ -62,7 +66,7 @@ pub fn create_issues(input: &str) -> Response {
     };
 
     match gtfs {
-        Ok(gtfs) => self::validate_and_metada(&gtfs),
+        Ok(gtfs) => self::validate_and_metadata(&gtfs, max_issues),
         Err(e) => {
             let mut validations = BTreeMap::new();
             validations.insert(
@@ -82,6 +86,6 @@ pub fn create_issues(input: &str) -> Response {
     }
 }
 
-pub fn validate(input: &str) -> Result<String, failure::Error> {
-    Ok(serde_json::to_string(&create_issues(input))?)
+pub fn validate(input: &str, max_issues: usize) -> Result<String, failure::Error> {
+    Ok(serde_json::to_string(&create_issues(input, max_issues))?)
 }

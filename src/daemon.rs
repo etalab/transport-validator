@@ -8,12 +8,13 @@ use std::env;
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 struct QueryStringExtractor {
     url: String,
+    max_size: Option<usize>,
 }
 
 fn validation_handler(mut state: State) -> (State, Response<Body>) {
     let query_param = QueryStringExtractor::take_from(&mut state);
 
-    let res = match validate(&query_param.url) {
+    let res = match validate(&query_param.url, query_param.max_size.unwrap_or(1000)) {
         Ok(json) => create_response(
             &state,
             StatusCode::Ok,
