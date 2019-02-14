@@ -30,6 +30,8 @@ pub enum IssueType {
     InvalidCurrency,
     InvalidTransfers,
     InvalidTransferDuration,
+    MissingLanguage,
+    InvalidLanguage,
 }
 
 #[derive(Serialize, Debug)]
@@ -79,6 +81,11 @@ impl Issue {
 
     pub fn details(mut self, d: &str) -> Self {
         self.details = Some(d.to_owned());
+        self
+    }
+
+    pub fn name(mut self, d: &str) -> Self {
+        self.object_name = Some(d.to_owned());
         self
     }
 

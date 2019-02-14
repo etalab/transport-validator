@@ -1,0 +1,6 @@
+stop_id,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,wheelchair_boarding
+close1,,,48.796058,2.449386,,,,,
+close2,"Close 2",,48.796058,2.449385,,,,,
+near1,"Near1",,48.796058,2.449186,,,,,
+near2,"Near2",,48.79625,2.44771,,,,,
+,"Null Island",,0,0,,,,,
