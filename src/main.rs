@@ -1,5 +1,5 @@
 mod daemon;
-mod validators;
+pub mod validators;
 
 #[macro_use]
 extern crate gotham_derive;
