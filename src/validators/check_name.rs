@@ -1,22 +1,31 @@
 use crate::validators::issues::{Issue, IssueType, Severity};
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let r = gtfs
+    let route_issues = gtfs
         .routes
         .iter()
         .filter(|&(_, route)| !has_name(route))
         .map(|(_, route)| make_missing_name_issue(route));
-    let st = gtfs
+    let stop_issues = gtfs
         .stops
         .values()
         .filter(|&stop| !has_name(&**stop))
         .map(|stop| make_missing_name_issue(&**stop));
-    let a = gtfs
+    let agency_issues = gtfs
         .agencies
         .iter()
         .filter(|&agency| !has_name(&*agency))
         .map(|agency| make_missing_name_issue(agency));
-    r.chain(st).chain(a).collect()
+    let feed_info_issues = gtfs
+        .feed_info
+        .iter()
+        .filter(|&feed_info| !has_name(&*feed_info))
+        .map(|_feed_info| Issue::new(Severity::Error, IssueType::MissingName, ""));
+    route_issues
+        .chain(stop_issues)
+        .chain(agency_issues)
+        .chain(feed_info_issues)
+        .collect()
 }
 
 fn has_name<T: std::fmt::Display>(o: &T) -> bool {
@@ -67,4 +76,18 @@ fn test_agencies() {
     assert_eq!(1, agency_name_issues.len());
     assert_eq!("1", agency_name_issues[0].object_id);
     assert_eq!(IssueType::MissingName, agency_name_issues[0].issue_type);
+}
+
+#[test]
+fn test_feed_info() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/check_name").unwrap();
+    let issues = validate(&gtfs);
+    let publisher_name_issues: Vec<_> = issues
+        .iter()
+        .filter(|issue| issue.object_id == "".to_string())
+        .collect();
+
+    assert_eq!(1, publisher_name_issues.len());
+    assert_eq!("", publisher_name_issues[0].object_id);
+    assert_eq!(IssueType::MissingName, publisher_name_issues[0].issue_type);
 }

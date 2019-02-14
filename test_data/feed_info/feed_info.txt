@@ -1,0 +1,3 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
+SNCF,,fre,20180709,20180927,0.3
+BIBUS,htp://www.bibus.fr,,20190102,20190204,0.7
