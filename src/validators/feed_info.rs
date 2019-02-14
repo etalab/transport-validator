@@ -43,10 +43,9 @@ fn has_url(feed: &gtfs_structures::FeedInfo) -> bool {
 }
 
 fn valid_url(feed: &gtfs_structures::FeedInfo) -> bool {
-    match url::Url::parse(feed.url.as_ref()) {
-        Ok(url) => vec!["https", "http", "ftp"].contains(&url.scheme()),
-        _ => false,
-    }
+    url::Url::parse(feed.url.as_ref())
+        .map(|url| vec!["https", "http", "ftp"].contains(&url.scheme()))
+        .unwrap_or(false)
 }
 
 fn has_lang(feed: &gtfs_structures::FeedInfo) -> bool {
