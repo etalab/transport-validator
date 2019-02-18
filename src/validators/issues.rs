@@ -5,31 +5,31 @@
 /// [`Issue`]: struct.Issue.html
 #[derive(Serialize, Debug, Eq, PartialEq)]
 pub enum Severity {
-    /// A critical error
+    /// Critical error, the GTFS archive couldn't be opened.
     Fatal,
-    /// Error
+    /// The file does not respect the GTFS specification.
     Error,
-    /// Warning
+    /// Not a specification error, but something is most likely wrong in the data.
     Warning,
     #[allow(dead_code)]
-    /// Simple information
+    /// Simple information.
     Information,
 }
 
 /// Represents the different types of issue.
 #[derive(Serialize, Debug, Eq, PartialEq, Ord, PartialOrd, Clone)]
 pub enum IssueType {
-    /// A stop is not used
+    /// A stop is not used.
     UnusedStop,
-    /// Too low speed.
+    /// The speed between two stops is too low.
     Slow,
-    /// Too high speed.
+    /// The speed between two stops is too high.
     ExcessiveSpeed,
-    /// The travel duration is negative.
+    /// The travel duration between two stops is negative.
     NegativeTravelTime,
     /// Two stops are too close to each other.
     CloseStops,
-    /// The travel duration is null.
+    /// The travel duration between two stops is null.
     NullDuration,
     /// Reference not valid.
     InvalidReference,
@@ -61,7 +61,9 @@ pub enum IssueType {
     InvalidTransfers,
     /// The transfer duration of a fare is not valid.
     InvalidTransferDuration,
+    /// The publisher language code is missing.
     MissingLanguage,
+    /// The publisher language code is not valid.
     InvalidLanguage,
 }
 
@@ -96,7 +98,7 @@ pub struct Issue {
 }
 
 impl Issue {
-    /// Creates a new issue with the [severity], the [type of issue] and the concerned object's id
+    /// Creates a new issue with the [severity], the [type of issue] and the concerned object's id.
     ///
     /// [severity]: enum.Severity.html
     /// [type of issue]: enum.IssueType.html
@@ -131,21 +133,25 @@ impl Issue {
         }
     }
 
+    /// Adds details to a given issue.
     pub fn details(mut self, d: &str) -> Self {
         self.details = Some(d.to_owned());
         self
     }
 
+    /// Adds an object name to a given issue.
     pub fn name(mut self, d: &str) -> Self {
         self.object_name = Some(d.to_owned());
         self
     }
 
+    /// Adds an object type to a given issue.
     pub fn object_type(mut self, d: gtfs_structures::ObjectType) -> Self {
         self.object_type = Some(d);
         self
     }
 
+    /// Adds a related object to a given issue.
     pub fn add_related_object<T: gtfs_structures::Id + std::fmt::Display>(mut self, o: &T) -> Self {
         self.related_objects.push(RelatedObject {
             id: o.id().to_owned(),
