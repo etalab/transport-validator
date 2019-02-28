@@ -15,11 +15,13 @@ mod unused_stop;
 use std::collections::BTreeMap;
 
 #[derive(Serialize, Debug)]
+/// Holds the issues and metadata about the GTFS.
 pub struct Response {
     pub metadata: Option<metadatas::Metadata>,
     pub validations: BTreeMap<issues::IssueType, Vec<issues::Issue>>,
 }
 
+/// Validates the files of the GTFS and returns its metadata and issues.
 pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) -> Response {
     let mut validations = BTreeMap::new();
     let mut metadata = metadatas::extract_metadata(gtfs);
@@ -56,6 +58,9 @@ pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) ->
     }
 }
 
+/// Returns a [Response] with every issue on the GTFS.
+///
+/// [Response]: struct.Response.html
 pub fn create_issues(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
     let gtfs = if input.starts_with("http") {
@@ -90,6 +95,7 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
     }
 }
 
+/// Returns a JSON with all the issues on the GTFS. Either takes an URL, a directory path or a .zip file as parameter.
 pub fn validate(input: &str, max_issues: usize) -> Result<String, failure::Error> {
     Ok(serde_json::to_string(&create_issues(input, max_issues))?)
 }
