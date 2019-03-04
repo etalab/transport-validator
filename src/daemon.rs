@@ -1,5 +1,5 @@
 use crate::validators::validate;
-use gotham::http::response::create_response;
+use gotham::helpers::http::response::create_response;
 use gotham::router::{builder::*, Router};
 use gotham::state::{FromState, State};
 use hyper::{Body, Response, StatusCode};
@@ -17,16 +17,15 @@ fn validation_handler(mut state: State) -> (State, Response<Body>) {
     let res = match validate(&query_param.url, query_param.max_size.unwrap_or(1000)) {
         Ok(json) => create_response(
             &state,
-            StatusCode::Ok,
-            Some((json.into_bytes(), mime::APPLICATION_JSON)),
+            StatusCode::OK,
+            mime::APPLICATION_JSON,
+            json.into_bytes(),
         ),
         Err(err) => create_response(
             &state,
-            StatusCode::InternalServerError,
-            Some((
-                format!("{{\"error\": \"{}\"}}", err).into_bytes(),
-                mime::APPLICATION_JSON,
-            )),
+            StatusCode::INTERNAL_SERVER_ERROR,
+            mime::APPLICATION_JSON,
+            format!("{{\"error\": \"{}\"}}", err).into_bytes(),
         ),
     };
     log::info!("Finnished validation: {}", &query_param.url);
