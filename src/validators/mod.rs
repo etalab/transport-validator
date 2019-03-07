@@ -8,6 +8,7 @@ mod fare_attributes;
 mod feed_info;
 pub mod issues;
 mod metadatas;
+mod raw_gtfs;
 mod route_type;
 mod shapes;
 mod unused_stop;
@@ -22,22 +23,40 @@ pub struct Response {
 }
 
 /// Validates the files of the GTFS and returns its metadata and issues.
-pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) -> Response {
+pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize) -> Response {
     let mut validations = BTreeMap::new();
-    let mut metadata = metadatas::extract_metadata(gtfs);
+    let mut issues = raw_gtfs::validate(&rgtfs);
+    let mut metadata = metadatas::extract_metadata(&rgtfs);
 
-    let issues = unused_stop::validate(gtfs)
-        .into_iter()
-        .chain(duration_distance::validate(gtfs))
-        .chain(check_name::validate(gtfs))
-        .chain(check_id::validate(gtfs))
-        .chain(coordinates::validate(gtfs))
-        .chain(route_type::validate(gtfs))
-        .chain(shapes::validate(gtfs))
-        .chain(agency::validate(gtfs))
-        .chain(duplicate_stops::validate(gtfs))
-        .chain(fare_attributes::validate(gtfs))
-        .chain(feed_info::validate(gtfs));
+    match gtfs_structures::Gtfs::try_from(rgtfs) {
+        Ok(gtfs) => {
+            issues.extend(
+                unused_stop::validate(&gtfs)
+                    .into_iter()
+                    .chain(duration_distance::validate(&gtfs))
+                    .chain(check_name::validate(&gtfs))
+                    .chain(check_id::validate(&gtfs))
+                    .chain(coordinates::validate(&gtfs))
+                    .chain(route_type::validate(&gtfs))
+                    .chain(shapes::validate(&gtfs))
+                    .chain(agency::validate(&gtfs))
+                    .chain(duplicate_stops::validate(&gtfs))
+                    .chain(fare_attributes::validate(&gtfs))
+                    .chain(feed_info::validate(&gtfs)),
+            );
+        }
+        Err(e) => {
+            issues.push(
+                issues::Issue::new(
+                    issues::Severity::Fatal,
+                    issues::IssueType::InvalidArchive,
+                    "",
+                )
+                .details(format!("{}", e).as_ref()),
+            );
+        }
+    }
+
     for issue in issues {
         validations
             .entry(issue.issue_type.clone())
@@ -63,19 +82,19 @@ pub fn validate_and_metadata(gtfs: &gtfs_structures::Gtfs, max_issues: usize) ->
 /// [Response]: struct.Response.html
 pub fn create_issues(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
-    let gtfs = if input.starts_with("http") {
+    let raw_gtfs = if input.starts_with("http") {
         log::info!("Starting download of {}", input);
-        let result = gtfs_structures::Gtfs::from_url(input);
+        let result = gtfs_structures::RawGtfs::from_url(input);
         log::info!("Download done of {}", input);
         result
     } else if input.to_lowercase().ends_with(".zip") {
-        gtfs_structures::Gtfs::from_zip(input)
+        gtfs_structures::RawGtfs::from_zip(input)
     } else {
-        gtfs_structures::Gtfs::new(input)
+        gtfs_structures::RawGtfs::new(input)
     };
 
-    match gtfs {
-        Ok(gtfs) => self::validate_and_metadata(&gtfs, max_issues),
+    match raw_gtfs {
+        Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues),
         Err(e) => {
             let mut validations = BTreeMap::new();
             validations.insert(

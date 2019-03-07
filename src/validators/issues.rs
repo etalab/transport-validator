@@ -65,6 +65,8 @@ pub enum IssueType {
     MissingLanguage,
     /// The publisher language code is not valid.
     InvalidLanguage,
+    /// The object has at least one object with the same id.
+    DupplicateObjectId,
 }
 
 /// Represents an object related to another object that is causing an issue.
