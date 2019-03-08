@@ -53,11 +53,12 @@ fn has_lang(feed: &gtfs_structures::FeedInfo) -> bool {
 }
 
 fn valid_lang(feed: &gtfs_structures::FeedInfo) -> bool {
-    let len = feed.lang.len();
+    let lang = feed.lang.to_lowercase();
+    let len = lang.len();
     match len {
-        2 => isolang::Language::from_639_1(&feed.lang).is_some(),
-        3 => isolang::Language::from_639_3(&feed.lang).is_some(),
-        4...11 => isolang::Language::from_locale(&feed.lang).is_some(),
+        2 => isolang::Language::from_639_1(&lang).is_some(),
+        3 => isolang::Language::from_639_3(&lang).is_some(),
+        4...11 => isolang::Language::from_locale(&lang).is_some(),
         _ => false,
     }
 }
@@ -115,4 +116,16 @@ fn test_valid_lang() {
         .collect();
     assert_eq!(1, invalid_lang_issue.len());
     assert_eq!(IssueType::InvalidLanguage, invalid_lang_issue[0].issue_type);
+}
+
+#[test]
+fn test_valid_lang_upper() {
+    assert!(valid_lang(&gtfs_structures::FeedInfo {
+        name: "bob".to_owned(),
+        url: "http://bob.com".to_owned(),
+        lang: "FR".to_owned(),
+        start_date: None,
+        end_date: None,
+        version: None,
+    }));
 }
