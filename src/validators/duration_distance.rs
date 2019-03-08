@@ -59,7 +59,8 @@ fn validate_speeds(
                         IssueType::NullDuration,
                         &*departure.stop,
                     )
-                    .add_related_object(&*arrival.stop),
+                    .add_related_object(&*arrival.stop)
+                    .add_related_object(trip),
                 )
             } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
                 result.push(
@@ -68,7 +69,8 @@ fn validate_speeds(
                         IssueType::ExcessiveSpeed,
                         &*departure.stop,
                     )
-                    .add_related_object(&*arrival.stop),
+                    .add_related_object(&*arrival.stop)
+                    .add_related_object(trip),
                 )
             } else if duration < 0.0 {
                 result.push(
@@ -77,12 +79,14 @@ fn validate_speeds(
                         IssueType::NegativeTravelTime,
                         &*departure.stop,
                     )
-                    .add_related_object(&*arrival.stop),
+                    .add_related_object(&*arrival.stop)
+                    .add_related_object(trip),
                 )
             } else if distance / duration < 0.1 {
                 result.push(
                     Issue::new_with_obj(Severity::Warning, IssueType::Slow, &*departure.stop)
-                        .add_related_object(&*arrival.stop),
+                        .add_related_object(&*arrival.stop)
+                        .add_related_object(trip),
                 )
             }
         }
