@@ -35,7 +35,7 @@ fn validation_handler(mut state: State) -> (State, Response<Body>) {
 
 static BODY: &'static [u8] =
     b"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)\n
-Use it with /validation?url=https.//.../gtfs.zip";
+Use it with /validate?url=https.//.../gtfs.zip";
 fn index(state: State) -> (State, Response) {
     let res = create_response(
         &state,
