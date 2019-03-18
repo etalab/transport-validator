@@ -113,10 +113,6 @@ fn test() {
 
     assert_eq!(5, issues.len());
 
-    for i in &issues {
-        println!("--- {:?}", i.issue_type);
-    }
-
     assert_eq!(IssueType::Slow, issues[0].issue_type);
     assert_eq!("near1", issues[0].object_id);
     assert_eq!(String::from("near2"), issues[0].related_objects[0].id);
