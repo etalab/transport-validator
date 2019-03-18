@@ -67,6 +67,8 @@ pub enum IssueType {
     InvalidLanguage,
     /// The object has at least one object with the same id.
     DupplicateObjectId,
+    /// A fatal error has occured by building the links in the model
+    UnloadableModel,
 }
 
 /// Represents an object related to another object that is causing an issue.

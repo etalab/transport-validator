@@ -53,8 +53,8 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
             issues.push(
                 issues::Issue::new(
                     issues::Severity::Fatal,
-                    issues::IssueType::InvalidArchive,
-                    "",
+                    issues::IssueType::UnloadableModel,
+                    "A fatal error has occured while loading the model, many rules have not been checked",
                 )
                 .details(format!("{}", e).as_ref()),
             );
