@@ -67,13 +67,17 @@ pub enum IssueType {
     InvalidLanguage,
     /// The object has at least one object with the same id.
     DupplicateObjectId,
+    /// A fatal error has occured by building the links in the model
+    UnloadableModel,
 }
 
 /// Represents an object related to another object that is causing an issue.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Eq, PartialEq)]
 pub struct RelatedObject {
     /// Related object's id.
     pub id: String,
+    /// Related object's type.
+    pub object_type: Option<gtfs_structures::ObjectType>,
     /// Related object's name.
     pub name: Option<String>,
 }
@@ -154,10 +158,16 @@ impl Issue {
     }
 
     /// Adds a related object to a given issue.
-    pub fn add_related_object<T: gtfs_structures::Id + std::fmt::Display>(mut self, o: &T) -> Self {
+    pub fn add_related_object<
+        T: gtfs_structures::Id + std::fmt::Display + gtfs_structures::Type,
+    >(
+        mut self,
+        o: &T,
+    ) -> Self {
         self.related_objects.push(RelatedObject {
             id: o.id().to_owned(),
             name: Some(format!("{}", o)),
+            object_type: Some(o.object_type()),
         });
         self
     }

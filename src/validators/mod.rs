@@ -6,6 +6,7 @@ mod duplicate_stops;
 mod duration_distance;
 mod fare_attributes;
 mod feed_info;
+mod invalid_reference;
 pub mod issues;
 mod metadatas;
 mod raw_gtfs;
@@ -25,7 +26,10 @@ pub struct Response {
 /// Validates the files of the GTFS and returns its metadata and issues.
 pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize) -> Response {
     let mut validations = BTreeMap::new();
-    let mut issues = raw_gtfs::validate(&rgtfs);
+    let mut issues: Vec<_> = raw_gtfs::validate(&rgtfs)
+        .into_iter()
+        .chain(invalid_reference::validate(&rgtfs))
+        .collect();
     let mut metadata = metadatas::extract_metadata(&rgtfs);
 
     match gtfs_structures::Gtfs::try_from(rgtfs) {
@@ -49,8 +53,8 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
             issues.push(
                 issues::Issue::new(
                     issues::Severity::Fatal,
-                    issues::IssueType::InvalidArchive,
-                    "",
+                    issues::IssueType::UnloadableModel,
+                    "A fatal error has occured while loading the model, many rules have not been checked",
                 )
                 .details(format!("{}", e).as_ref()),
             );
