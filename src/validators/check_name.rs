@@ -20,7 +20,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .feed_info
         .iter()
         .filter(|&feed_info| !has_name(&*feed_info))
-        .map(|_feed_info| Issue::new(Severity::Error, IssueType::MissingName, ""));
+        .map(|_feed_info| Issue::new(Severity::Warning, IssueType::MissingName, ""));
     route_issues
         .chain(stop_issues)
         .chain(agency_issues)
@@ -33,7 +33,7 @@ fn has_name<T: std::fmt::Display>(o: &T) -> bool {
 }
 
 fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type>(o: &T) -> Issue {
-    Issue::new(Severity::Error, IssueType::MissingName, o.id()).object_type(o.object_type())
+    Issue::new(Severity::Warning, IssueType::MissingName, o.id()).object_type(o.object_type())
 }
 
 #[test]

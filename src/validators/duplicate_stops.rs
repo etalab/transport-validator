@@ -40,7 +40,7 @@ fn make_duplicate_stops_issue<
 >(
     o: &T,
 ) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::DuplicateStops, o)
+    Issue::new_with_obj(Severity::Information, IssueType::DuplicateStops, o)
 }
 
 #[test]
