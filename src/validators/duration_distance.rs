@@ -47,8 +47,12 @@ fn validate_speeds(
 
             if distance < 10.0 {
                 result.push(
-                    Issue::new_with_obj(Severity::Warning, IssueType::CloseStops, &*departure.stop)
-                        .add_related_object(&*arrival.stop),
+                    Issue::new_with_obj(
+                        Severity::Information,
+                        IssueType::CloseStops,
+                        &*departure.stop,
+                    )
+                    .add_related_object(&*arrival.stop),
                 )
             // Some timetable are rounded to the minute. For short distances this can result in a null duration
             // If stops are more than 500m appart, they should need at least a minute
@@ -65,7 +69,7 @@ fn validate_speeds(
             } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
                 result.push(
                     Issue::new_with_obj(
-                        Severity::Warning,
+                        Severity::Information,
                         IssueType::ExcessiveSpeed,
                         &*departure.stop,
                     )
@@ -84,7 +88,7 @@ fn validate_speeds(
                 )
             } else if distance / duration < 0.1 {
                 result.push(
-                    Issue::new_with_obj(Severity::Warning, IssueType::Slow, &*departure.stop)
+                    Issue::new_with_obj(Severity::Information, IssueType::Slow, &*departure.stop)
                         .add_related_object(&*arrival.stop)
                         .add_related_object(trip),
                 )

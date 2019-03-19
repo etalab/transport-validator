@@ -6,7 +6,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .iter()
         .filter(|(_id, shapes)| !shapes.iter().all(has_coord))
         .map(|(id, _shapes)| {
-            Issue::new(Severity::Error, IssueType::MissingCoordinates, id)
+            Issue::new(Severity::Warning, IssueType::MissingCoordinates, id)
                 .object_type(gtfs_structures::ObjectType::Shape)
         });
     let valid = gtfs

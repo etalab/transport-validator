@@ -30,7 +30,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 fn make_unused_stop_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
     o: &T,
 ) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::UnusedStop, o)
+    Issue::new_with_obj(Severity::Information, IssueType::UnusedStop, o)
 }
 
 #[test]

@@ -11,7 +11,6 @@ pub enum Severity {
     Error,
     /// Not a specification error, but something is most likely wrong in the data.
     Warning,
-    #[allow(dead_code)]
     /// Simple information.
     Information,
 }

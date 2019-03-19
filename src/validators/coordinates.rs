@@ -27,7 +27,7 @@ fn make_invalid_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std
 fn make_missing_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
     o: &T,
 ) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::MissingCoordinates, o)
+    Issue::new_with_obj(Severity::Warning, IssueType::MissingCoordinates, o)
 }
 
 fn missing_coord_details(stop: &gtfs_structures::Stop) -> &str {
