@@ -3,7 +3,7 @@
 /// Represents the severity of an [`Issue`].
 ///
 /// [`Issue`]: struct.Issue.html
-#[derive(Serialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub enum Severity {
     /// Critical error, the GTFS archive couldn't be opened.
     Fatal,
@@ -16,7 +16,7 @@ pub enum Severity {
 }
 
 /// Represents the different types of issue.
-#[derive(Serialize, Debug, Eq, PartialEq, Ord, PartialOrd, Clone)]
+#[derive(Serialize, Debug, Eq, PartialEq, Ord, PartialOrd, Clone, Hash, Copy)]
 pub enum IssueType {
     /// A stop is not used.
     UnusedStop,
@@ -26,7 +26,7 @@ pub enum IssueType {
     ExcessiveSpeed,
     /// The travel duration between two stops is negative.
     NegativeTravelTime,
-    /// Two stops are too close to each other.
+    /// Two stops very close to each other in the same trips
     CloseStops,
     /// The travel duration between two stops is null.
     NullDuration,
@@ -163,11 +163,22 @@ impl Issue {
         mut self,
         o: &T,
     ) -> Self {
+        self.push_related_object(o);
+        self
+    }
+
+    /// Adds a related object to a given issue.
+    /// mutate the object without using the builder pattern
+    pub fn push_related_object<
+        T: gtfs_structures::Id + std::fmt::Display + gtfs_structures::Type,
+    >(
+        &mut self,
+        o: &T,
+    ) {
         self.related_objects.push(RelatedObject {
             id: o.id().to_owned(),
             name: Some(format!("{}", o)),
             object_type: Some(o.object_type()),
         });
-        self
     }
 }
