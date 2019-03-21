@@ -6,10 +6,9 @@ use itertools::Itertools;
 fn distance_and_duration(
     departure: &gtfs_structures::StopTime,
     arrival: &gtfs_structures::StopTime,
-    gtfs: &gtfs_structures::Gtfs,
-) -> Result<(f64, f64), gtfs_structures::ReferenceError> {
-    let dep_stop = gtfs.get_stop(&departure.stop.id)?;
-    let arr_stop = gtfs.get_stop(&arrival.stop.id)?;
+) -> (f64, f64) {
+    let dep_stop = &departure.stop;
+    let arr_stop = &arrival.stop;
 
     let dep_point = geo::Point::new(dep_stop.longitude, dep_stop.latitude);
     let arr_point = geo::Point::new(arr_stop.longitude, arr_stop.latitude);
@@ -17,7 +16,7 @@ fn distance_and_duration(
     let duration = f64::from(arrival.arrival_time) - f64::from(departure.departure_time);
     let distance = dep_point.haversine_distance(&arr_point);
 
-    Ok((distance, duration))
+    (distance, duration)
 }
 
 fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
@@ -43,7 +42,7 @@ fn validate_speeds(
     for trip in gtfs.trips.values() {
         let route = gtfs.get_route(&trip.route_id)?;
         for (departure, arrival) in trip.stop_times.iter().tuple_windows() {
-            let (distance, duration) = distance_and_duration(departure, arrival, gtfs)?;
+            let (distance, duration) = distance_and_duration(departure, arrival);
 
             let issue_kind = if distance < 10.0 {
                 Some((Severity::Information, IssueType::CloseStops))
@@ -66,8 +65,18 @@ fn validate_speeds(
             if let Some((severity, issue_type)) = issue_kind {
                 // it's a bit of a trick, if we have an issue between A&B, we don't want a duplicate issue between B&A
                 let key = match departure.stop.id < arrival.stop.id {
-                    true => (departure.stop.id.clone(), arrival.stop.id.clone(), issue_type, severity),
-                    false => (arrival.stop.id.clone(), departure.stop.id.clone(), issue_type, severity)
+                    true => (
+                        departure.stop.id.clone(),
+                        arrival.stop.id.clone(),
+                        issue_type,
+                        severity,
+                    ),
+                    false => (
+                        arrival.stop.id.clone(),
+                        departure.stop.id.clone(),
+                        issue_type,
+                        severity,
+                    ),
                 };
                 let issue = issues_by_stops_and_type.entry(key).or_insert_with(|| {
                     Issue::new_with_obj(severity, issue_type, &*departure.stop)
@@ -78,7 +87,10 @@ fn validate_speeds(
         }
     }
 
-    Ok(issues_by_stops_and_type.into_iter().map(|(_k, v)| v).collect())
+    Ok(issues_by_stops_and_type
+        .into_iter()
+        .map(|(_k, v)| v)
+        .collect())
 }
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
