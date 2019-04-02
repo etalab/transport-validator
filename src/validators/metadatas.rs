@@ -20,28 +20,44 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
     Metadata {
         start_date: gtfs
             .calendar
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .map(|c| c.start_date.format("%Y-%m-%d").to_string())
             .min(),
         end_date: gtfs
             .calendar
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .map(|c| c.end_date.format("%Y-%m-%d").to_string())
             .max(),
         stop_areas_count: gtfs
             .stops
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .filter(|s| s.location_type == gtfs_structures::LocationType::StopArea)
             .count(),
         stop_points_count: gtfs
             .stops
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .filter(|s| s.location_type == gtfs_structures::LocationType::StopPoint)
             .count(),
-        lines_count: gtfs.routes.iter().count(),
-        networks: gtfs.agencies.iter().map(|a| a.name.to_owned()).collect(),
+        lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
+        networks: gtfs
+            .agencies
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .map(|a| a.name.to_owned())
+            .collect(),
         modes: gtfs
             .routes
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .map(|r| match r.route_type {
                 Tramway => "tramway".to_owned(),

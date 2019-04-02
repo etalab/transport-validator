@@ -6,29 +6,29 @@ struct Ids {
     ids: HashMap<gtfs_structures::ObjectType, HashSet<String>>,
 }
 
+fn get_ids<O: gtfs_structures::Id>(objects: &Result<Vec<O>, failure::Error>) -> HashSet<String> {
+    match objects {
+        Ok(vec) => vec.iter().map(|o| o.id().to_owned()).collect(),
+        Err(_) => HashSet::new(),
+    }
+}
 impl Ids {
     fn new(raw_gtfs: &gtfs_structures::RawGtfs) -> Self {
         let mut ids = HashMap::new();
+        let calendar_dates_ids = match &raw_gtfs.calendar_dates {
+            Ok(vec) => vec.iter().map(|t| t.service_id.clone()).collect(),
+            Err(_) => HashSet::new(),
+        }
+        .into_iter();
 
-        ids.insert(
-            ObjectType::Trip,
-            raw_gtfs.trips.iter().map(|t| t.id.clone()).collect(),
-        );
-        ids.insert(
-            ObjectType::Stop,
-            raw_gtfs.stops.iter().map(|t| t.id.clone()).collect(),
-        );
-        ids.insert(
-            ObjectType::Route,
-            raw_gtfs.routes.iter().map(|t| t.id.clone()).collect(),
-        );
+        ids.insert(ObjectType::Trip, get_ids(&raw_gtfs.trips));
+        ids.insert(ObjectType::Stop, get_ids(&raw_gtfs.stops));
+        ids.insert(ObjectType::Route, get_ids(&raw_gtfs.routes));
         ids.insert(
             ObjectType::Calendar,
-            raw_gtfs
-                .calendar
-                .iter()
-                .map(|t| t.id.clone())
-                .chain(raw_gtfs.calendar_dates.iter().map(|t| t.service_id.clone()))
+            get_ids(&raw_gtfs.calendar)
+                .into_iter()
+                .chain(calendar_dates_ids)
                 .collect(),
         );
         Ids { ids }
@@ -44,18 +44,32 @@ impl Ids {
         }
     }
 
-    fn check_stop_times(&self, raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
-        raw_gtfs
-            .stop_times
+    fn check_stop_times(
+        &self,
+        stop_times: &Result<Vec<gtfs_structures::RawStopTime>, failure::Error>,
+    ) -> Vec<Issue> {
+        stop_times
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .filter_map(|st| {
                 self.check_ref(&st.trip_id, gtfs_structures::ObjectType::Trip)
                     .map(|i| i.details("The trip is referenced by a stop time but does not exists"))
             })
-            .chain(raw_gtfs.stop_times.iter().filter_map(|st| {
-                self.check_ref(&st.stop_id, gtfs_structures::ObjectType::Stop)
-                    .map(|i| i.details("The stop is referenced by a stop time but does not exists"))
-            }))
+            .chain(
+                stop_times
+                    .as_ref()
+                    .unwrap_or(&vec![])
+                    .iter()
+                    .filter_map(|st| {
+                        self.check_ref(&st.stop_id, gtfs_structures::ObjectType::Stop)
+                            .map(|i| {
+                                i.details(
+                                    "The stop is referenced by a stop time but does not exists",
+                                )
+                            })
+                    }),
+            )
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>() // we don't want too many invalid reference dupplicate, so we keep one by object
             .into_iter()
@@ -63,9 +77,13 @@ impl Ids {
             .collect()
     }
 
-    fn check_trips(&self, raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
-        raw_gtfs
-            .trips
+    fn check_trips(
+        &self,
+        trips: &Result<Vec<gtfs_structures::RawTrip>, failure::Error>,
+    ) -> Vec<Issue> {
+        trips
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .filter_map(|trip| {
                 self.check_ref(&trip.service_id, gtfs_structures::ObjectType::Calendar)
@@ -74,7 +92,7 @@ impl Ids {
                             .add_related_object(trip)
                     })
             })
-            .chain(raw_gtfs.trips.iter().filter_map(|trip| {
+            .chain(trips.as_ref().unwrap_or(&vec![]).iter().filter_map(|trip| {
                 self.check_ref(&trip.route_id, gtfs_structures::ObjectType::Route)
                     .map(|i| {
                         i.details("The route is referenced by a trip but does not exists")
@@ -98,9 +116,9 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
     let id_container = Ids::new(raw_gtfs);
 
     id_container
-        .check_stop_times(&raw_gtfs)
+        .check_stop_times(&raw_gtfs.stop_times)
         .into_iter()
-        .chain(id_container.check_trips(&raw_gtfs))
+        .chain(id_container.check_trips(&raw_gtfs.trips))
         .collect()
 }
 
