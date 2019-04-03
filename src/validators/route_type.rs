@@ -29,12 +29,12 @@ fn test_valid() {
 fn test_missing() {
     let validations =
         crate::validators::create_issues("test_data/route_type_missing", 10).validations;
-    let invalid_archive_validations = validations.get(&IssueType::InvalidArchive).unwrap();
+    let invalid_archive_validations = validations.get(&IssueType::UnloadableModel).unwrap();
 
     assert_eq!(1, invalid_archive_validations.len());
     assert_eq!(Severity::Fatal, invalid_archive_validations[0].severity);
     assert_eq!(
-        IssueType::InvalidArchive,
+        IssueType::UnloadableModel,
         invalid_archive_validations[0].issue_type
     );
 }
