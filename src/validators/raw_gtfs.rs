@@ -1,11 +1,11 @@
 use crate::validators::issues::{Issue, IssueType, Severity};
 
 fn check_dupplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
-    objects: &Vec<O>,
+    objects: &Result<Vec<O>, failure::Error>,
 ) -> Vec<Issue> {
     let mut ids = std::collections::HashSet::<String>::new();
     let mut issues = vec![];
-    for o in objects {
+    for o in objects.as_ref().unwrap_or(&vec![]) {
         let id = o.id().to_owned();
         if ids.contains(&id) {
             issues.push(
@@ -23,7 +23,10 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         .into_iter()
         .chain(check_dupplicates(&raw_gtfs.routes).into_iter())
         .chain(check_dupplicates(&raw_gtfs.trips).into_iter())
-        .chain(check_dupplicates(&raw_gtfs.fare_attributes).into_iter())
+        .chain(
+            check_dupplicates(&raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])))
+                .into_iter(),
+        )
         .collect()
 }
 
