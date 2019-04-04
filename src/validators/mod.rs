@@ -6,6 +6,7 @@ mod duplicate_stops;
 mod duration_distance;
 mod fare_attributes;
 mod feed_info;
+mod file_presence;
 mod invalid_reference;
 pub mod issues;
 mod metadatas;
@@ -29,6 +30,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
     let mut issues: Vec<_> = raw_gtfs::validate(&rgtfs)
         .into_iter()
         .chain(invalid_reference::validate(&rgtfs))
+        .chain(file_presence::validate(&rgtfs))
         .collect();
     let mut metadata = metadatas::extract_metadata(&rgtfs);
 

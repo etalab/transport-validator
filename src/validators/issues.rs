@@ -68,6 +68,10 @@ pub enum IssueType {
     DupplicateObjectId,
     /// A fatal error has occured by building the links in the model
     UnloadableModel,
+    /// Mandatory file missing
+    MissingMandatoryFile,
+    /// The file does not belong to a GTFS archive
+    ExtraFile,
 }
 
 /// Represents an object related to another object that is causing an issue.
