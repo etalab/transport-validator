@@ -6,41 +6,43 @@ struct Ids {
     ids: HashMap<gtfs_structures::ObjectType, HashSet<String>>,
 }
 
-fn get_ids<O: gtfs_structures::Id>(objects: &Result<Vec<O>, failure::Error>) -> HashSet<String> {
-    match objects {
-        Ok(vec) => vec.iter().map(|o| o.id().to_owned()).collect(),
-        Err(_) => HashSet::new(),
-    }
+fn get_ids<O: gtfs_structures::Id>(objects: &Vec<O>) -> HashSet<String> {
+    objects.iter().map(|o| o.id().to_owned()).collect()
 }
 impl Ids {
     fn new(raw_gtfs: &gtfs_structures::RawGtfs) -> Self {
         let mut ids = HashMap::new();
-        let calendar_dates_ids = match &raw_gtfs.calendar_dates {
-            Ok(vec) => vec.iter().map(|t| t.service_id.clone()).collect(),
-            Err(_) => HashSet::new(),
-        }
-        .into_iter();
 
-        ids.insert(ObjectType::Trip, get_ids(&raw_gtfs.trips));
-        ids.insert(ObjectType::Stop, get_ids(&raw_gtfs.stops));
-        ids.insert(ObjectType::Route, get_ids(&raw_gtfs.routes));
-        ids.insert(
-            ObjectType::Calendar,
-            get_ids(&raw_gtfs.calendar)
-                .into_iter()
-                .chain(calendar_dates_ids)
-                .collect(),
-        );
+        if let Ok(trips) = &raw_gtfs.trips {
+            ids.insert(ObjectType::Trip, get_ids(trips));
+        }
+        if let Ok(stops) = &raw_gtfs.stops {
+            ids.insert(ObjectType::Stop, get_ids(stops));
+        }
+        if let Ok(routes) = &raw_gtfs.routes {
+            ids.insert(ObjectType::Route, get_ids(routes));
+        }
+        if let Ok(calendar) = &raw_gtfs.calendar {
+            ids.insert(ObjectType::Calendar, get_ids(calendar));
+        }
+        if let Ok(calendar_dates) = &raw_gtfs.calendar_dates {
+            ids.entry(ObjectType::Calendar)
+                .or_insert_with(|| HashSet::new())
+                .extend(calendar_dates.iter().map(|t| t.service_id.clone()));
+        }
         Ids { ids }
     }
 
     fn check_ref(&self, id: &str, object_type: gtfs_structures::ObjectType) -> Option<Issue> {
-        match self.ids[&object_type].contains(id) {
-            true => None,
-            false => Some(
-                Issue::new(Severity::Fatal, IssueType::InvalidReference, id)
-                    .object_type(object_type),
-            ),
+        match self.ids.get(&object_type) {
+            None => None, // we have loaded no ids from this type (because we haven't been able to read those objects), we can skip
+            Some(ids) => match ids.contains(id) {
+                true => None,
+                false => Some(
+                    Issue::new(Severity::Fatal, IssueType::InvalidReference, id)
+                        .object_type(object_type),
+                ),
+            },
         }
     }
 
