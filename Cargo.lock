@@ -479,7 +479,7 @@ dependencies = [
 
 [[package]]
 name = "gtfs-structures"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1889,7 +1889,7 @@ dependencies = [
  "geo 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gotham 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gotham_derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "gtfs-structures 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gtfs-structures 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.11.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "iso4217 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "isolang 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2074,7 +2074,7 @@ dependencies = [
 "checksum glob 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)" = "8be18de09a56b60ed0edf84bc9df007e30040691af7acd1c41874faac5895bfb"
 "checksum gotham 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d9d6317b4ee0d8cad0a8850f05b47306d168a1d6d50547be490b0b71be5ad3dd"
 "checksum gotham_derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "eed44069f104213fdea3b011438a6908aa43b9b363628f7c1e5e52c7866e39c2"
-"checksum gtfs-structures 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)" = "015a748fcaae1c9dfd560c603086713d869a862e64b4ba6e0c1a3b9120cdc1cb"
+"checksum gtfs-structures 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)" = "379badd89cb124da89434c8aebb491bbe29b93af80150e977962f59dbf344397"
 "checksum h2 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)" = "910a5e7be6283a9c91b3982fa5188368c8719cce2a3cf3b86048673bf9d9c36b"
 "checksum heck 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "20564e78d53d2bb135c343b3f47714a56af2061f1c928fdb541dc7b9fdd94205"
 "checksum http 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "fe67e3678f2827030e89cc4b9e7ecd16d52f132c0b940ab5005f88e821500f6a"
