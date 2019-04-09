@@ -86,7 +86,7 @@ pub struct RelatedObject {
 }
 
 /// Represents an issue.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Eq, PartialEq)]
 pub struct Issue {
     /// Issue severity.
     pub severity: Severity,
