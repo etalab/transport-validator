@@ -15,6 +15,7 @@ const OPTIONAL_FILES: &[&str] = &[
     "fare_rules.txt",
     "feed_info.txt",
     "frequencies.txt",
+    "transfers.txt",
     "shapes.txt",
 ];
 
