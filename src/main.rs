@@ -1,9 +1,6 @@
 mod daemon;
 pub mod validators;
 
-#[macro_use]
-extern crate gotham_derive;
-
 use structopt::StructOpt;
 
 #[macro_use]
