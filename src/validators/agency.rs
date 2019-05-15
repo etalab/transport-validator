@@ -5,25 +5,21 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .agencies
         .iter()
         .filter(|agency| !has_url(agency))
-        .map(|agency| make_issue(agency, IssueType::MissingUrl));
+        .map(|agency| Issue::new_with_obj(Severity::Warning, IssueType::MissingUrl, agency));
     let invalid_url = gtfs
         .agencies
         .iter()
         .filter(|agency| !valid_url(agency))
-        .map(|agency| make_issue(agency, IssueType::InvalidUrl));
+        .map(|agency| {
+            Issue::new_with_obj(Severity::Warning, IssueType::InvalidUrl, agency)
+                .details(&format!("Publisher url {} is invalid", agency.url))
+        });
     let invalid_tz = gtfs
         .agencies
         .iter()
         .filter(|agency| !valid_timezone(agency))
-        .map(|agency| make_issue(agency, IssueType::InvalidTimezone));
+        .map(|agency| Issue::new_with_obj(Severity::Error, IssueType::InvalidTimezone, agency));
     missing_url.chain(invalid_url).chain(invalid_tz).collect()
-}
-
-fn make_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-    issue_type: IssueType,
-) -> Issue {
-    Issue::new_with_obj(Severity::Error, issue_type, o)
 }
 
 fn has_url(agency: &gtfs_structures::Agency) -> bool {
