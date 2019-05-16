@@ -2,8 +2,6 @@ use crate::validators::issues::{Issue, IssueType, Severity};
 
 const MANDATORY_FILES: &[&str] = &[
     "agency.txt",
-    "calendar.txt",
-    "calendar_dates.txt",
     "routes.txt",
     "stops.txt",
     "stop_times.txt",
@@ -12,6 +10,8 @@ const MANDATORY_FILES: &[&str] = &[
 
 const OPTIONAL_FILES: &[&str] = &[
     "fare_attributes.txt",
+    "calendar.txt",
+    "calendar_dates.txt",
     "fare_rules.txt",
     "feed_info.txt",
     "frequencies.txt",

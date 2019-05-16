@@ -22,10 +22,10 @@ impl Ids {
         if let Ok(routes) = &raw_gtfs.routes {
             ids.insert(ObjectType::Route, get_ids(routes));
         }
-        if let Ok(calendar) = &raw_gtfs.calendar {
+        if let Some(Ok(calendar)) = &raw_gtfs.calendar {
             ids.insert(ObjectType::Calendar, get_ids(calendar));
         }
-        if let Ok(calendar_dates) = &raw_gtfs.calendar_dates {
+        if let Some(Ok(calendar_dates)) = &raw_gtfs.calendar_dates {
             ids.entry(ObjectType::Calendar)
                 .or_insert_with(|| HashSet::new())
                 .extend(calendar_dates.iter().map(|t| t.service_id.clone()));
