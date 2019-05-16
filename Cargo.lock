@@ -2091,6 +2091,7 @@ dependencies = [
  "env_logger 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure_derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "geo 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gtfs-structures 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "iso4217 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",

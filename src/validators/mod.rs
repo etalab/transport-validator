@@ -102,7 +102,13 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
     } else {
         gtfs_structures::RawGtfs::new(input)
     };
+    process(raw_gtfs, max_issues)
+}
 
+fn process(
+    raw_gtfs: Result<gtfs_structures::RawGtfs, failure::Error>,
+    max_issues: usize,
+) -> Response {
     match raw_gtfs {
         Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues),
         Err(e) => {
@@ -122,6 +128,14 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
             }
         }
     }
+}
+
+pub fn create_issues_from_reader<T: std::io::Read + std::io::Seek>(
+    reader: T,
+    max_issues: usize,
+) -> Response {
+    let g = gtfs_structures::RawGtfs::from_reader(reader);
+    process(g, max_issues)
 }
 
 /// Returns a JSON with all the issues on the GTFS. Either takes an URL, a directory path or a .zip file as parameter.
