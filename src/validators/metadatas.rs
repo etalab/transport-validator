@@ -17,21 +17,29 @@ pub struct Metadata {
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
     use gtfs_structures::RouteType::*;
 
+    let start_end = gtfs
+        .calendar
+        .as_ref()
+        .and_then(|c| c.as_ref().ok())
+        .unwrap_or(&vec![])
+        .iter()
+        .flat_map(|c| vec![c.start_date, c.end_date].into_iter())
+        .chain(
+            gtfs.calendar_dates
+                .as_ref()
+                .and_then(|c| c.as_ref().ok())
+                .unwrap_or(&vec![])
+                .iter()
+                .filter(|cd| cd.exception_type == gtfs_structures::Exception::Added)
+                .map(|c| c.date),
+        )
+        .minmax()
+        .into_option();
+    let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
+
     Metadata {
-        start_date: gtfs
-            .calendar
-            .as_ref()
-            .unwrap_or(&vec![])
-            .iter()
-            .map(|c| c.start_date.format("%Y-%m-%d").to_string())
-            .min(),
-        end_date: gtfs
-            .calendar
-            .as_ref()
-            .unwrap_or(&vec![])
-            .iter()
-            .map(|c| c.end_date.format("%Y-%m-%d").to_string())
-            .max(),
+        start_date: start_end.map(|(s, _)| format(s)),
+        end_date: start_end.map(|(_, e)| format(e)),
         stop_areas_count: gtfs
             .stops
             .as_ref()
