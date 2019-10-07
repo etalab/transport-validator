@@ -23,9 +23,9 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         .into_iter()
         .chain(check_duplicates(&raw_gtfs.routes).into_iter())
         .chain(check_duplicates(&raw_gtfs.trips).into_iter())
+        .chain(check_duplicates(&raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
         .chain(
-            check_duplicates(&raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])))
-                .into_iter(),
+            check_duplicates(&raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![]))).into_iter(),
         )
         .collect()
 }
@@ -35,7 +35,7 @@ fn test_duplicates() {
     // in the dataset, every last line has been duplicated
     let gtfs = gtfs_structures::RawGtfs::new("test_data/duplicates").unwrap();
     let issues = validate(&gtfs);
-    assert_eq!(4, issues.len());
+    assert_eq!(5, issues.len());
     assert_eq!("stop5", issues[0].object_id);
     assert_eq!(IssueType::DuplicateObjectId, issues[0].issue_type);
     assert_eq!(
@@ -57,10 +57,17 @@ fn test_duplicates() {
         issues[2].object_type
     );
 
-    assert_eq!("a", issues[3].object_id);
+    assert_eq!("WE", issues[3].object_id);
     assert_eq!(IssueType::DuplicateObjectId, issues[3].issue_type);
     assert_eq!(
-        Some(gtfs_structures::ObjectType::Fare),
+        Some(gtfs_structures::ObjectType::Calendar),
         issues[3].object_type
+    );
+
+    assert_eq!("a", issues[4].object_id);
+    assert_eq!(IssueType::DuplicateObjectId, issues[4].issue_type);
+    assert_eq!(
+        Some(gtfs_structures::ObjectType::Fare),
+        issues[4].object_type
     );
 }
