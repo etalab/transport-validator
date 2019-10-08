@@ -65,7 +65,7 @@ pub enum IssueType {
     /// The publisher language code is not valid.
     InvalidLanguage,
     /// The object has at least one object with the same id.
-    DupplicateObjectId,
+    DuplicateObjectId,
     /// A fatal error has occured by building the links in the model
     UnloadableModel,
     /// Mandatory file missing
