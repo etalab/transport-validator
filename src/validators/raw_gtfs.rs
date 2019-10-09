@@ -2,6 +2,7 @@ use crate::validators::issues::{Issue, IssueType, Severity};
 
 fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
     objects: &Result<Vec<O>, failure::Error>,
+    severity: Severity,
 ) -> Vec<Issue> {
     let mut ids = std::collections::HashSet::<String>::new();
     let mut issues = vec![];
@@ -9,7 +10,7 @@ fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
         let id = o.id().to_owned();
         if ids.contains(&id) {
             issues.push(
-                Issue::new(Severity::Information, IssueType::DuplicateObjectId, &id)
+                Issue::new(severity, IssueType::DuplicateObjectId, &id)
                     .object_type(o.object_type()),
             );
         }
@@ -19,13 +20,23 @@ fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
 }
 
 pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
-    check_duplicates(&raw_gtfs.stops)
+    check_duplicates(&raw_gtfs.stops, Severity::Warning)
         .into_iter()
-        .chain(check_duplicates(&raw_gtfs.routes).into_iter())
-        .chain(check_duplicates(&raw_gtfs.trips).into_iter())
-        .chain(check_duplicates(&raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
+        .chain(check_duplicates(&raw_gtfs.routes, Severity::Warning).into_iter())
+        .chain(check_duplicates(&raw_gtfs.trips, Severity::Warning).into_iter())
         .chain(
-            check_duplicates(&raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![]))).into_iter(),
+            check_duplicates(
+                &raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![])),
+                Severity::Error,
+            )
+            .into_iter(),
+        )
+        .chain(
+            check_duplicates(
+                &raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])),
+                Severity::Warning,
+            )
+            .into_iter(),
         )
         .collect()
 }
