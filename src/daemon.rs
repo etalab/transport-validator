@@ -29,7 +29,7 @@ fn validate(params: web::Query<Params>) -> impl Future<Item = Json<Response>, Er
 #[get("/")]
 fn index() -> impl Responder {
     r#"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)
-Use it with /validate?url=https.//.../gtfs.zip"#
+Use it with /validate?url=https://.../gtfs.zip"#
 }
 
 #[post("/validate")]
