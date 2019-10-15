@@ -1,6 +1,6 @@
-use crate::validators::{create_issues, create_issues_from_reader, Response};
+use crate::validators::{create_issues_from_reader, process, Response};
 use actix_web::{get, post, web, web::Json, App, Error, HttpServer, Responder};
-use futures::{Future, Stream};
+use futures::{future::ok, Future, Stream};
 use std::env;
 
 #[derive(Deserialize)]
@@ -15,10 +15,15 @@ struct PostParams {
 }
 
 #[get("/validate")]
-fn validate(params: web::Query<Params>) -> Json<Response> {
-    let i = create_issues(&params.url, params.max_size.unwrap_or(1000));
-    log::info!("Finished validation: {}", &params.url);
-    Json(i)
+fn validate(params: web::Query<Params>) -> impl Future<Item = Json<Response>, Error = Error> {
+    log::info!("Starting validation: {}", &params.url);
+    gtfs_structures::RawGtfs::from_url_async(&params.url)
+        .from_err()
+        .and_then(move |gtfs| {
+            let result = process(Ok(gtfs), params.max_size.unwrap_or(1000));
+            log::info!("Finished validation");
+            ok(Json(result))
+        })
 }
 
 #[get("/")]

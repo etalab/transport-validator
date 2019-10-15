@@ -105,7 +105,7 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
     process(raw_gtfs, max_issues)
 }
 
-fn process(
+pub fn process(
     raw_gtfs: Result<gtfs_structures::RawGtfs, failure::Error>,
     max_issues: usize,
 ) -> Response {
