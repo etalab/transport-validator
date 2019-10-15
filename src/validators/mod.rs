@@ -69,7 +69,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
 
     for issue in issues {
         validations
-            .entry(issue.issue_type.clone())
+            .entry(issue.issue_type)
             .or_insert_with(Vec::new)
             .push(issue);
     }

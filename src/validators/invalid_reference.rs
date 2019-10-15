@@ -6,7 +6,7 @@ struct Ids {
     ids: HashMap<gtfs_structures::ObjectType, HashSet<String>>,
 }
 
-fn get_ids<O: gtfs_structures::Id>(objects: &Vec<O>) -> HashSet<String> {
+fn get_ids<O: gtfs_structures::Id>(objects: &[O]) -> HashSet<String> {
     objects.iter().map(|o| o.id().to_owned()).collect()
 }
 impl Ids {
@@ -27,7 +27,7 @@ impl Ids {
         }
         if let Some(Ok(calendar_dates)) = &raw_gtfs.calendar_dates {
             ids.entry(ObjectType::Calendar)
-                .or_insert_with(|| HashSet::new())
+                .or_insert_with(HashSet::new)
                 .extend(calendar_dates.iter().map(|t| t.service_id.clone()));
         }
         Ids { ids }
@@ -36,13 +36,16 @@ impl Ids {
     fn check_ref(&self, id: &str, object_type: gtfs_structures::ObjectType) -> Option<Issue> {
         match self.ids.get(&object_type) {
             None => None, // we have loaded no ids from this type (because we haven't been able to read those objects), we can skip
-            Some(ids) => match ids.contains(id) {
-                true => None,
-                false => Some(
-                    Issue::new(Severity::Fatal, IssueType::InvalidReference, id)
-                        .object_type(object_type),
-                ),
-            },
+            Some(ids) => {
+                if ids.contains(id) {
+                    None
+                } else {
+                    Some(
+                        Issue::new(Severity::Fatal, IssueType::InvalidReference, id)
+                            .object_type(object_type),
+                    )
+                }
+            }
         }
     }
 

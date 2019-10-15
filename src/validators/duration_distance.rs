@@ -64,20 +64,22 @@ fn validate_speeds(
             // we group all the issue by stops (and issue type)
             if let Some((severity, issue_type)) = issue_kind {
                 // it's a bit of a trick, if we have an issue between A&B, we don't want a duplicate issue between B&A
-                let key = match departure.stop.id < arrival.stop.id {
-                    true => (
+                let key = if departure.stop.id < arrival.stop.id {
+                    (
                         departure.stop.id.clone(),
                         arrival.stop.id.clone(),
                         issue_type,
                         severity,
-                    ),
-                    false => (
+                    )
+                } else {
+                    (
                         arrival.stop.id.clone(),
                         departure.stop.id.clone(),
                         issue_type,
                         severity,
-                    ),
+                    )
                 };
+
                 let issue = issues_by_stops_and_type.entry(key).or_insert_with(|| {
                     Issue::new_with_obj(severity, issue_type, &*departure.stop)
                         .add_related_object(&*arrival.stop)

@@ -61,7 +61,7 @@ pub fn run_server() {
             .service(validate_post)
     })
     .bind(addr.clone())
-    .expect(&format!("impossible to bind address {}", &addr))
+    .unwrap_or_else(|_| panic!("impossible to bind address {}", &addr))
     .run()
     .unwrap()
 }
