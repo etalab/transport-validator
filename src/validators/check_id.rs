@@ -43,7 +43,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .collect()
 }
 
-fn has_id(object: &gtfs_structures::Id) -> bool {
+fn has_id(object: &dyn gtfs_structures::Id) -> bool {
     !object.id().is_empty()
 }
 

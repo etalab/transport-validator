@@ -62,7 +62,7 @@ fn valid_lang(feed: &gtfs_structures::FeedInfo) -> bool {
     match len {
         2 => isolang::Language::from_639_1(&lang).is_some(),
         3 => isolang::Language::from_639_3(&lang).is_some(),
-        4...11 => isolang::Language::from_locale(&lang).is_some(),
+        4..=11 => isolang::Language::from_locale(&lang).is_some(),
         _ => false,
     }
 }
