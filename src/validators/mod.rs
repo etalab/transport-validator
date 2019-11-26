@@ -7,6 +7,7 @@ mod duration_distance;
 mod fare_attributes;
 mod feed_info;
 mod file_presence;
+mod interpolated_stoptimes;
 mod invalid_reference;
 pub mod issues;
 mod metadatas;
@@ -52,7 +53,8 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
                     .chain(agency::validate(&gtfs))
                     .chain(duplicate_stops::validate(&gtfs))
                     .chain(fare_attributes::validate(&gtfs))
-                    .chain(feed_info::validate(&gtfs)),
+                    .chain(feed_info::validate(&gtfs))
+                    .chain(interpolated_stoptimes::validate(&gtfs)),
             );
         }
         Err(e) => {
@@ -92,16 +94,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
 /// [Response]: struct.Response.html
 pub fn create_issues(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
-    let raw_gtfs = if input.starts_with("http") {
-        log::info!("Starting download of {}", input);
-        let result = gtfs_structures::RawGtfs::from_url(input);
-        log::info!("Download done of {}", input);
-        result
-    } else if input.to_lowercase().ends_with(".zip") {
-        gtfs_structures::RawGtfs::from_zip(input)
-    } else {
-        gtfs_structures::RawGtfs::new(input)
-    };
+    let raw_gtfs = gtfs_structures::RawGtfs::new(input);
     process(raw_gtfs, max_issues)
 }
 

@@ -6,17 +6,22 @@ use itertools::Itertools;
 fn distance_and_duration(
     departure: &gtfs_structures::StopTime,
     arrival: &gtfs_structures::StopTime,
-) -> (f64, f64) {
+) -> Option<(f64, f64)> {
     let dep_stop = &departure.stop;
     let arr_stop = &arrival.stop;
 
     let dep_point = geo::Point::new(dep_stop.longitude, dep_stop.latitude);
     let arr_point = geo::Point::new(arr_stop.longitude, arr_stop.latitude);
 
-    let duration = f64::from(arrival.arrival_time) - f64::from(departure.departure_time);
-    let distance = dep_point.haversine_distance(&arr_point);
+    match (arrival.arrival_time, departure.departure_time) {
+        (Some(arrival), Some(departure)) => {
+            let duration = f64::from(arrival) - f64::from(departure);
+            let distance = dep_point.haversine_distance(&arr_point);
 
-    (distance, duration)
+            Some((distance, duration))
+        }
+        _ => None,
+    }
 }
 
 fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
@@ -42,49 +47,49 @@ fn validate_speeds(
     for trip in gtfs.trips.values() {
         let route = gtfs.get_route(&trip.route_id)?;
         for (departure, arrival) in trip.stop_times.iter().tuple_windows() {
-            let (distance, duration) = distance_and_duration(departure, arrival);
-
-            let issue_kind = if distance < 10.0 {
-                Some((Severity::Information, IssueType::CloseStops))
-            // Some timetable are rounded to the minute. For short distances this can result in a null duration
-            // If stops are more than 500m appart, they should need at least a minute
-            } else if duration == 0.0 && distance > 500.0 {
-                Some((Severity::Warning, IssueType::NullDuration))
-            } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
-                Some((Severity::Information, IssueType::ExcessiveSpeed))
-            } else if duration < 0.0 {
-                Some((Severity::Warning, IssueType::NegativeTravelTime))
-            } else if distance / duration < 0.1 {
-                Some((Severity::Information, IssueType::Slow))
-            } else {
-                None
-            };
-
-            // we want to limit the number of duplicate, we we don't want an issue for all the trip between A&B
-            // we group all the issue by stops (and issue type)
-            if let Some((severity, issue_type)) = issue_kind {
-                // it's a bit of a trick, if we have an issue between A&B, we don't want a duplicate issue between B&A
-                let key = if departure.stop.id < arrival.stop.id {
-                    (
-                        departure.stop.id.clone(),
-                        arrival.stop.id.clone(),
-                        issue_type,
-                        severity,
-                    )
+            if let Some((distance, duration)) = distance_and_duration(departure, arrival) {
+                let issue_kind = if distance < 10.0 {
+                    Some((Severity::Information, IssueType::CloseStops))
+                // Some timetable are rounded to the minute. For short distances this can result in a null duration
+                // If stops are more than 500m appart, they should need at least a minute
+                } else if duration == 0.0 && distance > 500.0 {
+                    Some((Severity::Warning, IssueType::NullDuration))
+                } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
+                    Some((Severity::Information, IssueType::ExcessiveSpeed))
+                } else if duration < 0.0 {
+                    Some((Severity::Warning, IssueType::NegativeTravelTime))
+                } else if distance / duration < 0.1 {
+                    Some((Severity::Information, IssueType::Slow))
                 } else {
-                    (
-                        arrival.stop.id.clone(),
-                        departure.stop.id.clone(),
-                        issue_type,
-                        severity,
-                    )
+                    None
                 };
 
-                let issue = issues_by_stops_and_type.entry(key).or_insert_with(|| {
-                    Issue::new_with_obj(severity, issue_type, &*departure.stop)
-                        .add_related_object(&*arrival.stop)
-                });
-                issue.push_related_object(trip);
+                // we want to limit the number of duplicate, we we don't want an issue for all the trip between A&B
+                // we group all the issue by stops (and issue type)
+                if let Some((severity, issue_type)) = issue_kind {
+                    // it's a bit of a trick, if we have an issue between A&B, we don't want a duplicate issue between B&A
+                    let key = if departure.stop.id < arrival.stop.id {
+                        (
+                            departure.stop.id.clone(),
+                            arrival.stop.id.clone(),
+                            issue_type,
+                            severity,
+                        )
+                    } else {
+                        (
+                            arrival.stop.id.clone(),
+                            departure.stop.id.clone(),
+                            issue_type,
+                            severity,
+                        )
+                    };
+
+                    let issue = issues_by_stops_and_type.entry(key).or_insert_with(|| {
+                        Issue::new_with_obj(severity, issue_type, &*departure.stop)
+                            .add_related_object(&*arrival.stop)
+                    });
+                    issue.push_related_object(trip);
+                }
             }
         }
     }

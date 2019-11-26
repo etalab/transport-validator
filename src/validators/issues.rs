@@ -72,6 +72,8 @@ pub enum IssueType {
     MissingMandatoryFile,
     /// The file does not belong to a GTFS archive
     ExtraFile,
+    /// It's impossible to interpolate the departure/arrival of some stoptimes of the trip
+    ImpossibleToInterpolateStopTimes,
 }
 
 /// Represents an object related to another object that is causing an issue.
