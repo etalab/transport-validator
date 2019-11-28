@@ -1,17 +1,25 @@
 use crate::validators::issues::{Issue, IssueType, Severity};
+use gtfs_structures::{Gtfs, Route, RouteType};
 
-pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
+pub fn validate(gtfs: &Gtfs) -> Vec<Issue> {
     gtfs.routes
         .iter()
-        .filter(|&(_, route)| !has_valid_route_type(route))
-        .map(|(_, route)| Issue::new_with_obj(Severity::Error, IssueType::InvalidRouteType, route))
+        .filter_map(|(_, route)| get_non_standard_route_type(route))
+        .map(|(route, route_type)| {
+            Issue::new_with_obj(Severity::Information, IssueType::InvalidRouteType, route).details(
+                &format!(
+                    "The route type '{}' is not part of the main GTFS specification",
+                    route_type
+                ),
+            )
+        })
         .collect()
 }
 
-fn has_valid_route_type(route: &gtfs_structures::Route) -> bool {
+fn get_non_standard_route_type(route: &Route) -> Option<(&Route, u16)> {
     match route.route_type {
-        gtfs_structures::RouteType::Other(_) => false,
-        _ => true,
+        RouteType::Other(rt) => Some((route, rt)),
+        _ => None,
     }
 }
 
