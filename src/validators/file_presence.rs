@@ -39,7 +39,7 @@ fn extra_files(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
                 && !OPTIONAL_FILES.iter().any(|o| f.ends_with(o))
         })
         .map(|f| {
-            Issue::new(Severity::Warning, IssueType::ExtraFile, f)
+            Issue::new(Severity::Information, IssueType::ExtraFile, f)
                 .details("This file shouldn’t be in the archive")
         })
         .collect()
@@ -68,5 +68,5 @@ fn test_extra() {
     let validations = extra_files(&raw);
     assert_eq!(1, validations.len());
     assert_eq!(IssueType::ExtraFile, validations[0].issue_type);
-    assert_eq!(Severity::Warning, validations[0].severity);
+    assert_eq!(Severity::Information, validations[0].severity);
 }
