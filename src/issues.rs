@@ -1,4 +1,5 @@
 //! A module for issues creation.
+use serde::Serialize;
 
 /// Represents the severity of an [`Issue`].
 ///

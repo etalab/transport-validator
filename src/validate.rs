@@ -1,5 +1,6 @@
 use crate::{issues, metadatas, validators};
 use itertools::Itertools;
+use serde::Serialize;
 use std::collections::BTreeMap;
 
 fn pretty_print_error(error: failure::Error) -> String {
