@@ -1,4 +1,4 @@
-use crate::validators::issues::*;
+use crate::issues::*;
 use geo::algorithm::haversine_distance::HaversineDistance;
 use geo::Point;
 use itertools::Itertools;

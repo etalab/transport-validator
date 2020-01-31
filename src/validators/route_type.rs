@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 use gtfs_structures::{Gtfs, Route, RouteType};
 
 pub fn validate(gtfs: &Gtfs) -> Vec<Issue> {
@@ -36,7 +36,7 @@ fn test_valid() {
 #[test]
 fn test_missing() {
     let validations =
-        crate::validators::create_issues("test_data/route_type_missing", 10).validations;
+        crate::validate::create_issues("test_data/route_type_missing", 10).validations;
     let invalid_archive_validations = validations.get(&IssueType::UnloadableModel).unwrap();
 
     assert_eq!(1, invalid_archive_validations.len());

@@ -1,10 +1,6 @@
-mod daemon;
-pub mod validators;
+use validator::{daemon, validate};
 
 use structopt::StructOpt;
-
-#[macro_use]
-extern crate serde_derive;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "gtfs-validator", about = "Validates the gtfs file.")]
@@ -30,7 +26,7 @@ fn main() {
     let opt = Opt::from_args();
 
     if let Some(input) = opt.input {
-        match validators::validate(&input, opt.max_size) {
+        match validate::validate(&input, opt.max_size) {
             Ok(json) => println!("{}", json),
             Err(err) => println!("Error: {}", err),
         }

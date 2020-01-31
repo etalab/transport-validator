@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 
 const MANDATORY_FILES: &[&str] = &[
     "agency.txt",
