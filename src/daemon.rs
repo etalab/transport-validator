@@ -18,9 +18,7 @@ struct PostParams {
 #[get("/validate")]
 async fn validate(params: web::Query<Params>) -> Result<Json<Response>, Error> {
     log::info!("Starting validation: {}", &params.url);
-    let gtfs = gtfs_structures::RawGtfs::from_url_async(&params.url)
-        .await
-        .map_err(|e| failure::format_err!("{}", e));
+    let gtfs = gtfs_structures::RawGtfs::from_url_async(&params.url).await;
 
     let result = process(gtfs, params.max_size.unwrap_or(1000));
     log::info!("Finished validation");

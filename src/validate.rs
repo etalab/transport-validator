@@ -3,8 +3,8 @@ use itertools::Itertools;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
-fn pretty_print_error(error: failure::Error) -> String {
-    error.iter_chain().map(|c| format!("{}", c)).join(": ")
+fn pretty_print_error(error: anyhow::Error) -> String {
+    error.chain().map(|c| format!("{}", c)).join(": ")
 }
 
 #[derive(Serialize, Debug)]
@@ -84,12 +84,13 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
 }
 
 pub fn process(
-    raw_gtfs: Result<gtfs_structures::RawGtfs, failure::Error>,
+    raw_gtfs: Result<gtfs_structures::RawGtfs, anyhow::Error>,
     max_issues: usize,
 ) -> Response {
     match raw_gtfs {
         Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues),
         Err(e) => {
+            println!("pouet = {:?}", e);
             let mut validations = BTreeMap::new();
             validations.insert(
                 issues::IssueType::InvalidArchive,
@@ -117,7 +118,7 @@ pub fn create_issues_from_reader<T: std::io::Read + std::io::Seek>(
 }
 
 /// Returns a JSON with all the issues on the GTFS. Either takes an URL, a directory path or a .zip file as parameter.
-pub fn validate(input: &str, max_issues: usize) -> Result<String, failure::Error> {
+pub fn validate(input: &str, max_issues: usize) -> Result<String, anyhow::Error> {
     Ok(serde_json::to_string(&create_issues(input, max_issues))?)
 }
 
@@ -140,7 +141,7 @@ fn test_invalid_stop_points() {
             object_name: None,
             related_objects: vec![],
             details: Some(
-                "error while reading stops.txt: CSV deserialize error: record 12 (line: 13, byte: 739): invalid float literal".to_string()
+                "error while reading stops.txt: CSV deserialize error: record 12 (line: 13, byte: 739): invalid float literal: invalid float literal".to_string()
             )
         });
 

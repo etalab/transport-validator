@@ -32,6 +32,6 @@ fn main() {
         }
     } else {
         log::info!("Starting the validator as a dæmon");
-        daemon::run_server()
+        daemon::run_server().expect("server failed")
     }
 }
