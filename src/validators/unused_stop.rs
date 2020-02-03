@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 use std::collections::HashSet;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {

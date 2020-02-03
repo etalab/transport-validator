@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 use geo::algorithm::haversine_distance::HaversineDistance;
 use gtfs_structures::RouteType::*;
 use itertools::Itertools;

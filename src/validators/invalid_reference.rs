@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 use gtfs_structures::ObjectType;
 use std::collections::{HashMap, HashSet};
 
@@ -129,7 +129,7 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
 
 #[test]
 fn test() {
-    use crate::validators::issues::RelatedObject;
+    use crate::issues::RelatedObject;
     let gtfs = gtfs_structures::RawGtfs::new("test_data/invalid_references").unwrap();
     let issues = validate(&gtfs);
 

@@ -1,4 +1,4 @@
-use crate::validators::issues::*;
+use crate::issues::*;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let missing_coord = gtfs

@@ -1,4 +1,4 @@
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 
 fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
     objects: &Result<Vec<O>, failure::Error>,

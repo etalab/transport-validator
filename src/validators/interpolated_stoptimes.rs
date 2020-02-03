@@ -1,6 +1,6 @@
 //! To be correclty interpolated, the first and last stop of a trip cannot have undefined
 //! departure / arrival
-use crate::validators::issues::{Issue, IssueType, Severity};
+use crate::issues::{Issue, IssueType, Severity};
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     gtfs.trips

@@ -1,6 +1,7 @@
-use crate::validators::issues::IssueType;
+use crate::issues::IssueType;
 use gtfs_structures;
 use itertools::Itertools;
+use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {
