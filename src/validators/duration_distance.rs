@@ -39,9 +39,7 @@ fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
     }) / 3.6 // convert in m/s
 }
 
-fn validate_speeds(
-    gtfs: &gtfs_structures::Gtfs,
-) -> Result<Vec<Issue>, gtfs_structures::ReferenceError> {
+fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_structures::Error> {
     let mut issues_by_stops_and_type = std::collections::HashMap::new();
 
     for trip in gtfs.trips.values() {
@@ -101,11 +99,11 @@ fn validate_speeds(
 }
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    validate_speeds(gtfs).unwrap_or_else(|err| {
+    validate_speeds(gtfs).unwrap_or_else(|e| {
         vec![Issue::new(
             Severity::Fatal,
             IssueType::InvalidReference,
-            &err.id,
+            &format!("{}", e),
         )]
     })
 }

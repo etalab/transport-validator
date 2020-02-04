@@ -1,10 +1,42 @@
 use crate::{issues, metadatas, validators};
-use itertools::Itertools;
 use serde::Serialize;
 use std::collections::BTreeMap;
+use std::error::Error;
 
-fn pretty_print_error(error: anyhow::Error) -> String {
-    error.chain().map(|c| format!("{}", c)).join(": ")
+fn create_unloadable_model_error(error: gtfs_structures::Error) -> issues::Issue {
+    let msg = if let Some(inner) = error.source() {
+        format!("{}: {}", error, inner)
+    } else {
+        format!("{}", error)
+    };
+    let mut issue = issues::Issue::new(
+        issues::Severity::Fatal,
+        issues::IssueType::UnloadableModel,
+        "A fatal error has occured while loading the model, many rules have not been checked",
+    )
+    .details(&msg);
+
+    match error {
+        gtfs_structures::Error::CSVError {
+            file_name,
+            source,
+            line_in_error,
+        } => {
+            issue.related_file = Some(issues::RelatedFile {
+                file_name: file_name.to_owned(),
+                line: source
+                    .position()
+                    .and_then(|p| line_in_error.map(|l| (p.line(), l)))
+                    .map(|(line_number, line_in_error)| issues::RelatedLine {
+                        line_number: line_number,
+                        headers: line_in_error.headers,
+                        values: line_in_error.values,
+                    }),
+            });
+        }
+        _ => {}
+    }
+    issue
 }
 
 #[derive(Serialize, Debug)]
@@ -25,7 +57,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
     let mut metadata = metadatas::extract_metadata(&rgtfs);
 
     match gtfs_structures::Gtfs::try_from(rgtfs) {
-        Ok(gtfs) => {
+        Ok(ref gtfs) => {
             issues.extend(
                 validators::unused_stop::validate(&gtfs)
                     .into_iter()
@@ -43,14 +75,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
             );
         }
         Err(e) => {
-            issues.push(
-                issues::Issue::new(
-                    issues::Severity::Fatal,
-                    issues::IssueType::UnloadableModel,
-                    "A fatal error has occured while loading the model, many rules have not been checked",
-                )
-                .details(&pretty_print_error(e)),
-            );
+            issues.push(create_unloadable_model_error(e));
         }
     }
 
@@ -84,7 +109,7 @@ pub fn create_issues(input: &str, max_issues: usize) -> Response {
 }
 
 pub fn process(
-    raw_gtfs: Result<gtfs_structures::RawGtfs, anyhow::Error>,
+    raw_gtfs: Result<gtfs_structures::RawGtfs, gtfs_structures::Error>,
     max_issues: usize,
 ) -> Response {
     match raw_gtfs {
@@ -141,9 +166,17 @@ fn test_invalid_stop_points() {
             object_name: None,
             related_objects: vec![],
             details: Some(
-                "error while reading stops.txt: CSV deserialize error: record 12 (line: 13, byte: 739): invalid float literal: invalid float literal".to_string()
-            )
-        });
+                "impossible to read csv file \'stops.txt\': CSV deserialize error: record 12 (line: 13, byte: 739): invalid float literal".to_string()
+            ),
+            related_file: Some(issues::RelatedFile {
+                file_name: "stops.txt".to_owned(),
+                line: Some(issues::RelatedLine {
+                        line_number: 13,
+                        headers: vec!["stop_id", "stop_name", "stop_desc", "stop_lat", "stop_lon", "zone_id", "stop_url", "location_type", "parent_station"].into_iter().map(|s| s.to_owned()).collect(), 
+                        values: vec!["stop_with_bad_coord", "Moo", "", "baaaaaad_coord", "-116.40094", "", "", "", "1"].into_iter().map(|s| s.to_owned()).collect() 
+                    }),
+            })
+    });
 
     // a nice feature is that even if the model was unloadable, we can check some rules
     // there we can check that a trip id is missing (but we don't check the stops's id, as they are all missing, since we can't read the stops.txt file)
@@ -155,6 +188,7 @@ fn test_invalid_stop_points() {
             object_id: "AAMV".to_string(),
             object_type: Some(gtfs_structures::ObjectType::Route),
             object_name: None,
+            related_file: None,
             related_objects: vec![issues::RelatedObject {
                 id: "AAMV4".to_string(),
                 object_type: Some(gtfs_structures::ObjectType::Trip),
