@@ -51,7 +51,7 @@ impl Ids {
 
     fn check_stop_times(
         &self,
-        stop_times: &Result<Vec<gtfs_structures::RawStopTime>, failure::Error>,
+        stop_times: &Result<Vec<gtfs_structures::RawStopTime>, anyhow::Error>,
     ) -> Vec<Issue> {
         stop_times
             .as_ref()
@@ -84,7 +84,7 @@ impl Ids {
 
     fn check_trips(
         &self,
-        trips: &Result<Vec<gtfs_structures::RawTrip>, failure::Error>,
+        trips: &Result<Vec<gtfs_structures::RawTrip>, anyhow::Error>,
     ) -> Vec<Issue> {
         trips
             .as_ref()

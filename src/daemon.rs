@@ -1,6 +1,6 @@
 use crate::validate::{create_issues_from_reader, process, Response};
-use actix_web::{get, post, web, web::Json, App, Error, HttpServer, Responder};
-use futures::{future::ok, Future, Stream};
+use actix_web::{get, post, web, web::Json, App, Error, HttpServer};
+use futures::StreamExt;
 use serde::Deserialize;
 use std::env;
 
@@ -16,41 +16,47 @@ struct PostParams {
 }
 
 #[get("/validate")]
-fn validate(params: web::Query<Params>) -> impl Future<Item = Json<Response>, Error = Error> {
+async fn validate(params: web::Query<Params>) -> Result<Json<Response>, Error> {
     log::info!("Starting validation: {}", &params.url);
-    gtfs_structures::RawGtfs::from_url_async(&params.url)
-        .from_err()
-        .and_then(move |gtfs| {
-            let result = process(Ok(gtfs), params.max_size.unwrap_or(1000));
-            log::info!("Finished validation");
-            ok(Json(result))
-        })
+    let gtfs = gtfs_structures::RawGtfs::from_url_async(&params.url).await;
+
+    let result = process(gtfs, params.max_size.unwrap_or(1000));
+    log::info!("Finished validation");
+    Ok(Json(result))
 }
 
 #[get("/")]
-fn index() -> impl Responder {
-    r#"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)
-Use it with /validate?url=https://.../gtfs.zip"#
+async fn index() -> actix_web::HttpResponse {
+    actix_web::HttpResponse::Ok()
+        .content_type("text/plain")
+        .body(
+            r#"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)
+Use it with /validate?url=https://.../gtfs.zip"#,
+        )
 }
 
 #[post("/validate")]
-fn validate_post(
+async fn validate_post(
     params: web::Query<PostParams>,
-    body: web::Payload,
-) -> impl Future<Item = Json<Response>, Error = Error> {
+    mut payload: web::Payload,
+) -> Result<Json<Response>, Error> {
     let max_size = params.max_size.unwrap_or(1000);
-    body.map_err(Error::from)
-        .fold(web::BytesMut::new(), move |mut body, chunk| {
-            body.extend_from_slice(&chunk);
-            Ok::<_, Error>(body)
-        })
-        .and_then(move |body| {
-            let reader = std::io::Cursor::new(body);
-            Ok(Json(create_issues_from_reader(reader, max_size)))
-        })
+
+    let mut body = web::BytesMut::new();
+    while let Some(chunk) = payload.next().await {
+        let chunk = chunk?;
+        body.extend_from_slice(&chunk);
+    }
+    let reader = std::io::Cursor::new(body);
+    Ok(Json(create_issues_from_reader(reader, max_size)))
 }
 
-pub fn run_server() {
+pub fn run_server() -> std::io::Result<()> {
+    run_server_impl()
+}
+
+#[actix_rt::main]
+async fn run_server_impl() -> std::io::Result<()> {
     let port = env::var("PORT").unwrap_or_else(|_| "7878".to_string());
     let bind = env::var("BIND").unwrap_or_else(|_| "127.0.0.1".to_string());
     let addr = format!("{}:{}", bind, port);
@@ -64,5 +70,5 @@ pub fn run_server() {
     .bind(addr.clone())
     .unwrap_or_else(|_| panic!("impossible to bind address {}", &addr))
     .run()
-    .unwrap()
+    .await
 }
