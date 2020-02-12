@@ -115,7 +115,6 @@ pub fn process(
     match raw_gtfs {
         Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues),
         Err(e) => {
-            println!("pouet = {:?}", e);
             let mut validations = BTreeMap::new();
             validations.insert(
                 issues::IssueType::InvalidArchive,
