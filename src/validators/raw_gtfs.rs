@@ -1,7 +1,7 @@
 use crate::issues::{Issue, IssueType, Severity};
 
 fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
-    objects: &Result<Vec<O>, anyhow::Error>,
+    objects: &Result<Vec<O>, gtfs_structures::Error>,
     severity: Severity,
 ) -> Vec<Issue> {
     let mut ids = std::collections::HashSet::<String>::new();

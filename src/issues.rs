@@ -83,9 +83,32 @@ pub struct RelatedObject {
     /// Related object's id.
     pub id: String,
     /// Related object's type.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub object_type: Option<gtfs_structures::ObjectType>,
     /// Related object's name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+}
+
+/// Represent a line that is causing an issue
+#[derive(Serialize, Debug, Eq, PartialEq)]
+pub struct RelatedLine {
+    /// line number
+    pub line_number: u64,
+    /// headers of the file
+    pub headers: Vec<String>,
+    /// line values
+    pub values: Vec<String>,
+}
+
+/// Represent a file that is causing an issue
+#[derive(Serialize, Debug, Eq, PartialEq)]
+pub struct RelatedFile {
+    /// File name.
+    pub file_name: String,
+    /// line causing a problem in the file
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line: Option<RelatedLine>,
 }
 
 /// Represents an issue.
@@ -98,15 +121,21 @@ pub struct Issue {
     /// Id of the object causing an issue.
     pub object_id: String,
     /// Type of the object causing an issue.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub object_type: Option<gtfs_structures::ObjectType>,
     /// Name of the object causing an issue.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub object_name: Option<String>,
     /// [Object(s) related] to an object causing an issue.
     ///
     /// [Object(s) related]: struct.RelatedObject.html
     pub related_objects: Vec<RelatedObject>,
     /// Optional details about the issue.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub details: Option<String>,
+    /// File causing an issue
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub related_file: Option<RelatedFile>,
 }
 
 impl Issue {
@@ -123,6 +152,7 @@ impl Issue {
             object_name: None,
             related_objects: vec![],
             details: None,
+            related_file: None,
         }
     }
     /// Creates a new issue with the [severity], the [type of issue], and the concerned object's id, type and name.
@@ -142,6 +172,7 @@ impl Issue {
             object_name: Some(format!("{}", o)),
             related_objects: vec![],
             details: None,
+            related_file: None,
         }
     }
 

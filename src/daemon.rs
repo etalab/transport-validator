@@ -26,13 +26,9 @@ async fn validate(params: web::Query<Params>) -> Result<Json<Response>, Error> {
 }
 
 #[get("/")]
-async fn index() -> actix_web::HttpResponse {
-    actix_web::HttpResponse::Ok()
-        .content_type("text/plain")
-        .body(
-            r#"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)
-Use it with /validate?url=https://.../gtfs.zip"#,
-        )
+async fn index() -> &'static str {
+    r#"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)
+Use it with /validate?url=https://.../gtfs.zip"#
 }
 
 #[post("/validate")]
