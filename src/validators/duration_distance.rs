@@ -7,14 +7,17 @@ fn distance_and_duration(
     departure: &gtfs_structures::StopTime,
     arrival: &gtfs_structures::StopTime,
 ) -> Option<(f64, f64)> {
-    let dep_stop = &departure.stop;
-    let arr_stop = &arrival.stop;
-
-    let dep_point = geo::Point::new(dep_stop.longitude, dep_stop.latitude);
-    let arr_point = geo::Point::new(arr_stop.longitude, arr_stop.latitude);
-
-    match (arrival.arrival_time, departure.departure_time) {
-        (Some(arrival), Some(departure)) => {
+    match (
+        arrival.arrival_time,
+        departure.departure_time,
+        departure.stop.longitude,
+        departure.stop.latitude,
+        arrival.stop.longitude,
+        arrival.stop.latitude,
+    ) {
+        (Some(arrival), Some(departure), Some(d_lon), Some(d_lat), Some(a_lon), Some(a_lat)) => {
+            let dep_point = geo::Point::new(d_lon, d_lat);
+            let arr_point = geo::Point::new(a_lon, a_lat);
             let duration = f64::from(arrival) - f64::from(departure);
             let distance = dep_point.haversine_distance(&arr_point);
 

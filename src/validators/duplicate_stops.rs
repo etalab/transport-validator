@@ -26,11 +26,21 @@ fn duplicate_stops(stop_a: &gtfs_structures::Stop, stop_b: &gtfs_structures::Sto
 }
 
 fn too_close_stops(stop_a: &gtfs_structures::Stop, stop_b: &gtfs_structures::Stop) -> bool {
-    let a = Point::new(stop_a.longitude, stop_a.latitude);
-    let b = Point::new(stop_b.longitude, stop_b.latitude);
-    match stop_a.location_type {
-        gtfs_structures::LocationType::StopPoint => a.haversine_distance(&b) < 2.,
-        gtfs_structures::LocationType::StopArea => a.haversine_distance(&b) < 100.,
+    match (
+        stop_a.longitude,
+        stop_a.latitude,
+        stop_b.longitude,
+        stop_b.latitude,
+    ) {
+        (Some(lon_a), Some(lat_a), Some(lon_b), Some(lat_b)) => {
+            let a = Point::new(lon_a, lat_a);
+            let b = Point::new(lon_b, lat_b);
+            match stop_a.location_type {
+                gtfs_structures::LocationType::StopPoint => a.haversine_distance(&b) < 2.,
+                gtfs_structures::LocationType::StopArea => a.haversine_distance(&b) < 100.,
+                _ => false,
+            }
+        }
         _ => false,
     }
 }
