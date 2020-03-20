@@ -15,7 +15,10 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 }
 
 fn has_coord(stop: &gtfs_structures::Stop) -> bool {
-    stop.latitude != 0.0 && stop.longitude != 0.0
+    match (stop.latitude, stop.longitude) {
+        (Some(lon), Some(lat)) => lon != 0.0 && lat != 0.0,
+        _ => false,
+    }
 }
 
 fn make_invalid_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
@@ -31,18 +34,20 @@ fn make_missing_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std
 }
 
 fn missing_coord_details(stop: &gtfs_structures::Stop) -> &str {
-    if stop.latitude == 0.0 && stop.longitude == 0.0 {
-        "Latitude and longitude are missing"
-    } else if stop.latitude == 0.0 {
-        "Latitude is missing"
-    } else {
-        "Longitude is missing"
+    match (stop.longitude, stop.latitude) {
+        (None, None) => "Latitude and longitude are missing",
+        (Some(lon), Some(lat)) if lon == 0.0 && lat == 0.0 => "Latitude and longitude are missing",
+        (Some(lon), _) if lon == 0.0 => "Longitude is missing",
+        (_, Some(lat)) if lat == 0.0 => "Latitude is missing",
+        _ => "Coordinates are ok",
     }
 }
 
 fn valid_coord(stop: &gtfs_structures::Stop) -> bool {
-    ((stop.longitude <= 180.0) && (stop.longitude >= -180.0))
-        && ((stop.latitude <= 90.0) && (stop.latitude >= -90.0))
+    match (stop.longitude, stop.latitude) {
+        (Some(lon), Some(lat)) => lon <= 180.0 && lon >= -180.0 && lat <= 90.0 && lat >= -90.0,
+        _ => false,
+    }
 }
 
 #[test]
