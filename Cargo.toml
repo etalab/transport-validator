@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["Tristram Gräbener <tristramg@gmail.com>"]
 edition = "2018"
 
+[profile.release]
+lto = true          # Enable Link Time Optimization
+codegen-units = 1   # Reduce number of codegen units to increase optimizations.
+panic = 'abort'     # Abort on panic
+
 [dependencies]
 chrono = "0.4"
 chrono-tz = "0.5"
@@ -11,7 +16,7 @@ env_logger = "0.7"
 anyhow = "1"
 futures = "0.3"
 geo = "0.12"
-gtfs-structures = "0.19.1"
+gtfs-structures = "0.20.0"
 iso4217 = "0.3"
 isolang = "1.0.0"
 itertools = "0.9"
