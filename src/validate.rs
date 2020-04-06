@@ -71,6 +71,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
                     .chain(validators::duplicate_stops::validate(&gtfs))
                     .chain(validators::fare_attributes::validate(&gtfs))
                     .chain(validators::feed_info::validate(&gtfs))
+                    .chain(validators::stop_times::validate(&gtfs))
                     .chain(validators::interpolated_stoptimes::validate(&gtfs)),
             );
         }

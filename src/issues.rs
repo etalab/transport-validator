@@ -75,6 +75,9 @@ pub enum IssueType {
     ExtraFile,
     /// It's impossible to interpolate the departure/arrival of some stoptimes of the trip
     ImpossibleToInterpolateStopTimes,
+    /// Invalid Stop Location type in trip.
+    /// Only Stop Points are allowed to be used in a Trip
+    InvalidStopLocationTypeInTrip,
 }
 
 /// Represents an object related to another object that is causing an issue.

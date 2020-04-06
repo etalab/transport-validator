@@ -12,4 +12,5 @@ pub mod invalid_reference;
 pub mod raw_gtfs;
 pub mod route_type;
 pub mod shapes;
+pub mod stop_times;
 pub mod unused_stop;
