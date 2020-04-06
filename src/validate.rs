@@ -28,7 +28,7 @@ fn create_unloadable_model_error(error: gtfs_structures::Error) -> issues::Issue
                     .position()
                     .and_then(|p| line_in_error.map(|l| (p.line(), l)))
                     .map(|(line_number, line_in_error)| issues::RelatedLine {
-                        line_number: line_number,
+                        line_number,
                         headers: line_in_error.headers,
                         values: line_in_error.values,
                     }),
