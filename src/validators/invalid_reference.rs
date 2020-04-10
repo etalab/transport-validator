@@ -25,6 +25,9 @@ impl Ids {
         if let Some(Ok(calendar)) = &raw_gtfs.calendar {
             ids.insert(ObjectType::Calendar, get_ids(calendar));
         }
+        if let Ok(agency) = &raw_gtfs.agencies {
+            ids.insert(ObjectType::Agency, get_ids(agency));
+        }
         if let Some(Ok(calendar_dates)) = &raw_gtfs.calendar_dates {
             ids.entry(ObjectType::Calendar)
                 .or_insert_with(HashSet::new)
@@ -110,6 +113,30 @@ impl Ids {
             .map(|(_, i)| i)
             .collect()
     }
+
+    fn check_routes(
+        &self,
+        routes: &Result<Vec<gtfs_structures::Route>, gtfs_structures::Error>,
+    ) -> Vec<Issue> {
+        routes
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .filter_map(|route| {
+                route.agency_id.as_ref().and_then(|agency_id| {
+                    self.check_ref(&agency_id, gtfs_structures::ObjectType::Agency)
+                        .map(|i| {
+                            i.details("The agency is referenced by a route but does not exists")
+                                .add_related_object(route)
+                        })
+                })
+            })
+            .map(|i| (i.object_id.clone(), i))
+            .collect::<HashMap<_, _>>()
+            .into_iter()
+            .map(|(_, i)| i)
+            .collect()
+    }
 }
 
 /// Check that the links in the GTFS are valid
@@ -124,6 +151,7 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         .check_stop_times(&raw_gtfs.stop_times)
         .into_iter()
         .chain(id_container.check_trips(&raw_gtfs.trips))
+        .chain(id_container.check_routes(&raw_gtfs.routes))
         .collect()
 }
 
@@ -133,7 +161,7 @@ fn test() {
     let gtfs = gtfs_structures::RawGtfs::new("test_data/invalid_references").unwrap();
     let issues = validate(&gtfs);
 
-    assert_eq!(issues.len(), 4);
+    assert_eq!(issues.len(), 5);
 
     let unknown_stop_issue = issues
         .iter()
@@ -203,5 +231,17 @@ fn test() {
             object_type: Some(ObjectType::Trip),
             name: Some("route id: unkown_route, service id: WE".to_owned())
         }]
+    );
+
+    let unknown_agency_issue = issues
+        .iter()
+        .find(|i| i.object_id == "unknown_agency")
+        .expect("impossible to find the issue");
+
+    assert_eq!(unknown_agency_issue.issue_type, IssueType::InvalidReference);
+    assert_eq!(unknown_agency_issue.object_type, Some(ObjectType::Agency));
+    assert_eq!(
+        unknown_agency_issue.details,
+        Some("The agency is referenced by a route but does not exists".to_owned())
     );
 }
