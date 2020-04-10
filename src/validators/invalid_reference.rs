@@ -137,6 +137,30 @@ impl Ids {
             .map(|(_, i)| i)
             .collect()
     }
+
+    fn check_stops(
+        &self,
+        stops: &Result<Vec<gtfs_structures::Stop>, gtfs_structures::Error>,
+    ) -> Vec<Issue> {
+        stops
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .filter_map(|stop| {
+                stop.parent_station.as_ref().and_then(|parent_station_id| {
+                    self.check_ref(&parent_station_id, gtfs_structures::ObjectType::Stop)
+                        .map(|i| {
+                            i.details("The stop is referenced as a stop's parent_station but does not exists")
+                                .add_related_object(stop)
+                        })
+                })
+            })
+            .map(|i| (i.object_id.clone(), i))
+            .collect::<HashMap<_, _>>()
+            .into_iter()
+            .map(|(_, i)| i)
+            .collect()
+    }
 }
 
 /// Check that the links in the GTFS are valid
@@ -152,6 +176,7 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         .into_iter()
         .chain(id_container.check_trips(&raw_gtfs.trips))
         .chain(id_container.check_routes(&raw_gtfs.routes))
+        .chain(id_container.check_stops(&raw_gtfs.stops))
         .collect()
 }
 
@@ -161,7 +186,7 @@ fn test() {
     let gtfs = gtfs_structures::RawGtfs::new("test_data/invalid_references").unwrap();
     let issues = validate(&gtfs);
 
-    assert_eq!(issues.len(), 5);
+    assert_eq!(issues.len(), 6);
 
     let unknown_stop_issue = issues
         .iter()
@@ -243,5 +268,23 @@ fn test() {
     assert_eq!(
         unknown_agency_issue.details,
         Some("The agency is referenced by a route but does not exists".to_owned())
+    );
+
+    let unknown_stop_parent_issue = issues
+        .iter()
+        .find(|i| i.object_id == "unknown_parent")
+        .expect("impossible to find the issue");
+
+    assert_eq!(
+        unknown_stop_parent_issue.issue_type,
+        IssueType::InvalidReference
+    );
+    assert_eq!(
+        unknown_stop_parent_issue.object_type,
+        Some(ObjectType::Stop)
+    );
+    assert_eq!(
+        unknown_stop_parent_issue.details,
+        Some("The stop is referenced as a stop's parent_station but does not exists".to_owned())
     );
 }
