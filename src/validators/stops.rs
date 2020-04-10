@@ -1,17 +1,36 @@
 use crate::issues::{Issue, IssueType, Severity};
+use gtfs_structures::LocationType;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let missing_coord = gtfs
-        .stops
-        .values()
-        .filter(|stop| !has_coord(stop))
-        .map(|stop| make_missing_coord_issue(&**stop).details(missing_coord_details(stop)));
+    validate_coord(gtfs)
+        .into_iter()
+        .collect()
+}
+
+pub fn validate_coord(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
+    let missing_coord = gtfs.stops.values().filter_map(|stop| check_coord(stop));
     let valid = gtfs
         .stops
         .values()
         .filter(|stop| !valid_coord(stop))
         .map(|stop| make_invalid_coord_issue(&**stop));
     missing_coord.chain(valid).collect()
+}
+
+
+fn check_coord(stop: &gtfs_structures::Stop) -> Option<Issue> {
+    if stop.location_type == LocationType::GenericNode
+        || stop.location_type == LocationType::BoardingArea
+    {
+        // the coordinates are optional for generic nodes and boarding area
+        None
+    } else {
+        if !has_coord(stop) {
+            Some(make_missing_coord_issue(stop).details(missing_coord_details(stop)))
+        } else {
+            None
+        }
+    }
 }
 
 fn has_coord(stop: &gtfs_structures::Stop) -> bool {
