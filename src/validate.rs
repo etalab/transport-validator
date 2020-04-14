@@ -28,7 +28,7 @@ fn create_unloadable_model_error(error: gtfs_structures::Error) -> issues::Issue
                     .position()
                     .and_then(|p| line_in_error.map(|l| (p.line(), l)))
                     .map(|(line_number, line_in_error)| issues::RelatedLine {
-                        line_number: line_number,
+                        line_number,
                         headers: line_in_error.headers,
                         values: line_in_error.values,
                     }),
@@ -71,6 +71,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
                     .chain(validators::duplicate_stops::validate(&gtfs))
                     .chain(validators::fare_attributes::validate(&gtfs))
                     .chain(validators::feed_info::validate(&gtfs))
+                    .chain(validators::stop_times::validate(&gtfs))
                     .chain(validators::interpolated_stoptimes::validate(&gtfs)),
             );
         }
