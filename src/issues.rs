@@ -78,6 +78,8 @@ pub enum IssueType {
     /// Invalid Stop Location type in trip.
     /// Only Stop Points are allowed to be used in a Trip
     InvalidStopLocationTypeInTrip,
+    /// The parent station of this stop is not a valid one
+    InvalidStopParent,
 }
 
 /// Represents an object related to another object that is causing an issue.
