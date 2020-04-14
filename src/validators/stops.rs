@@ -88,17 +88,24 @@ fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 }
 
 fn check_coord(stop: &gtfs_structures::Stop) -> Option<Issue> {
-    if stop.location_type == LocationType::GenericNode
-        || stop.location_type == LocationType::BoardingArea
+    if stop.location_type != LocationType::GenericNode
+        && stop.location_type != LocationType::BoardingArea
+        && !has_coord(stop)
     {
         // the coordinates are optional for generic nodes and boarding area
-        None
+        Some(
+            make_missing_coord_issue(stop).details(match (stop.longitude, stop.latitude) {
+                (None, None) => "Latitude and longitude are missing",
+                (Some(lon), Some(lat)) if lon == 0.0 && lat == 0.0 => {
+                    "Latitude and longitude are missing"
+                }
+                (Some(lon), _) if lon == 0.0 => "Longitude is missing",
+                (_, Some(lat)) if lat == 0.0 => "Latitude is missing",
+                _ => "Coordinates are ok",
+            }),
+        )
     } else {
-        if !has_coord(stop) {
-            Some(make_missing_coord_issue(stop).details(missing_coord_details(stop)))
-        } else {
-            None
-        }
+        None
     }
 }
 
@@ -124,16 +131,6 @@ fn make_invalid_parent_issue<T: gtfs_structures::Id + gtfs_structures::Type + st
     o: &T,
 ) -> Issue {
     Issue::new_with_obj(Severity::Warning, IssueType::InvalidStopParent, o)
-}
-
-fn missing_coord_details(stop: &gtfs_structures::Stop) -> &str {
-    match (stop.longitude, stop.latitude) {
-        (None, None) => "Latitude and longitude are missing",
-        (Some(lon), Some(lat)) if lon == 0.0 && lat == 0.0 => "Latitude and longitude are missing",
-        (Some(lon), _) if lon == 0.0 => "Longitude is missing",
-        (_, Some(lat)) if lat == 0.0 => "Latitude is missing",
-        _ => "Coordinates are ok",
-    }
 }
 
 fn valid_coord(stop: &gtfs_structures::Stop) -> bool {
