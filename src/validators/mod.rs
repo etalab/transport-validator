@@ -1,7 +1,6 @@
 pub mod agency;
 pub mod check_id;
 pub mod check_name;
-pub mod coordinates;
 pub mod duplicate_stops;
 pub mod duration_distance;
 pub mod fare_attributes;
@@ -13,4 +12,5 @@ pub mod raw_gtfs;
 pub mod route_type;
 pub mod shapes;
 pub mod stop_times;
+pub mod stops;
 pub mod unused_stop;
