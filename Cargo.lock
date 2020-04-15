@@ -875,11 +875,10 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.12.2"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89ce8faa25a6f5ce8ea98faa95247d66377a843408eb4418332ec37de96850b0"
+checksum = "6315f3b85322e42fc9967e0f080fff8294f65eddfc222f1a1dd694955b04df4d"
 dependencies = [
- "failure",
  "geo-types",
  "num-traits",
  "rstar",
@@ -887,9 +886,9 @@ dependencies = [
 
 [[package]]
 name = "geo-types"
-version = "0.4.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "866e8f6dbd2218b05ea8a25daa1bfac32b0515fe7e0a37cb6a7b9ed0ed82a07e"
+checksum = "e0ff051e4c51366601441053c37acf84958a795d350fdc02a53a31717f9bae2d"
 dependencies = [
  "num-traits",
  "rstar",
@@ -908,9 +907,9 @@ dependencies = [
 
 [[package]]
 name = "gtfs-structures"
-version = "0.20.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51805c0f0c3f8c88c5621e07a2adb7e898aa12b36c62722e534d1654a0607781"
+checksum = "1e2b2e49df0f530b4972e6c5f3ae0cc8ec91f0ab46e49c91a66498601a8cfcd9"
 dependencies = [
  "bytes 0.4.12",
  "chrono",
@@ -1811,13 +1810,12 @@ dependencies = [
 
 [[package]]
 name = "rstar"
-version = "0.2.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "120bfe4837befb82c5a637a5a8c490a27d25524ac19fffec5b4e555ca6e36ee8"
+checksum = "0650eaaa56cbd1726fd671150fce8ac6ed9d9a25d1624430d7ee9d196052f6b6"
 dependencies = [
  "num-traits",
  "pdqselect",
- "threadpool",
 ]
 
 [[package]]
