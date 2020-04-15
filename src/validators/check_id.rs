@@ -25,7 +25,16 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .shapes
         .keys()
         .filter(|id| id.is_empty())
-        .map(|_id| Issue::new(Severity::Error, IssueType::MissingId, ""));
+        .map(|_id| Issue {
+            object_id: "".to_owned(),
+            severity: Severity::Error,
+            issue_type: IssueType::MissingId,
+            object_type: Some(gtfs_structures::ObjectType::Shape),
+            object_name: None,
+            related_objects: vec![],
+            details: None,
+            related_file: None,
+        });
     let ag = if gtfs.agencies.len() <= 1 {
         vec![]
     } else {
