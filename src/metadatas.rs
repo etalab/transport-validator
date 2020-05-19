@@ -13,6 +13,8 @@ pub struct Metadata {
     pub networks: Vec<String>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
+    pub has_fares: bool,
+    pub has_shapes: bool
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
@@ -82,5 +84,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .unique()
             .collect(),
         issues_count: std::collections::BTreeMap::new(),
+        has_fares: gtfs.fare_attributes.is_some(),
+        has_shapes: gtfs.shapes.is_some(),
     }
 }
