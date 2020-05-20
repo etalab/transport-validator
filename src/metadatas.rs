@@ -13,6 +13,8 @@ pub struct Metadata {
     pub networks: Vec<String>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
+    pub has_fares: bool,
+    pub has_shapes: bool,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
@@ -82,5 +84,37 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .unique()
             .collect(),
         issues_count: std::collections::BTreeMap::new(),
+        has_fares: match &gtfs.fare_attributes {
+            Some(Ok(fa)) => !fa.is_empty(),
+            _ => false,
+        },
+        has_shapes: match &gtfs.shapes {
+            Some(Ok(s)) => !s.is_empty(),
+            _ => false,
+        },
     }
+}
+
+#[test]
+fn test_has_fares() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/fare_attributes").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(metadatas.has_fares);
+}
+
+#[test]
+fn test_has_shapes() {
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/shapes").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(metadatas.has_shapes);
+}
+
+#[test]
+fn test_no_fares_no_shapes() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/no_fares_no_shapes").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(!metadatas.has_fares);
+    assert!(!metadatas.has_shapes);
 }
