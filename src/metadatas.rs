@@ -85,11 +85,11 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .collect(),
         issues_count: std::collections::BTreeMap::new(),
         has_fares: match &gtfs.fare_attributes {
-            Some(Ok(fa)) => fa.len() > 0,
+            Some(Ok(fa)) => !fa.is_empty(),
             _ => false,
         },
         has_shapes: match &gtfs.shapes {
-            Some(Ok(s)) => s.len() > 0,
+            Some(Ok(s)) => !s.is_empty(),
             _ => false,
         },
     }
