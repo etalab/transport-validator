@@ -49,20 +49,41 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
         let route = gtfs.get_route(&trip.route_id)?;
         for (departure, arrival) in trip.stop_times.iter().tuple_windows() {
             if let Some((distance, duration)) = distance_and_duration(departure, arrival) {
-                let issue_kind = if distance < 10.0 {
-                    Some((Severity::Information, IssueType::CloseStops))
+                let (issue_kind, details) = if distance < 10.0 {
+                    (
+                        Some((Severity::Information, IssueType::CloseStops)),
+                        Some(format!(
+                            "distance between the stops is {:.0} meter(s)",
+                            distance
+                        )),
+                    )
                 // Some timetable are rounded to the minute. For short distances this can result in a null duration
                 // If stops are more than 500m appart, they should need at least a minute
                 } else if duration == 0.0 && distance > 500.0 {
-                    Some((Severity::Warning, IssueType::NullDuration))
+                    (
+                        Some((Severity::Warning, IssueType::NullDuration)),
+                        Some(format!(
+                            "duration is null, but there are {:.0} meters between the stops",
+                            distance
+                        )),
+                    )
                 } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
-                    Some((Severity::Information, IssueType::ExcessiveSpeed))
+                    (
+                        Some((Severity::Information, IssueType::ExcessiveSpeed)),
+                        Some(format!("computed speed between the stops is {:.2} km/h ({:.0} m travelled in {:.0} seconds)", distance / duration * 3.6, distance, duration)),
+                    )
                 } else if duration < 0.0 {
-                    Some((Severity::Warning, IssueType::NegativeTravelTime))
+                    (
+                        Some((Severity::Warning, IssueType::NegativeTravelTime)),
+                        Some(format!("duration is {} seconds", duration)),
+                    )
                 } else if distance / duration < 0.1 {
-                    Some((Severity::Information, IssueType::Slow))
+                    (
+                        Some((Severity::Information, IssueType::Slow)),
+                        Some(format!("computed speed between the stops is {:.2} km/h ({:.0} m travelled in {:.0} seconds)", distance / duration * 3.6, distance, duration)),
+                    )
                 } else {
-                    None
+                    (None, None)
                 };
 
                 // we want to limit the number of duplicate, we we don't want an issue for all the trip between A&B
@@ -89,6 +110,7 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                         Issue::new_with_obj(severity, issue_type, &*departure.stop)
                             .add_related_object(&*arrival.stop)
                     });
+                    issue.details = details;
                     issue.push_related_object(trip);
                 }
             }
