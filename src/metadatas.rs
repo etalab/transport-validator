@@ -79,6 +79,9 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
                 CableCar => Some("cable_car".to_owned()),
                 Gondola => Some("gondola".to_owned()),
                 Funicular => Some("funicular".to_owned()),
+                Coach => Some("coach".to_owned()),
+                Air => Some("air".to_owned()),
+                Taxi => Some("taxi".to_owned()),
                 Other(_) => None,
             })
             .unique()
