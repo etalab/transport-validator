@@ -38,6 +38,9 @@ fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
         CableCar => 30.0,
         Gondola => 45.0, // https://fr.wikipedia.org/wiki/Vanoise_Express
         Funicular => 40.0,
+        Coach => 120.0,
+        Air => 1_000.0,
+        Taxi => 50.0,
         Other(_) => 120.0, // We suppose it’s a bus if it is invalid
     }) / 3.6 // convert in m/s
 }

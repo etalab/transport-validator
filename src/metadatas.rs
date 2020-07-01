@@ -70,16 +70,19 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .as_ref()
             .unwrap_or(&vec![])
             .iter()
-            .map(|r| match r.route_type {
-                Tramway => "tramway".to_owned(),
-                Subway => "subway".to_owned(),
-                Rail => "rail".to_owned(),
-                Bus => "bus".to_owned(),
-                Ferry => "ferry".to_owned(),
-                CableCar => "cable_car".to_owned(),
-                Gondola => "gondola".to_owned(),
-                Funicular => "funicular".to_owned(),
-                Other(_) => "invalid".to_owned(),
+            .filter_map(|r| match r.route_type {
+                Tramway => Some("tramway".to_owned()),
+                Subway => Some("subway".to_owned()),
+                Rail => Some("rail".to_owned()),
+                Bus => Some("bus".to_owned()),
+                Ferry => Some("ferry".to_owned()),
+                CableCar => Some("cable_car".to_owned()),
+                Gondola => Some("gondola".to_owned()),
+                Funicular => Some("funicular".to_owned()),
+                Coach => Some("coach".to_owned()),
+                Air => Some("air".to_owned()),
+                Taxi => Some("taxi".to_owned()),
+                Other(_) => None,
             })
             .unique()
             .collect(),
