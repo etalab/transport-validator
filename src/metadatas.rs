@@ -64,6 +64,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .unwrap_or(&vec![])
             .iter()
             .map(|a| a.name.to_owned())
+            .unique()
             .collect(),
         modes: gtfs
             .routes

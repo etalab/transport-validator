@@ -1,6 +1,7 @@
 use crate::{issues, metadatas, validators};
 use serde::Serialize;
 use std::collections::BTreeMap;
+use std::convert::TryFrom;
 use std::error::Error;
 
 fn create_unloadable_model_error(error: gtfs_structures::Error) -> issues::Issue {
