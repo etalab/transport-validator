@@ -8,35 +8,43 @@ This project allows to validate the format and semantics of the timetable.
 transport-validator is the tool used by the [French National Access Point](https://transport.data.gouv.fr/) to validate GTFS files. If you want to try it, you can validate your own files at [this address](https://transport.data.gouv.fr/validation).
 
 ## List of checks done by the validator
+
+The checks performed by the validator can be seen in the file [issues.rs](https://github.com/etalab/transport-validator/blob/master/src/issues.rs#L21-L83).
+
+Here is a human friendly list of them :
+
 | check name                      | Description                                                                                     |
 |---------------------------------|-------------------------------------------------------------------------------------------------|
-|    UnusedStop | A stop is not used. |
-|    Slow | The speed between two stops is too low. |
-|    ExcessiveSpeed | The speed between two stops is too high. |
-|    NegativeTravelTime | The travel duration between two stops is negative. |
-|    CloseStops | Two stops very close to each other in the same trips |
-|    NullDuration | The travel duration between two stops is null. |
-|    InvalidReference | Reference not valid. |
-|    InvalidArchive | Archive not valid. |
-|    MissingName | An agency, a route or a stop has its name missing. |
-|    MissingId | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing. |
-|    MissingCoordinates | A shape point or a stop is missing its coordinate(s). |
-|    InvalidCoordinates | The coordinates of a shape point or a stop are not valid. |
-|    InvalidRouteType | The type of a route is not valid. |
-|    MissingUrl | An agency or a feed publisher is missing its URL. |
-|    InvalidUrl | The URL of an agency or a feed publisher is not valid. |
-|    InvalidTimezone | The TimeZone of an agency is not valid. |
-|    DuplicateStops | Two stop points or stop areas are identical. |
-|    MissingPrice | A fare is missing its price. |
-|    InvalidCurrency | The currency of a fare is not valid |
-|    InvalidTransfers | The number of transfers of a fare is not valid. |
-|    InvalidTransferDuration | The transfer duration of a fare is not valid. |
-|    MissingLanguage | The publisher language code is missing. |
-|    InvalidLanguage | The publisher language code is not valid. |
-|    DupplicateObjectId | The object has at least one object with the same id. |
-|    UnloadableModel | A fatal error has occured by building the links in the model. |
-|    MissingMandatoryFile | Mandatory file missing. |
-|    ExtraFile | The file does not belong to a GTFS archive. |
+| UnusedStop | A stop is not used. |
+| Slow | The speed between two stops is too low. |
+| ExcessiveSpeed | The speed between two stops is too high. |
+| NegativeTravelTime | The travel duration between two stops is negative. |
+| CloseStops | Two stops very close to each other in the same trips |
+| NullDuration | The travel duration between two stops is null. |
+| InvalidReference | Reference not valid. |
+| InvalidArchive | Archive not valid. |
+| MissingName | An agency, a route or a stop has its name missing. |
+| MissingId | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing. |
+| MissingCoordinates | A shape point or a stop is missing its coordinate(s). |
+| InvalidCoordinates | The coordinates of a shape point or a stop are not valid. |
+| InvalidRouteType | The type of a route is not valid. |
+| MissingUrl | An agency or a feed publisher is missing its URL. |
+| InvalidUrl | The URL of an agency or a feed publisher is not valid. |
+| InvalidTimezone | The TimeZone of an agency is not valid. |
+| DuplicateStops | Two stop points or stop areas are identical. |
+| MissingPrice | A fare is missing its price. |
+| InvalidCurrency | The currency of a fare is not valid |
+| InvalidTransfers | The number of transfers of a fare is not valid. |
+| InvalidTransferDuration | The transfer duration of a fare is not valid. |
+| MissingLanguage | The publisher language code is missing. |
+| InvalidLanguage | The publisher language code is not valid. |
+| DuplicateObjectId | The object has at least one object with the same id. |
+| UnloadableModel | A fatal error has occured by building the links in the model |
+| MissingMandatoryFile | Mandatory file missing |
+| ExtraFile | The file does not belong to a GTFS archive |
+| ImpossibleToInterpolateStopTimes | It's impossible to interpolate the departure/arrival of some stoptimes of the trip |
+| InvalidStopLocationTypeInTrip | Only Stop Points are allowed to be used in a Trip |
+| InvalidStopParent | The parent station of this stop is not a valid one |
 
 
 ## Alternatives
