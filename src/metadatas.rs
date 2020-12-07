@@ -22,7 +22,7 @@ pub struct Metadata {
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
-    use gtfs_structures::PickupDropOffType::*;
+    use gtfs_structures::PickupDropOffType;
     use gtfs_structures::RouteType::*;
 
     let start_end = gtfs
@@ -106,13 +106,13 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .as_ref()
             .unwrap_or(&vec![])
             .iter()
-            .any(|st| has_on_demand_pickup_dropoff(st, ArrangeByPhone)),
+            .any(|st| has_on_demand_pickup_dropoff(st, PickupDropOffType::ArrangeByPhone)),
         some_stops_need_phone_driver: gtfs
             .stop_times
             .as_ref()
             .unwrap_or(&vec![])
             .iter()
-            .any(|st| has_on_demand_pickup_dropoff(st, CoordinateWithDriver)),
+            .any(|st| has_on_demand_pickup_dropoff(st, PickupDropOffType::CoordinateWithDriver)),
     }
 }
 
