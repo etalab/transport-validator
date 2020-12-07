@@ -15,9 +15,14 @@ pub struct Metadata {
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
     pub has_shapes: bool,
+    // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
+    pub some_stops_need_phone_agency: bool,
+    // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
+    pub some_stops_need_phone_driver: bool,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
+    use gtfs_structures::PickupDropOffType::*;
     use gtfs_structures::RouteType::*;
 
     let start_end = gtfs
@@ -96,7 +101,45 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             Some(Ok(s)) => !s.is_empty(),
             _ => false,
         },
+        some_stops_need_phone_agency: gtfs
+            .stop_times
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .any(|st| has_on_demand_pickup_dropoff(st, ArrangeByPhone)),
+        some_stops_need_phone_driver: gtfs
+            .stop_times
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .any(|st| has_on_demand_pickup_dropoff(st, CoordinateWithDriver)),
     }
+}
+
+fn has_on_demand_pickup_dropoff(
+    stop_time: &gtfs_structures::RawStopTime,
+    pickup_dropoff_type: gtfs_structures::PickupDropOffType,
+) -> bool {
+    has_on_demand_pickup(stop_time, pickup_dropoff_type)
+        || has_on_demand_dropoff(stop_time, pickup_dropoff_type)
+}
+
+fn has_on_demand_pickup(
+    stop_time: &gtfs_structures::RawStopTime,
+    pickup_dropoff_type: gtfs_structures::PickupDropOffType,
+) -> bool {
+    stop_time
+        .pickup_type
+        .map_or(false, |pickup_time| pickup_time == pickup_dropoff_type)
+}
+
+fn has_on_demand_dropoff(
+    stop_time: &gtfs_structures::RawStopTime,
+    pickup_dropoff_type: gtfs_structures::PickupDropOffType,
+) -> bool {
+    stop_time
+        .drop_off_type
+        .map_or(false, |drop_off_type| drop_off_type == pickup_dropoff_type)
 }
 
 #[test]
@@ -121,4 +164,22 @@ fn test_no_fares_no_shapes() {
     let metadatas = extract_metadata(&raw_gtfs);
     assert!(!metadatas.has_fares);
     assert!(!metadatas.has_shapes);
+}
+
+#[test]
+fn test_stop_need_phone_agency() {
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/arrange_by_phone_stops")
+        .expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(metadatas.some_stops_need_phone_agency);
+    assert!(!metadatas.some_stops_need_phone_driver);
+}
+
+#[test]
+fn test_stop_need_phone_driver() {
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/coordinate_with_driver_stops")
+        .expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(!metadatas.some_stops_need_phone_agency);
+    assert!(metadatas.some_stops_need_phone_driver);
 }
