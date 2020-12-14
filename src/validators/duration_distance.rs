@@ -126,7 +126,15 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                             .add_related_object(&*arrival.stop)
                             .details(&details)
                     });
-                    issue.push_related_object(trip);
+                    // crappy implementation of "only add route if not already there"
+                    // if the idea is good, we'll likely switch to some hash map
+                    if !issue.related_objects.iter().any(|i| {
+                        (i.id == route.id)
+                            && (i.object_type.as_ref().unwrap()
+                                == &gtfs_structures::ObjectType::Route)
+                    }) {
+                        issue.push_related_object(route);
+                    }
                 }
             }
         }
