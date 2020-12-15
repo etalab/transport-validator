@@ -189,3 +189,31 @@ fn test() {
     assert_eq!(String::from("null"), issues[4].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[4].object_name);
 }
+
+#[test]
+fn test_optimisation_route_trips() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/optimisation_route_trips").unwrap();
+    let issues = validate(&gtfs);
+
+    assert_eq!(1, issues.len());
+    assert_eq!(IssueType::CloseStops, issues[0].issue_type);
+
+    assert_eq!(3, issues[0].related_objects.len());
+    assert_eq!(
+        issues[0].related_objects[0].object_type,
+        Some(gtfs_structures::ObjectType::Stop)
+    );
+    // we would normally refer to N trips here, but we optimised the payload by
+    // referring only to the parent route, and making sure the route appears only once.
+    assert_eq!(String::from("route1"), issues[0].related_objects[1].id);
+    assert_eq!(
+        issues[0].related_objects[1].object_type,
+        Some(gtfs_structures::ObjectType::Route)
+    );
+    // if multiple routes are involved, each will appear once
+    assert_eq!(String::from("route2"), issues[0].related_objects[2].id);
+    assert_eq!(
+        issues[0].related_objects[2].object_type,
+        Some(gtfs_structures::ObjectType::Route)
+    );
+}
