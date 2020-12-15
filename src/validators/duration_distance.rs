@@ -135,8 +135,7 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                     // there. Alternatively we could move to using a "set" here to optimize search time, if needed.
                     if !issue.related_objects.iter().any(|i| {
                         (i.id == route.id)
-                            && (i.object_type.as_ref().unwrap()
-                                == &gtfs_structures::ObjectType::Route)
+                            && (i.object_type == Some(gtfs_structures::ObjectType::Route))
                     }) {
                         issue.push_related_object(route);
                     }
