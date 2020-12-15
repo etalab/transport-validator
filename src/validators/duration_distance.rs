@@ -126,8 +126,13 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                             .add_related_object(&*arrival.stop)
                             .details(&details)
                     });
-                    // crappy implementation of "only add route if not already there"
-                    // if the idea is good, we'll likely switch to some hash map
+
+                    // In the past, we added each individual "trip" here, but it led to overly large
+                    // payloads due to the cardinality of trips (https://github.com/etalab/transport-validator/issues/101).
+                    // We now just refer to the corresponding route, and make sure the route is only added once.
+                    //
+                    // Because the number of routes is usually low on tested datasets, we just search if the route is already
+                    // there. Alternatively we could move to using a "set" here to optimize search time, if needed.
                     if !issue.related_objects.iter().any(|i| {
                         (i.id == route.id)
                             && (i.object_type.as_ref().unwrap()
