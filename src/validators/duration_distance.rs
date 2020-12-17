@@ -200,6 +200,7 @@ fn test_optimisation_route_trips() {
     let mut issues = validate(&gtfs);
 
     assert_eq!(1, issues.len());
+    // irrelevant to the test, but this acts as a guard in case someone modifies the fixtures
     assert_eq!(IssueType::CloseStops, issues[0].issue_type);
 
     // the routes order (for objects with index 1 and 2) is apparently non deterministic, for some
