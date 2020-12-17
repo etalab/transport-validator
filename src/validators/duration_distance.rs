@@ -126,7 +126,19 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                             .add_related_object(&*arrival.stop)
                             .details(&details)
                     });
-                    issue.push_related_object(trip);
+
+                    // In the past, we added each individual "trip" here, but it led to overly large
+                    // payloads due to the cardinality of trips (https://github.com/etalab/transport-validator/issues/101).
+                    // We now just refer to the corresponding route, and make sure the route is only added once.
+                    //
+                    // Because the number of routes is usually low on tested datasets, we just search if the route is already
+                    // there. Alternatively we could move to using a "set" here to optimize search time, if needed.
+                    if !issue.related_objects.iter().any(|i| {
+                        (i.id == route.id)
+                            && (i.object_type == Some(gtfs_structures::ObjectType::Route))
+                    }) {
+                        issue.push_related_object(route);
+                    }
                 }
             }
         }
@@ -180,4 +192,26 @@ fn test() {
     assert_eq!("near1", issues[4].object_id);
     assert_eq!(String::from("null"), issues[4].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[4].object_name);
+}
+
+#[test]
+fn test_optimisation_route_trips() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/optimisation_route_trips").unwrap();
+    let mut issues = validate(&gtfs);
+
+    assert_eq!(1, issues.len());
+    // irrelevant to the test, but this acts as a guard in case someone modifies the fixtures
+    assert_eq!(IssueType::CloseStops, issues[0].issue_type);
+
+    // the routes order (for objects with index 1 and 2) is apparently non deterministic, for some
+    // reason, so we sort the array to get a stable order and avoid random test failures
+    issues[0].related_objects.sort_by(|a, b| a.id.cmp(&b.id));
+
+    assert_eq!(3, issues[0].related_objects.len());
+
+    // we would normally find N trips here, but we optimised the payload by
+    // referring only to the parent route, and making sure each route appears only once.
+    assert_eq!("route1", issues[0].related_objects[0].id);
+    assert_eq!("route2", issues[0].related_objects[1].id);
+    assert_eq!("stop002", issues[0].related_objects[2].id);
 }

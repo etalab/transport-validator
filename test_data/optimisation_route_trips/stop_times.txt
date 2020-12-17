@@ -1,0 +1,9 @@
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_time_desc,pickup_type,drop_off_type
+trip001,14:00:00,14:00:00,stop001,0,"",0,0
+trip001,14:01:00,14:01:00,stop002,0,"",0,0
+trip002,14:00:00,14:00:00,stop001,0,"",0,0
+trip002,14:01:00,14:01:00,stop002,0,"",0,0
+trip003,14:00:00,14:00:00,stop001,0,"",0,0
+trip003,14:01:00,14:01:00,stop002,0,"",0,0
+trip004,14:00:00,14:00:00,stop001,0,"",0,0
+trip004,14:01:00,14:01:00,stop002,0,"",0,0
