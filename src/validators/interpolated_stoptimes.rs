@@ -21,7 +21,7 @@ fn impossible_to_interpolate_st(trip: &gtfs_structures::Trip) -> Option<Issue> {
         {
             Some(
                 Issue::new_with_obj(
-                    Severity::Warning,
+                    Severity::Error,
                     IssueType::ImpossibleToInterpolateStopTimes,
                     trip,
                 )
