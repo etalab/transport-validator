@@ -41,10 +41,10 @@ fn valid_currency(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
 }
 
 fn valid_transfers(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
-    match fare_attributes.transfers {
-        gtfs_structures::Transfers::Other(_) => false,
-        _ => true,
-    }
+    !matches!(
+        fare_attributes.transfers,
+        gtfs_structures::Transfers::Other(_)
+    )
 }
 
 fn valid_duration(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
