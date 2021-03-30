@@ -17,25 +17,23 @@ fn create_unloadable_model_error(error: gtfs_structures::Error) -> issues::Issue
     )
     .details(&msg);
 
-    match error {
-        gtfs_structures::Error::CSVError {
+    if let gtfs_structures::Error::CSVError {
+        file_name,
+        source,
+        line_in_error,
+    } = error
+    {
+        issue.related_file = Some(issues::RelatedFile {
             file_name,
-            source,
-            line_in_error,
-        } => {
-            issue.related_file = Some(issues::RelatedFile {
-                file_name: file_name.to_owned(),
-                line: source
-                    .position()
-                    .and_then(|p| line_in_error.map(|l| (p.line(), l)))
-                    .map(|(line_number, line_in_error)| issues::RelatedLine {
-                        line_number,
-                        headers: line_in_error.headers,
-                        values: line_in_error.values,
-                    }),
-            });
-        }
-        _ => {}
+            line: source
+                .position()
+                .and_then(|p| line_in_error.map(|l| (p.line(), l)))
+                .map(|(line_number, line_in_error)| issues::RelatedLine {
+                    line_number,
+                    headers: line_in_error.headers,
+                    values: line_in_error.values,
+                }),
+        });
     }
     issue
 }
@@ -89,9 +87,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
     }
 
     for (issue_type, issues) in validations.iter_mut() {
-        metadata
-            .issues_count
-            .insert(issue_type.clone(), issues.len());
+        metadata.issues_count.insert(*issue_type, issues.len());
         issues.truncate(max_issues);
     }
 
@@ -173,8 +169,8 @@ fn test_invalid_stop_points() {
                 file_name: "stops.txt".to_owned(),
                 line: Some(issues::RelatedLine {
                         line_number: 13,
-                        headers: vec!["stop_id", "stop_name", "stop_desc", "stop_lat", "stop_lon", "zone_id", "stop_url", "location_type", "parent_station"].into_iter().map(|s| s.to_owned()).collect(), 
-                        values: vec!["stop_with_bad_coord", "Moo", "", "baaaaaad_coord", "-116.40094", "", "", "", "1"].into_iter().map(|s| s.to_owned()).collect() 
+                        headers: vec!["stop_id", "stop_name", "stop_desc", "stop_lat", "stop_lon", "zone_id", "stop_url", "location_type", "parent_station"].into_iter().map(|s| s.to_owned()).collect(),
+                        values: vec!["stop_with_bad_coord", "Moo", "", "baaaaaad_coord", "-116.40094", "", "", "", "1"].into_iter().map(|s| s.to_owned()).collect()
                     }),
             })
     });

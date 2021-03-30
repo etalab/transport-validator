@@ -1,5 +1,4 @@
 use crate::issues::IssueType;
-use gtfs_structures;
 use itertools::Itertools;
 use serde::Serialize;
 

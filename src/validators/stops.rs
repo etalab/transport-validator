@@ -135,7 +135,7 @@ fn make_invalid_parent_issue<T: gtfs_structures::Id + gtfs_structures::Type + st
 
 fn valid_coord(stop: &gtfs_structures::Stop) -> bool {
     match (stop.longitude, stop.latitude) {
-        (Some(lon), Some(lat)) => lon <= 180.0 && lon >= -180.0 && lat <= 90.0 && lat >= -90.0,
+        (Some(lon), Some(lat)) => (-180.0..=180.0).contains(&lon) && (-90.0..=90.0).contains(&lat),
         _ => false, // there is already an issue if the coord is missing
     }
 }
