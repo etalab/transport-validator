@@ -133,10 +133,11 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                     //
                     // Because the number of routes is usually low on tested datasets, we just search if the route is already
                     // there. Alternatively we could move to using a "set" here to optimize search time, if needed.
-                    if !issue.related_objects.iter().any(|i| {
+                    let any_related = issue.related_objects.iter().any(|i| {
                         (i.id == route.id)
                             && (i.object_type == Some(gtfs_structures::ObjectType::Route))
-                    }) {
+                    });
+                    if !any_related {
                         issue.push_related_object(route);
                     }
                 }
