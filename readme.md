@@ -72,6 +72,10 @@ The release version (significantly faster) can be run as:
 
 `cargo run --release -- --input test_data/unused_stop`
 
+If you prefer formating the data in yaml or in pretty printed json, use the --output-format. For example:
+
+`cargo  run --release -- --output-format yaml --input test_data/unused_stop
+
 The development version can be run as:
 
 `cargo run -- --input test_data/unused_stop`
