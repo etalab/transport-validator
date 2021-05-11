@@ -57,7 +57,7 @@ Here is a human friendly list of them :
 
 ## Build and run
 
-1. This project is written in Rust. [Install it](https://rustup.rs/).
+1. This project is written in Rust. You need to first [install it](https://rustup.rs/) on your machine.
 
 2. Clone the project:
 
