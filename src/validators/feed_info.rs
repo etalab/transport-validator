@@ -131,5 +131,8 @@ fn test_valid_lang_upper() {
         start_date: None,
         end_date: None,
         version: None,
+        contact_email: None,
+        contact_url: None,
+        default_lang: None
     }));
 }
