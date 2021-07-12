@@ -1,4 +1,4 @@
-use crate::{issues, metadatas, validators};
+use crate::{issues, metadatas, validators, visualization};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;
@@ -103,14 +103,16 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
 pub fn generate_validation(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
     let raw_gtfs = gtfs_structures::RawGtfs::new(input);
-    process(raw_gtfs, max_issues)
+    let mut validation = process(&raw_gtfs, max_issues);
+    visualization::add_visualization(&mut validation, raw_gtfs);
+    validation
 }
 
 pub fn process(
-    raw_gtfs: Result<gtfs_structures::RawGtfs, gtfs_structures::Error>,
+    raw_gtfs: &Result<gtfs_structures::RawGtfs, gtfs_structures::Error>,
     max_issues: usize,
 ) -> Response {
-    match raw_gtfs {
+    match *raw_gtfs {
         Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues),
         Err(e) => {
             let mut validations = BTreeMap::new();
