@@ -176,7 +176,8 @@ fn test_invalid_stop_points() {
                         headers: vec!["stop_id", "stop_name", "stop_desc", "stop_lat", "stop_lon", "zone_id", "stop_url", "location_type", "parent_station"].into_iter().map(|s| s.to_owned()).collect(),
                         values: vec!["stop_with_bad_coord", "Moo", "", "baaaaaad_coord", "-116.40094", "", "", "", "1"].into_iter().map(|s| s.to_owned()).collect()
                     }),
-            })
+            }),
+            geojson: None
     });
 
     // a nice feature is that even if the model was unloadable, we can check some rules
@@ -195,7 +196,8 @@ fn test_invalid_stop_points() {
                 object_type: Some(gtfs_structures::ObjectType::Trip),
                 name: Some("route id: AAMV, service id: WE".to_string())
             }],
-            details: Some("The route is referenced by a trip but does not exists".to_string())
+            details: Some("The route is referenced by a trip but does not exists".to_string()),
+            geojson: None
         }]
     );
 }

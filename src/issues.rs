@@ -141,6 +141,7 @@ pub struct Issue {
     /// File causing an issue
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_file: Option<RelatedFile>,
+    pub geojson: Option<String>,
 }
 
 impl Issue {
@@ -158,6 +159,7 @@ impl Issue {
             related_objects: vec![],
             details: None,
             related_file: None,
+            geojson: None,
         }
     }
     /// Creates a new issue with the [severity], the [type of issue], and the concerned object's id, type and name.
@@ -178,6 +180,7 @@ impl Issue {
             related_objects: vec![],
             details: None,
             related_file: None,
+            geojson: None,
         }
     }
 
