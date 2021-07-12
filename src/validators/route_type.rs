@@ -36,7 +36,7 @@ fn test_valid() {
 #[test]
 fn test_missing() {
     let validations =
-        crate::validate::create_issues("test_data/route_type_missing", 10).validations;
+        crate::validate::generate_validation("test_data/route_type_missing", 10).validations;
     let invalid_archive_validations = validations.get(&IssueType::UnloadableModel).unwrap();
 
     assert_eq!(1, invalid_archive_validations.len());

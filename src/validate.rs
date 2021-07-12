@@ -100,7 +100,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
 /// Returns a [Response] with every issue on the GTFS.
 ///
 /// [Response]: struct.Response.html
-pub fn create_issues(input: &str, max_issues: usize) -> Response {
+pub fn generate_validation(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
     let raw_gtfs = gtfs_structures::RawGtfs::new(input);
     process(raw_gtfs, max_issues)
@@ -131,7 +131,7 @@ pub fn process(
     }
 }
 
-pub fn create_issues_from_reader<T: std::io::Read + std::io::Seek>(
+pub fn generate_validation_from_reader<T: std::io::Read + std::io::Seek>(
     reader: T,
     max_issues: usize,
 ) -> Response {
@@ -141,14 +141,16 @@ pub fn create_issues_from_reader<T: std::io::Read + std::io::Seek>(
 
 /// Returns a JSON with all the issues on the GTFS. Either takes an URL, a directory path or a .zip file as parameter.
 pub fn validate(input: &str, max_issues: usize) -> Result<String, anyhow::Error> {
-    Ok(serde_json::to_string(&create_issues(input, max_issues))?)
+    Ok(serde_json::to_string(&generate_validation(
+        input, max_issues,
+    ))?)
 }
 
 // Test reading a GTFS with a broken stops.txt file.
 // we should have the RawGTFS rules applied, and a `Fatal` error on the stops.txt file
 #[test]
 fn test_invalid_stop_points() {
-    let issues = create_issues("test_data/invalid_stop_file", 1000);
+    let issues = generate_validation("test_data/invalid_stop_file", 1000);
 
     let unloadable_model_errors = &issues.validations[&issues::IssueType::UnloadableModel];
 
