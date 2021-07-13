@@ -73,6 +73,9 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
                     .chain(validators::stop_times::validate(&gtfs))
                     .chain(validators::interpolated_stoptimes::validate(&gtfs)),
             );
+            issues
+                .iter_mut()
+                .for_each(|issue| visualization::add_issue_visualization(issue, &gtfs))
         }
         Err(e) => {
             issues.push(create_unloadable_model_error(e));
