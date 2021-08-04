@@ -5,7 +5,10 @@ use gtfs_structures::{Gtfs, ObjectType};
 use serde_json::{to_value, Map};
 use std::sync::Arc;
 
-pub fn generate_issue_visualization(issue: &issues::Issue, gtfs: &Gtfs) -> Option<String> {
+pub fn generate_issue_visualization(
+    issue: &issues::Issue,
+    gtfs: &Gtfs,
+) -> Option<FeatureCollection> {
     match issue.object_type {
         Some(ObjectType::Stop) => {
             let stop_id = issue.object_id.clone();
@@ -38,7 +41,7 @@ pub fn generate_issue_visualization(issue: &issues::Issue, gtfs: &Gtfs) -> Optio
                 foreign_members: None,
             };
 
-            Some(feature_collection.to_string())
+            Some(feature_collection)
         }
         _ => None,
     }
