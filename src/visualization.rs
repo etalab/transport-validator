@@ -93,19 +93,16 @@ fn geojson_feature_line_string(
     match (stop1, stop2) {
         (Some(stop1), Some(stop2)) => {
             let geom = line_geometry_between_stops(stop1, stop2);
-            let mut properties = Map::new();
-
-            if issue.details.is_some() {
-                properties.insert(
-                    String::from("details"),
-                    to_value(issue.details.as_ref().clone()).unwrap(),
-                );
-            }
+            let properties = issue.details.as_ref().map(|details| {
+                let mut properties = Map::new();
+                properties.insert(String::from("details"), to_value(details.clone()).unwrap());
+                properties
+            });
 
             Some(Feature {
                 geometry: geom,
                 bbox: None,
-                properties: Some(properties),
+                properties: properties,
                 id: None,
                 foreign_members: None,
             })
