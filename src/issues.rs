@@ -143,6 +143,7 @@ pub struct Issue {
     /// File causing an issue
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_file: Option<RelatedFile>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub geojson: Option<String>,
 }
 
