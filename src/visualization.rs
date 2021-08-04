@@ -4,7 +4,7 @@ use geojson::{Feature, FeatureCollection};
 use gtfs_structures::{Gtfs, ObjectType};
 use std::sync::Arc;
 
-pub fn add_issue_visualization(issue: &mut issues::Issue, gtfs: &Gtfs) {
+pub fn generate_issue_visualization(issue: &issues::Issue, gtfs: &Gtfs) -> Option<String> {
     match issue.object_type {
         Some(ObjectType::Stop) => {
             let stop_id = issue.object_id.clone();
@@ -23,10 +23,10 @@ pub fn add_issue_visualization(issue: &mut issues::Issue, gtfs: &Gtfs) {
                 foreign_members: None,
             };
 
-            issue.geojson = Some(feature_collection.to_string());
+            Some(feature_collection.to_string())
         }
-        _ => issue.geojson = None,
-    };
+        _ => None,
+    }
 }
 
 fn geojson_feature_point(stop_id: &String, gtfs: &Gtfs) -> Option<Feature> {

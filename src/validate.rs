@@ -1,4 +1,4 @@
-use crate::{issues, metadatas, validators, visualization};
+use crate::{issues, metadatas, validators};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;
@@ -75,7 +75,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
             );
             issues
                 .iter_mut()
-                .for_each(|issue| visualization::add_issue_visualization(issue, &gtfs))
+                .for_each(|issue| issue.push_related_geojson(&gtfs));
         }
         Err(e) => {
             issues.push(create_unloadable_model_error(e));

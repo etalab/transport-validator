@@ -1,4 +1,6 @@
 //! A module for issues creation.
+use crate::visualization;
+use gtfs_structures::Gtfs;
 use serde::Serialize;
 
 /// Represents the severity of an [`Issue`].
@@ -226,5 +228,9 @@ impl Issue {
             name: Some(format!("{}", o)),
             object_type: Some(o.object_type()),
         });
+    }
+
+    pub fn push_related_geojson(&mut self, gtfs: &Gtfs) {
+        self.geojson = visualization::generate_issue_visualization(&self, gtfs);
     }
 }
