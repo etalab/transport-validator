@@ -137,3 +137,21 @@ fn line_geometry_between_stops(
         _ => None,
     }
 }
+
+#[test]
+fn test_generated_geojson() {
+    use crate::issues;
+    use crate::validate;
+
+    let validation = validate::generate_validation("test_data/duration_distance", 10);
+    let speed_issues = validation
+        .validations
+        .get(&issues::IssueType::ExcessiveSpeed)
+        .unwrap();
+
+    assert_eq!(1, speed_issues.len());
+    let issue = &speed_issues[0];
+    // geojson contain 3 features : 2 points for the stops and 1 for the line between the stops
+    assert_eq!(3, issue.geojson.as_ref().unwrap().features.len());
+    assert_eq!(issue.geojson.as_ref().unwrap().to_string(), "{\"features\":[{\"geometry\":{\"coordinates\":[2.449186,48.796058],\"type\":\"Point\"},\"properties\":{\"id\":\"near1\",\"name\":\"Near1\"},\"type\":\"Feature\"},{\"geometry\":{\"coordinates\":[0.0,0.0],\"type\":\"Point\"},\"properties\":{\"id\":\"null\",\"name\":\"Null Island\"},\"type\":\"Feature\"},{\"geometry\":{\"coordinates\":[[2.449186,48.796058],[0.0,0.0]],\"type\":\"LineString\"},\"properties\":{\"details\":\"computed speed between the stops is 325858.52 km/h (5430975 m travelled in 60 seconds)\"},\"type\":\"Feature\"}],\"type\":\"FeatureCollection\"}");
+}
