@@ -37,7 +37,7 @@ pub fn generate_issue_visualization(
 
             let feature_collection = FeatureCollection {
                 bbox: None,
-                features: features,
+                features,
                 foreign_members: None,
             };
 
@@ -47,7 +47,7 @@ pub fn generate_issue_visualization(
     }
 }
 
-fn geojson_feature_point(stop_id: &String, gtfs: &Gtfs) -> Option<Feature> {
+fn geojson_feature_point(stop_id: &str, gtfs: &Gtfs) -> Option<Feature> {
     gtfs.stops.get(stop_id).map(|stop| {
         let stop_geom = get_stop_geom(stop);
         let mut properties = Map::new();
@@ -82,8 +82,8 @@ fn get_related_stop_ids(issue: &issues::Issue) -> Vec<String> {
 }
 
 fn geojson_feature_line_string(
-    stop1_id: &String,
-    stop2_id: &String,
+    stop1_id: &str,
+    stop2_id: &str,
     gtfs: &Gtfs,
     issue: &issues::Issue,
 ) -> Option<Feature> {
@@ -102,7 +102,7 @@ fn geojson_feature_line_string(
             Some(Feature {
                 geometry: geom,
                 bbox: None,
-                properties: properties,
+                properties,
                 id: None,
                 foreign_members: None,
             })
@@ -122,7 +122,9 @@ fn line_geometry_between_stops(
         &stop2.latitude,
     ) {
         (Some(lon1), Some(lat1), Some(lon2), Some(lat2)) => {
-            if *lon1 == *lon2 && *lat1 == *lat2 {
+            let error_margin = 1e-7;
+            // do not create a line between the stops is they are really close
+            if (*lon1 - *lon2).abs() < error_margin && (*lon1 - *lon2).abs() < error_margin {
                 return None;
             }
 
