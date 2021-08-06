@@ -52,8 +52,14 @@ fn geojson_feature_point(stop_id: &str, gtfs: &Gtfs) -> Option<Feature> {
         let stop_geom = get_stop_geom(stop);
         let mut properties = Map::new();
 
-        properties.insert(String::from("id"), to_value(&stop.id).unwrap());
-        properties.insert(String::from("name"), to_value(&stop.name).unwrap());
+        properties.insert(
+            String::from("id"),
+            to_value(&stop.id).unwrap_or(serde_json::json!("")),
+        );
+        properties.insert(
+            String::from("name"),
+            to_value(&stop.name).unwrap_or(serde_json::json!("")),
+        );
 
         Feature {
             geometry: stop_geom,
@@ -95,7 +101,10 @@ fn geojson_feature_line_string(
             let geom = line_geometry_between_stops(stop1, stop2);
             let properties = issue.details.as_ref().map(|details| {
                 let mut properties = Map::new();
-                properties.insert(String::from("details"), to_value(details.clone()).unwrap());
+                properties.insert(
+                    String::from("details"),
+                    to_value(details.clone()).unwrap_or(serde_json::json!("")),
+                );
                 properties
             });
 
