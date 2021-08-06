@@ -1,4 +1,4 @@
-use crate::validate::{create_issues_from_reader, process, Response};
+use crate::validate::{generate_validation_from_reader, process, Response};
 use actix_web::{get, post, web, web::Json, App, Error, HttpServer};
 use futures::StreamExt;
 use serde::Deserialize;
@@ -44,7 +44,7 @@ async fn validate_post(
         body.extend_from_slice(&chunk);
     }
     let reader = std::io::Cursor::new(body);
-    Ok(Json(create_issues_from_reader(reader, max_size)))
+    Ok(Json(generate_validation_from_reader(reader, max_size)))
 }
 
 pub fn run_server() -> std::io::Result<()> {

@@ -73,6 +73,9 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
                     .chain(validators::stop_times::validate(&gtfs))
                     .chain(validators::interpolated_stoptimes::validate(&gtfs)),
             );
+            issues
+                .iter_mut()
+                .for_each(|issue| issue.push_related_geojson(&gtfs));
         }
         Err(e) => {
             issues.push(create_unloadable_model_error(e));
@@ -100,7 +103,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
 /// Returns a [Response] with every issue on the GTFS.
 ///
 /// [Response]: struct.Response.html
-pub fn create_issues(input: &str, max_issues: usize) -> Response {
+pub fn generate_validation(input: &str, max_issues: usize) -> Response {
     log::info!("Starting validation: {}", input);
     let raw_gtfs = gtfs_structures::RawGtfs::new(input);
     process(raw_gtfs, max_issues)
@@ -131,7 +134,7 @@ pub fn process(
     }
 }
 
-pub fn create_issues_from_reader<T: std::io::Read + std::io::Seek>(
+pub fn generate_validation_from_reader<T: std::io::Read + std::io::Seek>(
     reader: T,
     max_issues: usize,
 ) -> Response {
@@ -141,14 +144,16 @@ pub fn create_issues_from_reader<T: std::io::Read + std::io::Seek>(
 
 /// Returns a JSON with all the issues on the GTFS. Either takes an URL, a directory path or a .zip file as parameter.
 pub fn validate(input: &str, max_issues: usize) -> Result<String, anyhow::Error> {
-    Ok(serde_json::to_string(&create_issues(input, max_issues))?)
+    Ok(serde_json::to_string(&generate_validation(
+        input, max_issues,
+    ))?)
 }
 
 // Test reading a GTFS with a broken stops.txt file.
 // we should have the RawGTFS rules applied, and a `Fatal` error on the stops.txt file
 #[test]
 fn test_invalid_stop_points() {
-    let issues = create_issues("test_data/invalid_stop_file", 1000);
+    let issues = generate_validation("test_data/invalid_stop_file", 1000);
 
     let unloadable_model_errors = &issues.validations[&issues::IssueType::UnloadableModel];
 
@@ -172,7 +177,8 @@ fn test_invalid_stop_points() {
                         headers: vec!["stop_id", "stop_name", "stop_desc", "stop_lat", "stop_lon", "zone_id", "stop_url", "location_type", "parent_station"].into_iter().map(|s| s.to_owned()).collect(),
                         values: vec!["stop_with_bad_coord", "Moo", "", "baaaaaad_coord", "-116.40094", "", "", "", "1"].into_iter().map(|s| s.to_owned()).collect()
                     }),
-            })
+            }),
+            geojson: None
     });
 
     // a nice feature is that even if the model was unloadable, we can check some rules
@@ -191,7 +197,8 @@ fn test_invalid_stop_points() {
                 object_type: Some(gtfs_structures::ObjectType::Trip),
                 name: Some("route id: AAMV, service id: WE".to_string())
             }],
-            details: Some("The route is referenced by a trip but does not exists".to_string())
+            details: Some("The route is referenced by a trip but does not exists".to_string()),
+            geojson: None
         }]
     );
 }

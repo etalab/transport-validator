@@ -44,7 +44,7 @@ fn main() -> Result<(), anyhow::Error> {
     let opt = Opt::from_args();
 
     if let Some(input) = opt.input {
-        let validations = &validate::create_issues(&input, opt.max_size);
+        let validations = &validate::generate_validation(&input, opt.max_size);
         let serialized = match opt.format {
             OutputFormat::Yaml => serde_yaml::to_string(validations)?,
             OutputFormat::Json => serde_json::to_string(validations)?,

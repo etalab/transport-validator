@@ -1,4 +1,7 @@
 //! A module for issues creation.
+use crate::visualization;
+use geojson::FeatureCollection;
+use gtfs_structures::Gtfs;
 use serde::Serialize;
 
 /// Represents the severity of an [`Issue`].
@@ -117,7 +120,7 @@ pub struct RelatedFile {
 }
 
 /// Represents an issue.
-#[derive(Serialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Debug, PartialEq)]
 pub struct Issue {
     /// Issue severity.
     pub severity: Severity,
@@ -141,6 +144,8 @@ pub struct Issue {
     /// File causing an issue
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_file: Option<RelatedFile>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub geojson: Option<FeatureCollection>,
 }
 
 impl Issue {
@@ -158,6 +163,7 @@ impl Issue {
             related_objects: vec![],
             details: None,
             related_file: None,
+            geojson: None,
         }
     }
     /// Creates a new issue with the [severity], the [type of issue], and the concerned object's id, type and name.
@@ -178,6 +184,7 @@ impl Issue {
             related_objects: vec![],
             details: None,
             related_file: None,
+            geojson: None,
         }
     }
 
@@ -223,5 +230,9 @@ impl Issue {
             name: Some(format!("{}", o)),
             object_type: Some(o.object_type()),
         });
+    }
+
+    pub fn push_related_geojson(&mut self, gtfs: &Gtfs) {
+        self.geojson = visualization::generate_issue_visualization(&self, gtfs);
     }
 }

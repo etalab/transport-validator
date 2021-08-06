@@ -34,6 +34,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             related_objects: vec![],
             details: None,
             related_file: None,
+            geojson: None,
         });
     let ag = if gtfs.agencies.len() <= 1 {
         vec![]
