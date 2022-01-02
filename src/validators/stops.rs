@@ -9,12 +9,11 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 }
 
 fn validate_coord(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let missing_coord = gtfs.stops.values().filter_map(|stop| check_coord(stop));
-    let valid = gtfs
-        .stops
-        .values()
+    let stops_as_ref = gtfs.stops.values().map(|stop| stop.as_ref());
+    let missing_coord = stops_as_ref.clone().filter_map(check_coord);
+    let valid = stops_as_ref
         .filter(|stop| !valid_coord(stop))
-        .map(|stop| make_invalid_coord_issue(stop));
+        .map(make_invalid_coord_issue);
     missing_coord.chain(valid).collect()
 }
 

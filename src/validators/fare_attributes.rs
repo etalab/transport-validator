@@ -4,12 +4,12 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let missing_price = gtfs
         .fare_attributes
         .values()
-        .filter(|fare_attributes| !has_price(*fare_attributes))
+        .filter(empty_price)
         .map(|fare_attributes| make_issue(fare_attributes, IssueType::MissingPrice));
     let invalid_currency = gtfs
         .fare_attributes
         .values()
-        .filter(|fare_attributes| !valid_currency(*fare_attributes))
+        .filter(invalid_currency)
         .map(|fare_attributes| make_issue(fare_attributes, IssueType::InvalidCurrency));
     let invalid_transfers = gtfs
         .fare_attributes
@@ -32,12 +32,12 @@ fn make_issue<T: gtfs_structures::Id>(o: &T, issue_type: IssueType) -> Issue {
     Issue::new(Severity::Error, issue_type, o.id()).object_type(gtfs_structures::ObjectType::Fare)
 }
 
-fn has_price(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
-    !fare_attributes.price.is_empty()
+fn empty_price(fare_attributes: &&gtfs_structures::FareAttribute) -> bool {
+    fare_attributes.price.is_empty()
 }
 
-fn valid_currency(fare_attributes: &gtfs_structures::FareAttribute) -> bool {
-    iso4217::alpha3(&fare_attributes.currency).is_some()
+fn invalid_currency(fare_attributes: &&gtfs_structures::FareAttribute) -> bool {
+    iso4217::alpha3(&fare_attributes.currency).is_none()
 }
 
 fn valid_transfers(fare_attributes: &gtfs_structures::FareAttribute) -> bool {

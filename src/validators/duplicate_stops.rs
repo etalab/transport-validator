@@ -4,24 +4,17 @@ use geo::Point;
 use itertools::Itertools;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let mut issues = vec![];
-
-    for (stop_a, stop_b) in gtfs
-        .stops
+    gtfs.stops
         .values()
         .filter(|stop| stop.location_type != gtfs_structures::LocationType::StationEntrance)
         .tuple_combinations()
-    {
-        if duplicate_stops(stop_a, stop_b) {
-            issues.push(
-                make_duplicate_stops_issue(stop_a.as_ref()).add_related_object(stop_b.as_ref()),
-            );
-        }
-    }
-    issues
+        .map(|(a, b)| (a.as_ref(), b.as_ref()))
+        .filter(duplicate_stops)
+        .map(make_duplicate_stops_issue)
+        .collect()
 }
 
-fn duplicate_stops(stop_a: &gtfs_structures::Stop, stop_b: &gtfs_structures::Stop) -> bool {
+fn duplicate_stops((stop_a, stop_b): &(&gtfs_structures::Stop, &gtfs_structures::Stop)) -> bool {
     stop_a.name == stop_b.name
         && stop_a.location_type == stop_b.location_type
         && too_close_stops(stop_a, stop_b)
@@ -47,12 +40,8 @@ fn too_close_stops(stop_a: &gtfs_structures::Stop, stop_b: &gtfs_structures::Sto
     }
 }
 
-fn make_duplicate_stops_issue<
-    T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display,
->(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Information, IssueType::DuplicateStops, o)
+fn make_duplicate_stops_issue((a, b): (&gtfs_structures::Stop, &gtfs_structures::Stop)) -> Issue {
+    Issue::new_with_obj(Severity::Information, IssueType::DuplicateStops, a).add_related_object(b)
 }
 
 #[test]

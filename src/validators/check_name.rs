@@ -3,23 +3,23 @@ use crate::issues::{Issue, IssueType, Severity};
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let route_issues = gtfs
         .routes
-        .iter()
-        .filter(|&(_, route)| !has_name(route))
-        .map(|(_, route)| make_missing_name_issue(route));
+        .values()
+        .filter(empty_name)
+        .map(make_missing_name_issue);
     let stop_issues = gtfs
         .stops
         .values()
-        .filter(|&stop| !has_name(stop))
-        .map(|stop| make_missing_name_issue(stop.as_ref()));
+        .filter(empty_name)
+        .map(make_missing_name_issue);
     let agency_issues = gtfs
         .agencies
         .iter()
-        .filter(|&agency| !has_name(agency))
+        .filter(empty_name)
         .map(make_missing_name_issue);
     let feed_info_issues = gtfs
         .feed_info
         .iter()
-        .filter(|&feed_info| !has_name(feed_info))
+        .filter(empty_name)
         .map(|_feed_info| Issue::new(Severity::Warning, IssueType::MissingName, ""));
     route_issues
         .chain(stop_issues)
@@ -28,12 +28,14 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .collect()
 }
 
-fn has_name<T: std::fmt::Display>(o: &T) -> bool {
-    !format!("{}", o).is_empty()
+fn empty_name<T: std::fmt::Display>(o: &T) -> bool {
+    format!("{}", o).is_empty()
 }
 
-fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type>(o: &T) -> Issue {
-    Issue::new(Severity::Warning, IssueType::MissingName, o.id()).object_type(o.object_type())
+fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
+    o: &T,
+) -> Issue {
+    Issue::new_with_obj(Severity::Warning, IssueType::MissingName, o)
 }
 
 #[test]
