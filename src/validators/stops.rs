@@ -73,6 +73,7 @@ fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
                         None
                     }
                 }
+                _ => None,
             };
             if let Some(details) = details {
                 let mut issue = make_invalid_parent_issue(&**stop).details(details);
