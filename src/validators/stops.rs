@@ -14,7 +14,7 @@ fn validate_coord(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .stops
         .values()
         .filter(|stop| !valid_coord(stop))
-        .map(|stop| make_invalid_coord_issue(&**stop));
+        .map(|stop| make_invalid_coord_issue(stop));
     missing_coord.chain(valid).collect()
 }
 
@@ -75,15 +75,13 @@ fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
                 }
                 _ => None,
             };
-            if let Some(details) = details {
-                let mut issue = make_invalid_parent_issue(&**stop).details(details);
+            details.map(|d| {
+                let mut issue = make_invalid_parent_issue(stop).details(d);
                 if let Some(parent) = parent {
-                    issue.push_related_object(&**parent);
+                    issue.push_related_object(parent.as_ref());
                 }
-                Some(issue)
-            } else {
-                None
-            }
+                issue
+            })
         })
         .collect()
 }
@@ -117,21 +115,16 @@ fn has_coord(stop: &gtfs_structures::Stop) -> bool {
     }
 }
 
-fn make_invalid_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::InvalidCoordinates, o)
+fn make_invalid_coord_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Error, IssueType::InvalidCoordinates, stop)
 }
 
-fn make_missing_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Warning, IssueType::MissingCoordinates, o)
+fn make_missing_coord_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Warning, IssueType::MissingCoordinates, stop)
 }
-fn make_invalid_parent_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Warning, IssueType::InvalidStopParent, o)
+
+fn make_invalid_parent_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Warning, IssueType::InvalidStopParent, stop)
 }
 
 fn valid_coord(stop: &gtfs_structures::Stop) -> bool {

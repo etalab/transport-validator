@@ -13,7 +13,9 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .tuple_combinations()
     {
         if duplicate_stops(stop_a, stop_b) {
-            issues.push(make_duplicate_stops_issue(&**stop_a).add_related_object(&**stop_b));
+            issues.push(
+                make_duplicate_stops_issue(stop_a.as_ref()).add_related_object(stop_b.as_ref()),
+            );
         }
     }
     issues

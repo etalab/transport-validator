@@ -30,8 +30,6 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         })
     });
 
-    // dbg!(wrong_stops);
-
     wrong_stops.into_iter().map(|(_, v)| v).collect()
 }
 

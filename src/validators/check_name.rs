@@ -9,17 +9,17 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let stop_issues = gtfs
         .stops
         .values()
-        .filter(|&stop| !has_name(&**stop))
-        .map(|stop| make_missing_name_issue(&**stop));
+        .filter(|&stop| !has_name(stop))
+        .map(|stop| make_missing_name_issue(stop.as_ref()));
     let agency_issues = gtfs
         .agencies
         .iter()
-        .filter(|&agency| !has_name(&*agency))
+        .filter(|&agency| !has_name(agency))
         .map(|agency| make_missing_name_issue(agency));
     let feed_info_issues = gtfs
         .feed_info
         .iter()
-        .filter(|&feed_info| !has_name(&*feed_info))
+        .filter(|&feed_info| !has_name(feed_info))
         .map(|_feed_info| Issue::new(Severity::Warning, IssueType::MissingName, ""));
     route_issues
         .chain(stop_issues)

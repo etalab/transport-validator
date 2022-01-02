@@ -124,7 +124,7 @@ pub fn process(
                     issues::IssueType::InvalidArchive,
                     "",
                 )
-                .details(format!("{}", e).as_ref())],
+                .details(&format!("{}", e))],
             );
             Response {
                 metadata: None,

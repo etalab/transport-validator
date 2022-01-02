@@ -4,23 +4,23 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let r = gtfs
         .routes
         .values()
-        .filter(|route| !has_id(*route))
+        .filter(|&route| !has_id(route))
         .map(|route| make_missing_id_issue(route));
     let t = gtfs
         .trips
         .values()
-        .filter(|trip| !has_id(*trip))
+        .filter(|&trip| !has_id(trip))
         .map(|trip| make_missing_id_issue(trip));
     let c = gtfs
         .calendar
         .values()
-        .filter(|calendar| !has_id(*calendar))
+        .filter(|&calendar| !has_id(calendar))
         .map(|calendar| make_missing_id_issue(calendar));
     let st = gtfs
         .stops
         .values()
-        .filter(|&stop| !has_id(&**stop))
-        .map(|stop| make_missing_id_issue(&**stop));
+        .filter(|&stop| !has_id(stop.as_ref()))
+        .map(|stop| make_missing_id_issue(stop.as_ref()));
     let sh = gtfs
         .shapes
         .keys()
