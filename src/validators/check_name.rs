@@ -15,7 +15,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .agencies
         .iter()
         .filter(|&agency| !has_name(agency))
-        .map(|agency| make_missing_name_issue(agency));
+        .map(make_missing_name_issue);
     let feed_info_issues = gtfs
         .feed_info
         .iter()

@@ -233,6 +233,6 @@ impl Issue {
     }
 
     pub fn push_related_geojson(&mut self, gtfs: &Gtfs) {
-        self.geojson = visualization::generate_issue_visualization(&self, gtfs);
+        self.geojson = visualization::generate_issue_visualization(self, gtfs);
     }
 }

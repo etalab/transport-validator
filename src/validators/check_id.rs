@@ -5,17 +5,17 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .routes
         .values()
         .filter(|&route| !has_id(route))
-        .map(|route| make_missing_id_issue(route));
+        .map(make_missing_id_issue);
     let t = gtfs
         .trips
         .values()
         .filter(|&trip| !has_id(trip))
-        .map(|trip| make_missing_id_issue(trip));
+        .map(make_missing_id_issue);
     let c = gtfs
         .calendar
         .values()
         .filter(|&calendar| !has_id(calendar))
-        .map(|calendar| make_missing_id_issue(calendar));
+        .map(make_missing_id_issue);
     let st = gtfs
         .stops
         .values()
@@ -42,7 +42,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         gtfs.agencies
             .iter()
             .filter(|agency| !has_id(*agency))
-            .map(|agency| make_missing_id_issue(agency))
+            .map(make_missing_id_issue)
             .collect()
     };
     r.chain(t)

@@ -58,24 +58,24 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
     match gtfs_structures::Gtfs::try_from(rgtfs) {
         Ok(ref gtfs) => {
             issues.extend(
-                validators::unused_stop::validate(&gtfs)
+                validators::unused_stop::validate(gtfs)
                     .into_iter()
-                    .chain(validators::duration_distance::validate(&gtfs))
-                    .chain(validators::check_name::validate(&gtfs))
-                    .chain(validators::check_id::validate(&gtfs))
-                    .chain(validators::stops::validate(&gtfs))
-                    .chain(validators::route_type::validate(&gtfs))
-                    .chain(validators::shapes::validate(&gtfs))
-                    .chain(validators::agency::validate(&gtfs))
-                    .chain(validators::duplicate_stops::validate(&gtfs))
-                    .chain(validators::fare_attributes::validate(&gtfs))
-                    .chain(validators::feed_info::validate(&gtfs))
-                    .chain(validators::stop_times::validate(&gtfs))
-                    .chain(validators::interpolated_stoptimes::validate(&gtfs)),
+                    .chain(validators::duration_distance::validate(gtfs))
+                    .chain(validators::check_name::validate(gtfs))
+                    .chain(validators::check_id::validate(gtfs))
+                    .chain(validators::stops::validate(gtfs))
+                    .chain(validators::route_type::validate(gtfs))
+                    .chain(validators::shapes::validate(gtfs))
+                    .chain(validators::agency::validate(gtfs))
+                    .chain(validators::duplicate_stops::validate(gtfs))
+                    .chain(validators::fare_attributes::validate(gtfs))
+                    .chain(validators::feed_info::validate(gtfs))
+                    .chain(validators::stop_times::validate(gtfs))
+                    .chain(validators::interpolated_stoptimes::validate(gtfs)),
             );
             issues
                 .iter_mut()
-                .for_each(|issue| issue.push_related_geojson(&gtfs));
+                .for_each(|issue| issue.push_related_geojson(gtfs));
         }
         Err(e) => {
             issues.push(create_unloadable_model_error(e));

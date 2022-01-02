@@ -14,26 +14,16 @@ pub fn generate_issue_visualization(
             let stop_id = issue.object_id.clone();
             let related_stop_ids = get_related_stop_ids(issue);
 
-            // a vec containing the stop_id and the related stop ids features
-            let stop_features: Vec<_> = [stop_id.clone()]
-                .iter()
+            // iterator on the stop_id and the related stop ids features
+            let stop_features = std::iter::once(&stop_id)
                 .chain(related_stop_ids.iter())
-                .map(|stop_id| geojson_feature_point(&stop_id, gtfs))
-                .flatten()
-                .collect();
+                .flat_map(|stop_id| geojson_feature_point(stop_id, gtfs));
 
-            let line_string_features: Vec<_> = related_stop_ids
-                .iter()
-                .map(|related_stop| {
-                    geojson_feature_line_string(&stop_id, related_stop, gtfs, issue)
-                })
-                .flatten()
-                .collect();
+            let line_string_features = related_stop_ids.iter().flat_map(|related_stop| {
+                geojson_feature_line_string(&stop_id, related_stop, gtfs, issue)
+            });
 
-            let features = stop_features
-                .into_iter()
-                .chain(line_string_features.into_iter())
-                .collect();
+            let features = stop_features.chain(line_string_features).collect();
 
             let feature_collection = FeatureCollection {
                 bbox: None,
@@ -49,20 +39,19 @@ pub fn generate_issue_visualization(
 
 fn geojson_feature_point(stop_id: &str, gtfs: &Gtfs) -> Option<Feature> {
     gtfs.stops.get(stop_id).map(|stop| {
-        let stop_geom = get_stop_geom(stop);
         let mut properties = Map::new();
 
         properties.insert(
             String::from("id"),
-            to_value(&stop.id).unwrap_or(serde_json::json!("")),
+            to_value(&stop.id).unwrap_or_else(|_| serde_json::json!("")),
         );
         properties.insert(
             String::from("name"),
-            to_value(&stop.name).unwrap_or(serde_json::json!("")),
+            to_value(&stop.name).unwrap_or_else(|_| serde_json::json!("")),
         );
 
         Feature {
-            geometry: stop_geom,
+            geometry: get_stop_geom(stop),
             bbox: None,
             properties: Some(properties),
             id: None,
@@ -103,7 +92,7 @@ fn geojson_feature_line_string(
                 let mut properties = Map::new();
                 properties.insert(
                     String::from("details"),
-                    to_value(details.clone()).unwrap_or(serde_json::json!("")),
+                    to_value(details.clone()).unwrap_or_else(|_| serde_json::json!("")),
                 );
                 properties
             });

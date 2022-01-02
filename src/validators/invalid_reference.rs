@@ -124,7 +124,7 @@ impl Ids {
             .iter()
             .filter_map(|route| {
                 route.agency_id.as_ref().and_then(|agency_id| {
-                    self.check_ref(&agency_id, gtfs_structures::ObjectType::Agency)
+                    self.check_ref(agency_id, gtfs_structures::ObjectType::Agency)
                         .map(|i| {
                             i.details("The agency is referenced by a route but does not exists")
                                 .add_related_object(route)
@@ -148,7 +148,7 @@ impl Ids {
             .iter()
             .filter_map(|stop| {
                 stop.parent_station.as_ref().and_then(|parent_station_id| {
-                    self.check_ref(&parent_station_id, gtfs_structures::ObjectType::Stop)
+                    self.check_ref(parent_station_id, gtfs_structures::ObjectType::Stop)
                         .map(|i| {
                             i.details("The stop is referenced as a stop's parent_station but does not exists")
                                 .add_related_object(stop)
