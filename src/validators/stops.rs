@@ -20,19 +20,13 @@ fn validate_coord(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 // Check if the parent of the stop is correct
 // Note: we don't check if the parent exists, because it is checked by the `InvalidReference` issue
 fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let stops_by_id: std::collections::HashMap<_, _> = gtfs
-        .stops
-        .iter()
-        .map(|(_, stop)| (stop.id.clone(), stop.clone()))
-        .collect();
-
     gtfs.stops
-        .iter()
-        .filter_map(|(_, stop)| {
+        .values()
+        .filter_map(|stop| {
             let parent = stop
                 .parent_station
                 .as_ref()
-                .and_then(|parent| stops_by_id.get(parent));
+                .and_then(|parent| gtfs.stops.get(parent));
             let details = match stop.location_type {
                 LocationType::StopArea => {
                     // a stop area is forbidden to have a parent station
@@ -42,13 +36,9 @@ fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
                 }
                 LocationType::StopPoint => {
                     // the parent station of a StopPoint is optional, but should only be a stop area
-                    parent.and_then(|parent| {
-                        if parent.location_type != LocationType::StopArea {
-                            Some("The parent of a stop point should be a stop area")
-                        } else {
-                            None
-                        }
-                    })
+                    parent
+                        .filter(|parent| parent.location_type != LocationType::StopArea)
+                        .map(|_| "The parent of a stop point should be a stop area")
                 }
                 LocationType::GenericNode | LocationType::StationEntrance => {
                     // the parent station of a generic node or entrance is mandatory and should be a stop area

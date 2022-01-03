@@ -77,8 +77,7 @@ impl Ids {
             )
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>() // we don't want too many invalid reference dupplicate, so we keep one by object
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 
@@ -106,8 +105,7 @@ impl Ids {
             }))
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>()
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 
@@ -130,8 +128,7 @@ impl Ids {
             })
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>()
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 
@@ -154,8 +151,7 @@ impl Ids {
             })
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>()
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 }
