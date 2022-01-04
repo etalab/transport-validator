@@ -4,29 +4,21 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let missing_url = gtfs
         .feed_info
         .iter()
-        .filter(|feed_info| !has_url(feed_info))
+        .filter(missing_url)
         .map(|feed_info| make_issue(feed_info, Severity::Warning, IssueType::MissingUrl));
-    let invalid_url = gtfs
-        .feed_info
-        .iter()
-        .filter(|feed_info| !valid_url(feed_info))
-        .map(|feed_info| {
-            make_issue(feed_info, Severity::Warning, IssueType::InvalidUrl)
-                .details(&format!("Publisher url {} is invalid", feed_info.url))
-        });
+    let invalid_url = gtfs.feed_info.iter().filter(invalid_url).map(|feed_info| {
+        make_issue(feed_info, Severity::Warning, IssueType::InvalidUrl)
+            .details(&format!("Publisher url {} is invalid", feed_info.url))
+    });
     let missing_lang = gtfs
         .feed_info
         .iter()
-        .filter(|feed_info| !has_lang(feed_info))
+        .filter(missing_lang)
         .map(|feed_info| make_issue(feed_info, Severity::Warning, IssueType::MissingLanguage));
-    let invalid_lang = gtfs
-        .feed_info
-        .iter()
-        .filter(|feed_info| !valid_lang(feed_info))
-        .map(|feed_info| {
-            make_issue(feed_info, Severity::Warning, IssueType::InvalidLanguage)
-                .details(&format!("Language code {} does not exist", feed_info.lang))
-        });
+    let invalid_lang = gtfs.feed_info.iter().filter(invalid_lang).map(|feed_info| {
+        make_issue(feed_info, Severity::Warning, IssueType::InvalidLanguage)
+            .details(&format!("Language code {} does not exist", feed_info.lang))
+    });
     missing_url
         .chain(invalid_url)
         .chain(missing_lang)
@@ -42,24 +34,24 @@ fn make_issue(
     Issue::new(severity, issue_type, "").name(&format!("{}", feed))
 }
 
-fn has_url(feed: &gtfs_structures::FeedInfo) -> bool {
-    !feed.url.is_empty()
+fn missing_url(feed: &&gtfs_structures::FeedInfo) -> bool {
+    feed.url.is_empty()
 }
 
-fn valid_url(feed: &gtfs_structures::FeedInfo) -> bool {
-    url::Url::parse(feed.url.as_ref())
+fn invalid_url(feed: &&gtfs_structures::FeedInfo) -> bool {
+    !url::Url::parse(feed.url.as_ref())
         .map(|url| vec!["https", "http", "ftp"].contains(&url.scheme()))
         .unwrap_or(false)
 }
 
-fn has_lang(feed: &gtfs_structures::FeedInfo) -> bool {
-    !feed.lang.is_empty()
+fn missing_lang(feed: &&gtfs_structures::FeedInfo) -> bool {
+    feed.lang.is_empty()
 }
 
-fn valid_lang(feed: &gtfs_structures::FeedInfo) -> bool {
+fn invalid_lang(feed: &&gtfs_structures::FeedInfo) -> bool {
     let lang = feed.lang.to_lowercase();
     let len = lang.len();
-    match len {
+    !match len {
         2 => isolang::Language::from_639_1(&lang).is_some(),
         3 => isolang::Language::from_639_3(&lang).is_some(),
         4..=11 => isolang::Language::from_locale(&lang).is_some(),
@@ -124,7 +116,7 @@ fn test_valid_lang() {
 
 #[test]
 fn test_valid_lang_upper() {
-    assert!(valid_lang(&gtfs_structures::FeedInfo {
+    assert!(!invalid_lang(&&gtfs_structures::FeedInfo {
         name: "bob".to_owned(),
         url: "http://bob.com".to_owned(),
         lang: "FR".to_owned(),

@@ -22,18 +22,16 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     }
 
     gtfs.stops
-        .iter()
+        .values()
         // We ignore other location types (such as entrances or boarding points)
-        .filter(|&(_, stop)| stop.location_type == StopPoint || stop.location_type == StopArea)
-        .filter(|&(_, stop)| !used_stops.contains(&stop.id))
-        .map(|(_, stop)| make_unused_stop_issue(&**stop))
+        .filter(|&stop| stop.location_type == StopPoint || stop.location_type == StopArea)
+        .filter(|&stop| !used_stops.contains(&stop.id))
+        .map(|stop| make_unused_stop_issue(stop))
         .collect()
 }
 
-fn make_unused_stop_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Information, IssueType::UnusedStop, o)
+fn make_unused_stop_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Information, IssueType::UnusedStop, stop)
 }
 
 #[test]

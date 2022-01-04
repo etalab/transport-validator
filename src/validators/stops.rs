@@ -9,31 +9,24 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 }
 
 fn validate_coord(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let missing_coord = gtfs.stops.values().filter_map(|stop| check_coord(stop));
-    let valid = gtfs
-        .stops
-        .values()
+    let stops_as_ref = gtfs.stops.values().map(|stop| stop.as_ref());
+    let missing_coord = stops_as_ref.clone().filter_map(check_coord);
+    let valid = stops_as_ref
         .filter(|stop| !valid_coord(stop))
-        .map(|stop| make_invalid_coord_issue(&**stop));
+        .map(make_invalid_coord_issue);
     missing_coord.chain(valid).collect()
 }
 
 // Check if the parent of the stop is correct
 // Note: we don't check if the parent exists, because it is checked by the `InvalidReference` issue
 fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    let stops_by_id: std::collections::HashMap<_, _> = gtfs
-        .stops
-        .iter()
-        .map(|(_, stop)| (stop.id.clone(), stop.clone()))
-        .collect();
-
     gtfs.stops
-        .iter()
-        .filter_map(|(_, stop)| {
+        .values()
+        .filter_map(|stop| {
             let parent = stop
                 .parent_station
                 .as_ref()
-                .and_then(|parent| stops_by_id.get(parent));
+                .and_then(|parent| gtfs.stops.get(parent));
             let details = match stop.location_type {
                 LocationType::StopArea => {
                     // a stop area is forbidden to have a parent station
@@ -43,13 +36,9 @@ fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
                 }
                 LocationType::StopPoint => {
                     // the parent station of a StopPoint is optional, but should only be a stop area
-                    parent.and_then(|parent| {
-                        if parent.location_type != LocationType::StopArea {
-                            Some("The parent of a stop point should be a stop area")
-                        } else {
-                            None
-                        }
-                    })
+                    parent
+                        .filter(|parent| parent.location_type != LocationType::StopArea)
+                        .map(|_| "The parent of a stop point should be a stop area")
                 }
                 LocationType::GenericNode | LocationType::StationEntrance => {
                     // the parent station of a generic node or entrance is mandatory and should be a stop area
@@ -73,16 +62,15 @@ fn validate_parent_id(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
                         None
                     }
                 }
+                _ => None,
             };
-            if let Some(details) = details {
-                let mut issue = make_invalid_parent_issue(&**stop).details(details);
+            details.map(|d| {
+                let mut issue = make_invalid_parent_issue(stop).details(d);
                 if let Some(parent) = parent {
-                    issue.push_related_object(&**parent);
+                    issue.push_related_object(parent.as_ref());
                 }
-                Some(issue)
-            } else {
-                None
-            }
+                issue
+            })
         })
         .collect()
 }
@@ -116,21 +104,16 @@ fn has_coord(stop: &gtfs_structures::Stop) -> bool {
     }
 }
 
-fn make_invalid_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::InvalidCoordinates, o)
+fn make_invalid_coord_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Error, IssueType::InvalidCoordinates, stop)
 }
 
-fn make_missing_coord_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Warning, IssueType::MissingCoordinates, o)
+fn make_missing_coord_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Warning, IssueType::MissingCoordinates, stop)
 }
-fn make_invalid_parent_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
-    o: &T,
-) -> Issue {
-    Issue::new_with_obj(Severity::Warning, IssueType::InvalidStopParent, o)
+
+fn make_invalid_parent_issue(stop: &gtfs_structures::Stop) -> Issue {
+    Issue::new_with_obj(Severity::Warning, IssueType::InvalidStopParent, stop)
 }
 
 fn valid_coord(stop: &gtfs_structures::Stop) -> bool {

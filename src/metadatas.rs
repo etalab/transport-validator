@@ -119,26 +119,7 @@ fn has_on_demand_pickup_dropoff(
     stop_time: &gtfs_structures::RawStopTime,
     pickup_dropoff_type: gtfs_structures::PickupDropOffType,
 ) -> bool {
-    has_on_demand_pickup(stop_time, pickup_dropoff_type)
-        || has_on_demand_dropoff(stop_time, pickup_dropoff_type)
-}
-
-fn has_on_demand_pickup(
-    stop_time: &gtfs_structures::RawStopTime,
-    pickup_dropoff_type: gtfs_structures::PickupDropOffType,
-) -> bool {
-    stop_time
-        .pickup_type
-        .map_or(false, |pickup_time| pickup_time == pickup_dropoff_type)
-}
-
-fn has_on_demand_dropoff(
-    stop_time: &gtfs_structures::RawStopTime,
-    pickup_dropoff_type: gtfs_structures::PickupDropOffType,
-) -> bool {
-    stop_time
-        .drop_off_type
-        .map_or(false, |drop_off_type| drop_off_type == pickup_dropoff_type)
+    stop_time.pickup_type == pickup_dropoff_type || stop_time.drop_off_type == pickup_dropoff_type
 }
 
 #[test]

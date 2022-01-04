@@ -37,19 +37,16 @@ impl Ids {
     }
 
     fn check_ref(&self, id: &str, object_type: gtfs_structures::ObjectType) -> Option<Issue> {
-        match self.ids.get(&object_type) {
-            None => None, // we have loaded no ids from this type (because we haven't been able to read those objects), we can skip
-            Some(ids) => {
-                if ids.contains(id) {
-                    None
-                } else {
-                    Some(
-                        Issue::new(Severity::Fatal, IssueType::InvalidReference, id)
-                            .object_type(object_type),
-                    )
-                }
+        self.ids.get(&object_type).and_then(|ids| {
+            if ids.contains(id) {
+                None
+            } else {
+                Some(
+                    Issue::new(Severity::Fatal, IssueType::InvalidReference, id)
+                        .object_type(object_type),
+                )
             }
-        }
+        })
     }
 
     fn check_stop_times(
@@ -80,8 +77,7 @@ impl Ids {
             )
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>() // we don't want too many invalid reference dupplicate, so we keep one by object
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 
@@ -109,8 +105,7 @@ impl Ids {
             }))
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>()
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 
@@ -124,7 +119,7 @@ impl Ids {
             .iter()
             .filter_map(|route| {
                 route.agency_id.as_ref().and_then(|agency_id| {
-                    self.check_ref(&agency_id, gtfs_structures::ObjectType::Agency)
+                    self.check_ref(agency_id, gtfs_structures::ObjectType::Agency)
                         .map(|i| {
                             i.details("The agency is referenced by a route but does not exists")
                                 .add_related_object(route)
@@ -133,8 +128,7 @@ impl Ids {
             })
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>()
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 
@@ -148,7 +142,7 @@ impl Ids {
             .iter()
             .filter_map(|stop| {
                 stop.parent_station.as_ref().and_then(|parent_station_id| {
-                    self.check_ref(&parent_station_id, gtfs_structures::ObjectType::Stop)
+                    self.check_ref(parent_station_id, gtfs_structures::ObjectType::Stop)
                         .map(|i| {
                             i.details("The stop is referenced as a stop's parent_station but does not exists")
                                 .add_related_object(stop)
@@ -157,8 +151,7 @@ impl Ids {
             })
             .map(|i| (i.object_id.clone(), i))
             .collect::<HashMap<_, _>>()
-            .into_iter()
-            .map(|(_, i)| i)
+            .into_values()
             .collect()
     }
 }

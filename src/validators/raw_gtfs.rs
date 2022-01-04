@@ -26,14 +26,14 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         .chain(check_duplicates(&raw_gtfs.trips, Severity::Warning).into_iter())
         .chain(
             check_duplicates(
-                &raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![])),
+                raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![])),
                 Severity::Error,
             )
             .into_iter(),
         )
         .chain(
             check_duplicates(
-                &raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])),
+                raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])),
                 Severity::Warning,
             )
             .into_iter(),

@@ -4,23 +4,23 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let r = gtfs
         .routes
         .values()
-        .filter(|route| !has_id(*route))
-        .map(|route| make_missing_id_issue(route));
+        .filter(missing_id)
+        .map(make_missing_id_issue);
     let t = gtfs
         .trips
         .values()
-        .filter(|trip| !has_id(*trip))
-        .map(|trip| make_missing_id_issue(trip));
+        .filter(missing_id)
+        .map(make_missing_id_issue);
     let c = gtfs
         .calendar
         .values()
-        .filter(|calendar| !has_id(*calendar))
-        .map(|calendar| make_missing_id_issue(calendar));
+        .filter(missing_id)
+        .map(make_missing_id_issue);
     let st = gtfs
         .stops
         .values()
-        .filter(|&stop| !has_id(&**stop))
-        .map(|stop| make_missing_id_issue(&**stop));
+        .filter(missing_id)
+        .map(make_missing_id_issue);
     let sh = gtfs
         .shapes
         .keys()
@@ -36,25 +36,23 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             related_file: None,
             geojson: None,
         });
-    let ag = if gtfs.agencies.len() <= 1 {
-        vec![]
-    } else {
+
+    let chain = r.chain(t).chain(c).chain(st).chain(sh);
+    // The Id of an agency needs only to be specified if there are more than one agency
+    if gtfs.agencies.len() > 1 {
         gtfs.agencies
             .iter()
-            .filter(|agency| !has_id(*agency))
-            .map(|agency| make_missing_id_issue(agency))
+            .filter(missing_id)
+            .map(make_missing_id_issue)
+            .chain(chain)
             .collect()
-    };
-    r.chain(t)
-        .chain(c)
-        .chain(st)
-        .chain(sh)
-        .chain(ag.into_iter())
-        .collect()
+    } else {
+        chain.collect()
+    }
 }
 
-fn has_id(object: &dyn gtfs_structures::Id) -> bool {
-    !object.id().is_empty()
+fn missing_id<T: gtfs_structures::Id>(object: &&T) -> bool {
+    object.id().is_empty()
 }
 
 fn make_missing_id_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
