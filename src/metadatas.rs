@@ -14,6 +14,7 @@ pub struct Metadata {
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
     pub has_shapes: bool,
+    pub has_all_routes_colors: bool,
     // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
     pub some_stops_need_phone_agency: bool,
     // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
@@ -100,6 +101,12 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             Some(Ok(s)) => !s.is_empty(),
             _ => false,
         },
+        has_all_routes_colors: gtfs
+            .routes
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .all(|r| r.route_color.is_some() && r.route_text_color.is_some()),
         some_stops_need_phone_agency: gtfs
             .stop_times
             .as_ref()
@@ -162,4 +169,20 @@ fn test_stop_need_phone_driver() {
     let metadatas = extract_metadata(&raw_gtfs);
     assert!(!metadatas.some_stops_need_phone_agency);
     assert!(metadatas.some_stops_need_phone_driver);
+}
+
+#[test]
+fn test_route_have_colors() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/no_fares_no_shapes").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(metadatas.has_all_routes_colors);
+}
+
+#[test]
+fn test_route_no_color() {
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/missing_route_color")
+        .expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(!metadatas.has_all_routes_colors);
 }
