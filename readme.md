@@ -45,6 +45,7 @@ Here is a human friendly list of them :
 | ImpossibleToInterpolateStopTimes | It's impossible to interpolate the departure/arrival of some stoptimes of the trip |
 | InvalidStopLocationTypeInTrip | Only Stop Points are allowed to be used in a Trip |
 | InvalidStopParent | The parent station of this stop is not a valid one |
+| IdNotAscii | The identifier is not only ASCII characters |
 
 
 ## Alternatives
