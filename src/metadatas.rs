@@ -1,7 +1,7 @@
 use crate::issues::IssueType;
 use itertools::Itertools;
-use serde::Serialize;
 use rgb::RGB;
+use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {
@@ -108,11 +108,14 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .unwrap_or(&vec![])
             .iter()
             .filter(|r| {
-                let text_default_color = RGB{r:0,g:0,b:0}; // black
-                let route_default_color = RGB{r:255,g:255,b:255}; // white
+                let text_default_color = RGB { r: 0, g: 0, b: 0 }; // black
+                let route_default_color = RGB {
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                }; // white
                 r.text_color != text_default_color || r.color != route_default_color
-            }
-            )
+            })
             .count(),
         some_stops_need_phone_agency: gtfs
             .stop_times
@@ -188,8 +191,8 @@ fn test_route_have_colors() {
 
 #[test]
 fn test_route_no_color() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/custom_route_color")
-        .expect("Failed to load data");
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/custom_route_color").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
     assert_eq!(3, metadatas.lines_with_custom_color_count);
 }
