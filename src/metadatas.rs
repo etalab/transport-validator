@@ -182,15 +182,7 @@ fn test_stop_need_phone_driver() {
 }
 
 #[test]
-fn test_route_have_colors() {
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/no_fares_no_shapes").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert_eq!(2, metadatas.lines_with_custom_color_count);
-}
-
-#[test]
-fn test_route_no_color() {
+fn test_count_lines_with_custom_color() {
     let raw_gtfs =
         gtfs_structures::RawGtfs::new("test_data/custom_route_color").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
