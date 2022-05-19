@@ -29,4 +29,5 @@ url = "2"
 actix-web = "4.0"
 actix-rt = "2"
 geojson = "0.22"
+rgb = "0.8"
 
