@@ -1,6 +1,7 @@
 use crate::issues::IssueType;
 use itertools::Itertools;
 use serde::Serialize;
+use rgb::RGB;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {
@@ -14,7 +15,7 @@ pub struct Metadata {
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
     pub has_shapes: bool,
-    pub has_all_routes_colors: bool,
+    pub lines_with_custom_color_count: usize,
     // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
     pub some_stops_need_phone_agency: bool,
     // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
@@ -101,12 +102,18 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             Some(Ok(s)) => !s.is_empty(),
             _ => false,
         },
-        has_all_routes_colors: gtfs
+        lines_with_custom_color_count: gtfs
             .routes
             .as_ref()
             .unwrap_or(&vec![])
             .iter()
-            .all(|r| r.route_color.is_some() && r.route_text_color.is_some()),
+            .filter(|r| {
+                let text_default_color = RGB{r:0,g:0,b:0}; // black
+                let route_default_color = RGB{r:255,g:255,b:255}; // white
+                r.text_color != text_default_color || r.color != route_default_color
+            }
+            )
+            .count(),
         some_stops_need_phone_agency: gtfs
             .stop_times
             .as_ref()
@@ -176,13 +183,13 @@ fn test_route_have_colors() {
     let raw_gtfs =
         gtfs_structures::RawGtfs::new("test_data/no_fares_no_shapes").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
-    assert!(metadatas.has_all_routes_colors);
+    assert_eq!(2, metadatas.lines_with_custom_color_count);
 }
 
 #[test]
 fn test_route_no_color() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/missing_route_color")
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/custom_route_color")
         .expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
-    assert!(!metadatas.has_all_routes_colors);
+    assert_eq!(3, metadatas.lines_with_custom_color_count);
 }

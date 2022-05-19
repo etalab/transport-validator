@@ -2065,6 +2065,7 @@ dependencies = [
  "isolang",
  "itertools",
  "log",
+ "rgb",
  "serde",
  "serde_json",
  "serde_yaml",
