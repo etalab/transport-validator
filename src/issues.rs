@@ -83,6 +83,8 @@ pub enum IssueType {
     InvalidStopLocationTypeInTrip,
     /// The parent station of this stop is not a valid one
     InvalidStopParent,
+    /// The Id is not in ASCII encoding
+    IdNotAscii,
 }
 
 /// Represents an object related to another object that is causing an issue.
