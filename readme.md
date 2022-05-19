@@ -5,7 +5,7 @@ _General Transit Files Specification_ is a file format defining of transit timet
 This project allows to validate the format and semantics of the timetable.
 
 ## Online tool
-transport-validator is the tool used by the [French National Access Point](https://transport.data.gouv.fr/) to validate GTFS files. If you want to try it, you can validate your own files at [this address](https://transport.data.gouv.fr/validation).
+transport-validator is the tool used by the [French National Access Point](https://transport.data.gouv.fr/) to validate GTFS files. If you want to try it, you can validate your own files at [this address](https://transport.data.gouv.fr/validation?locale=en).
 
 ## List of checks done by the validator
 
