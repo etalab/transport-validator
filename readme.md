@@ -1,6 +1,6 @@
 # Validate GTFS files
 
-The General Transit Feed Specification (GTFS) defines a common format for public transportation schedules and associated geographic information.
+The General Transit Feed Specification ([GTFS](https://gtfs.org/)) defines a common format for public transportation schedules and associated geographic information.
 
 This project is a validating tool for such files and can perform checks ranging from simple ones (the archive is not valid, a file is missing) to more complex ones (a vehicle is moving too fast).
 
