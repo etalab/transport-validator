@@ -6,14 +6,15 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .iter()
         .filter(|agency| !has_url(agency))
         .map(|agency| Issue::new_with_obj(Severity::Warning, IssueType::MissingUrl, agency));
-    let invalid_url = gtfs
-        .agencies
-        .iter()
-        .filter(|agency| !valid_url(agency))
-        .map(|agency| {
-            Issue::new_with_obj(Severity::Warning, IssueType::InvalidUrl, agency)
-                .details(&format!("Publisher url {} is invalid", agency.url))
-        });
+    let invalid_url =
+        gtfs.agencies
+            .iter()
+            .filter(|agency| has_url(agency) && !valid_url(agency))
+            .map(|agency| {
+                Issue::new_with_obj(Severity::Warning, IssueType::InvalidUrl, agency).details(
+                    &format!("The agency_url (in agency.txt) {} is invalid", agency.url),
+                )
+            });
     let invalid_tz = gtfs
         .agencies
         .iter()
@@ -46,10 +47,16 @@ fn test_missing_url() {
         .iter()
         .filter(|issue| issue.issue_type == IssueType::MissingUrl)
         .collect();
+    let invalid_url: Vec<_> = issues
+        .iter()
+        .filter(|issue| issue.issue_type == IssueType::InvalidUrl)
+        .filter(|issue| issue.object_name == Some("BIBUS".to_string()))
+        .collect();
 
     assert_eq!(1, missing_url_issue.len());
     assert_eq!("BIBUS", missing_url_issue[0].object_name.as_ref().unwrap());
     assert_eq!(IssueType::MissingUrl, missing_url_issue[0].issue_type);
+    assert_eq!(0, invalid_url.len());
 }
 
 #[test]

@@ -1,6 +1,6 @@
 # Validate GTFS files
 
-The General Transit Feed Specification (GTFS) defines a common format for public transportation schedules and associated geographic information.
+The General Transit Feed Specification ([GTFS](https://gtfs.org/)) defines a common format for public transportation schedules and associated geographic information.
 
 This project is a validating tool for such files and can perform checks ranging from simple ones (the archive is not valid, a file is missing) to more complex ones (a vehicle is moving too fast).
 
@@ -10,10 +10,10 @@ transport-validator is the tool used by the [French National Access Point](https
 
 ## Validation output
 Validation output is twofold:
-* it gives useful informations about the validated file, under the `metadata` entry
-* it lists a serie of validation items, with a corresponding severity, under the `validations` entry. When relevant, geographical data (geojson) related to the issue is given to ease file debugging.
+* it gives useful information about the validated file, under the `metadata` entry
+* it lists a serie of validation items, with a corresponding severity, under the `validations` entry. When relevant, geographical data ([GeoJSON](https://geojson.org/)) related to the issue is given to ease file debugging.
 
-The output is by default formatted in `json`, but `yaml` si also available. See [Options](https://github.com/etalab/transport-validator#options) for more infos.
+The output is by default formatted in `json`, but `yaml` is also available. See [Options](https://github.com/etalab/transport-validator#options) for more information.
 
 ```json
 {
@@ -27,7 +27,7 @@ The output is by default formatted in `json`, but `yaml` si also available. See 
 ```
 
 ### Metadata
-Give some useful informations about the validated file content:
+Give useful information about the validated file content:
 
 | Entry                           | format | Description                                                                                     |
 |---------------------------------|--------|----------------------------------------------------------------------------------------|
@@ -170,7 +170,7 @@ Here is a validation output containing one warning, triggered by a non Ascii Sto
 }
 ```
 
-Another example showing the geojson information for an information about two stops too close:
+Another example showing the GeoJSON information for an information about two stops too close:
 
 ```json
     "validations": {
@@ -250,7 +250,7 @@ cd transport-validator
 ```
 ## Run the validator
 
-### Rune file by file
+### Run from a local directory
 The release version can be run as:
 
 `cargo run --release -- --input test_data/unused_stop`
