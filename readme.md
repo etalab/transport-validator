@@ -13,7 +13,7 @@ Validation output is twofold:
 * it gives useful information about the validated file, under the `metadata` entry
 * it lists a serie of validation items, with a corresponding severity, under the `validations` entry. When relevant, geographical data ([GeoJSON](https://geojson.org/)) related to the issue is given to ease file debugging.
 
-The output is by default formatted in `json`, but `yaml` si also available. See [Options](https://github.com/etalab/transport-validator#options) for more infos.
+The output is by default formatted in `json`, but `yaml` is also available. See [Options](https://github.com/etalab/transport-validator#options) for more information.
 
 ```json
 {
