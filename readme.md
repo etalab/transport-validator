@@ -27,7 +27,7 @@ The output is by default formatted in `json`, but `yaml` is also available. See 
 ```
 
 ### Metadata
-Give some useful informations about the validated file content:
+Give useful information about the validated file content:
 
 | Entry                           | format | Description                                                                                     |
 |---------------------------------|--------|----------------------------------------------------------------------------------------|
