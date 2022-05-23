@@ -1,5 +1,6 @@
 use crate::issues::IssueType;
 use itertools::Itertools;
+use rgb::RGB;
 use serde::Serialize;
 
 #[derive(Serialize, Debug)]
@@ -15,6 +16,7 @@ pub struct Metadata {
     pub has_fares: bool,
     pub has_shapes: bool,
     pub has_pathways: bool,
+    pub lines_with_custom_color_count: usize,
     // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
     pub some_stops_need_phone_agency: bool,
     // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
@@ -105,6 +107,21 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             Some(Ok(p)) => !p.is_empty(),
             _ => false,
         },
+        lines_with_custom_color_count: gtfs
+            .routes
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .filter(|r| {
+                let text_default_color = RGB { r: 0, g: 0, b: 0 }; // black
+                let route_default_color = RGB {
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                }; // white
+                r.text_color != text_default_color || r.color != route_default_color
+            })
+            .count(),
         some_stops_need_phone_agency: gtfs
             .stop_times
             .as_ref()
@@ -176,4 +193,12 @@ fn test_has_pathways() {
         .expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
     assert!(metadatas.has_pathways);
+}
+
+#[test]
+fn test_count_lines_with_custom_color() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/custom_route_color").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert_eq!(3, metadatas.lines_with_custom_color_count);
 }

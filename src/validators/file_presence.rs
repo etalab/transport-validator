@@ -17,6 +17,11 @@ const OPTIONAL_FILES: &[&str] = &[
     "frequencies.txt",
     "transfers.txt",
     "shapes.txt",
+    "pathways.txt",
+    "levels.txt",
+    "feed_info.txt",
+    "translations.txt",
+    "attributions.txt",
 ];
 
 fn missing_files(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
