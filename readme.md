@@ -251,14 +251,15 @@ cd transport-validator
 ## Run the validator
 
 ### Rune file by file
-The development version can be run as:
-
-`cargo run -- --input test_data/unused_stop`
-
-The release version (significantly faster) can be run as:
+The release version can be run as:
 
 `cargo run --release -- --input test_data/unused_stop`
 
+It is the fastest and recommanded version to use when validating files.
+
+If you are developping on the validator, you can also run a debug build:
+
+`cargo run -- --input test_data/unused_stop`
 
 The validator can read a zip file, or an url:
 
