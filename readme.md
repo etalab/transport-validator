@@ -45,7 +45,7 @@ Give useful information about the validated file content:
 | lines_with_custom_color_count | integer | Numer of routes found in `routes.txt` with a custom `route_color` or a custom `route_text_color`. Custom means different from the default values. |
 | some_stops_need_phone_agency | boolean | Some stops have a `continuous_pickup` or a `continuous_drop_off` field equal to `2`. |
 | some_stops_need_phone_driver | boolean | Some stops have a `continuous_pickup` or a `continuous_drop_off` field equal to `3`. |
-| validator_version | string | The validator version as found in cargo.tml file |
+| validator_version | string | The validator version as found in the `Cargo.toml` |
 #### Example
 
 ```json
