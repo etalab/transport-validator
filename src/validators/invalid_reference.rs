@@ -59,7 +59,7 @@ impl Ids {
             .iter()
             .filter_map(|st| {
                 self.check_ref(&st.trip_id, gtfs_structures::ObjectType::Trip)
-                    .map(|i| i.details("The trip is referenced by a stop time but does not exists"))
+                    .map(|i| i.details("The trip is referenced by a stop time but does not exist"))
             })
             .chain(
                 stop_times
@@ -70,7 +70,7 @@ impl Ids {
                         self.check_ref(&st.stop_id, gtfs_structures::ObjectType::Stop)
                             .map(|i| {
                                 i.details(
-                                    "The stop is referenced by a stop time but does not exists",
+                                    "The stop is referenced by a stop time but does not exist",
                                 )
                             })
                     }),
@@ -92,14 +92,14 @@ impl Ids {
             .filter_map(|trip| {
                 self.check_ref(&trip.service_id, gtfs_structures::ObjectType::Calendar)
                     .map(|i| {
-                        i.details("The service is referenced by a trip but does not exists")
+                        i.details("The service is referenced by a trip but does not exist")
                             .add_related_object(trip)
                     })
             })
             .chain(trips.as_ref().unwrap_or(&vec![]).iter().filter_map(|trip| {
                 self.check_ref(&trip.route_id, gtfs_structures::ObjectType::Route)
                     .map(|i| {
-                        i.details("The route is referenced by a trip but does not exists")
+                        i.details("The route is referenced by a trip but does not exist")
                             .add_related_object(trip)
                     })
             }))
@@ -121,7 +121,7 @@ impl Ids {
                 route.agency_id.as_ref().and_then(|agency_id| {
                     self.check_ref(agency_id, gtfs_structures::ObjectType::Agency)
                         .map(|i| {
-                            i.details("The agency is referenced by a route but does not exists")
+                            i.details("The agency is referenced by a route but does not exist")
                                 .add_related_object(route)
                         })
                 })
@@ -144,7 +144,7 @@ impl Ids {
                 stop.parent_station.as_ref().and_then(|parent_station_id| {
                     self.check_ref(parent_station_id, gtfs_structures::ObjectType::Stop)
                         .map(|i| {
-                            i.details("The stop is referenced as a stop's parent_station but does not exists")
+                            i.details("The stop is referenced as a stop's parent_station but does not exist")
                                 .add_related_object(stop)
                         })
                 })
@@ -190,7 +190,7 @@ fn test() {
     assert_eq!(unknown_stop_issue.object_type, Some(ObjectType::Stop));
     assert_eq!(
         unknown_stop_issue.details,
-        Some("The stop is referenced by a stop time but does not exists".to_owned())
+        Some("The stop is referenced by a stop time but does not exist".to_owned())
     );
 
     let unknown_trip_issue = issues
@@ -202,7 +202,7 @@ fn test() {
     assert_eq!(unknown_trip_issue.object_type, Some(ObjectType::Trip));
     assert_eq!(
         unknown_trip_issue.details,
-        Some("The trip is referenced by a stop time but does not exists".to_owned())
+        Some("The trip is referenced by a stop time but does not exist".to_owned())
     );
 
     let unknown_service_issue = issues
@@ -220,7 +220,7 @@ fn test() {
     );
     assert_eq!(
         unknown_service_issue.details,
-        Some("The service is referenced by a trip but does not exists".to_owned())
+        Some("The service is referenced by a trip but does not exist".to_owned())
     );
     assert_eq!(
         unknown_service_issue.related_objects,
@@ -240,7 +240,7 @@ fn test() {
     assert_eq!(unknown_route_issue.object_type, Some(ObjectType::Route));
     assert_eq!(
         unknown_route_issue.details,
-        Some("The route is referenced by a trip but does not exists".to_owned())
+        Some("The route is referenced by a trip but does not exist".to_owned())
     );
     assert_eq!(
         unknown_route_issue.related_objects,
@@ -260,7 +260,7 @@ fn test() {
     assert_eq!(unknown_agency_issue.object_type, Some(ObjectType::Agency));
     assert_eq!(
         unknown_agency_issue.details,
-        Some("The agency is referenced by a route but does not exists".to_owned())
+        Some("The agency is referenced by a route but does not exist".to_owned())
     );
 
     let unknown_stop_parent_issue = issues
@@ -278,6 +278,6 @@ fn test() {
     );
     assert_eq!(
         unknown_stop_parent_issue.details,
-        Some("The stop is referenced as a stop's parent_station but does not exists".to_owned())
+        Some("The stop is referenced as a stop's parent_station but does not exist".to_owned())
     );
 }
