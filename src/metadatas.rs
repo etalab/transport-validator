@@ -175,6 +175,5 @@ fn test_has_pathways() {
     let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/missing_mandatory_files")
         .expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
-    println!("{:#?}", raw_gtfs.pathways);
     assert!(metadatas.has_pathways);
 }
