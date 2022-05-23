@@ -250,7 +250,7 @@ cd transport-validator
 ```
 ## Run the validator
 
-### Rune file by file
+### Run from a local directory
 The development version can be run as:
 
 `cargo run -- --input test_data/unused_stop`
