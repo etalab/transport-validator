@@ -162,7 +162,7 @@ fn test_has_shapes() {
 #[test]
 fn test_no_optional_files() {
     let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/no_fares_no_shapes").expect("Failed to load data");
+        gtfs_structures::RawGtfs::new("test_data/no_optional_files").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
     assert!(!metadatas.has_fares);
     assert!(!metadatas.has_shapes);
