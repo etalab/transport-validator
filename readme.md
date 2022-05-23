@@ -170,7 +170,7 @@ Here is a validation output containing one warning, triggered by a non Ascii Sto
 }
 ```
 
-Another example showing the geojson information for an information about two stops too close:
+Another example showing the GeoJSON information for an information about two stops too close:
 
 ```json
     "validations": {
