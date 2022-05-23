@@ -197,7 +197,7 @@ fn test_invalid_stop_points() {
                 object_type: Some(gtfs_structures::ObjectType::Trip),
                 name: Some("route id: AAMV, service id: WE".to_string())
             }],
-            details: Some("The route is referenced by a trip but does not exists".to_string()),
+            details: Some("The route is referenced by a trip but does not exist".to_string()),
             geojson: None
         }]
     );

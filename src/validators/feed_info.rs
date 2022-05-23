@@ -4,12 +4,18 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let missing_url = gtfs
         .feed_info
         .iter()
-        .filter(missing_url)
+        .filter(is_missing_url)
         .map(|feed_info| make_issue(feed_info, Severity::Warning, IssueType::MissingUrl));
-    let invalid_url = gtfs.feed_info.iter().filter(invalid_url).map(|feed_info| {
-        make_issue(feed_info, Severity::Warning, IssueType::InvalidUrl)
-            .details(&format!("Publisher url {} is invalid", feed_info.url))
-    });
+    let invalid_url = gtfs
+        .feed_info
+        .iter()
+        .filter(|fi| !is_missing_url(fi) && is_invalid_url(fi))
+        .map(|feed_info| {
+            make_issue(feed_info, Severity::Warning, IssueType::InvalidUrl).details(&format!(
+                "The feed_publisher_url (in feed_infos.txt) {} is invalid",
+                feed_info.url
+            ))
+        });
     let missing_lang = gtfs
         .feed_info
         .iter()
@@ -34,11 +40,11 @@ fn make_issue(
     Issue::new(severity, issue_type, "").name(&format!("{}", feed))
 }
 
-fn missing_url(feed: &&gtfs_structures::FeedInfo) -> bool {
+fn is_missing_url(feed: &&gtfs_structures::FeedInfo) -> bool {
     feed.url.is_empty()
 }
 
-fn invalid_url(feed: &&gtfs_structures::FeedInfo) -> bool {
+fn is_invalid_url(feed: &&gtfs_structures::FeedInfo) -> bool {
     !url::Url::parse(feed.url.as_ref())
         .map(|url| vec!["https", "http", "ftp"].contains(&url.scheme()))
         .unwrap_or(false)
@@ -80,7 +86,6 @@ fn test_valid_url() {
     let invalid_url_issue: Vec<_> = issues
         .iter()
         .filter(|issue| issue.issue_type == IssueType::InvalidUrl)
-        .filter(|issue| issue.object_name == Some("BIBUS".to_string()))
         .collect();
 
     assert_eq!(1, invalid_url_issue.len());
@@ -94,7 +99,6 @@ fn test_missing_lang() {
     let missing_lang_issue: Vec<_> = issues
         .iter()
         .filter(|issue| issue.issue_type == IssueType::MissingLanguage)
-        .filter(|issue| issue.object_name == Some("BIBUS".to_string()))
         .collect();
 
     assert_eq!(1, missing_lang_issue.len());
