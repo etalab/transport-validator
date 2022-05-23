@@ -15,6 +15,7 @@ pub struct Metadata {
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
     pub has_shapes: bool,
+    pub has_pathways: bool,
     pub lines_with_custom_color_count: usize,
     // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
     pub some_stops_need_phone_agency: bool,
@@ -102,6 +103,10 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             Some(Ok(s)) => !s.is_empty(),
             _ => false,
         },
+        has_pathways: match &gtfs.pathways {
+            Some(Ok(p)) => !p.is_empty(),
+            _ => false,
+        },
         lines_with_custom_color_count: gtfs
             .routes
             .as_ref()
@@ -155,12 +160,13 @@ fn test_has_shapes() {
 }
 
 #[test]
-fn test_no_fares_no_shapes() {
+fn test_no_optional_files() {
     let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/no_fares_no_shapes").expect("Failed to load data");
+        gtfs_structures::RawGtfs::new("test_data/no_optional_files").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
     assert!(!metadatas.has_fares);
     assert!(!metadatas.has_shapes);
+    assert!(!metadatas.has_pathways);
 }
 
 #[test]
@@ -179,6 +185,14 @@ fn test_stop_need_phone_driver() {
     let metadatas = extract_metadata(&raw_gtfs);
     assert!(!metadatas.some_stops_need_phone_agency);
     assert!(metadatas.some_stops_need_phone_driver);
+}
+
+#[test]
+fn test_has_pathways() {
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/missing_mandatory_files")
+        .expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert!(metadatas.has_pathways);
 }
 
 #[test]
