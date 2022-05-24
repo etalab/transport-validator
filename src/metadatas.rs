@@ -21,6 +21,7 @@ pub struct Metadata {
     pub some_stops_need_phone_agency: bool,
     // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
     pub some_stops_need_phone_driver: bool,
+    pub validator_version: String,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
@@ -46,6 +47,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         .minmax()
         .into_option();
     let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
+    let validator_version = env!("CARGO_PKG_VERSION");
 
     Metadata {
         start_date: start_end.map(|(s, _)| format(s)),
@@ -134,6 +136,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .unwrap_or(&vec![])
             .iter()
             .any(|st| has_on_demand_pickup_dropoff(st, PickupDropOffType::CoordinateWithDriver)),
+        validator_version: validator_version.to_owned(),
     }
 }
 
@@ -142,6 +145,14 @@ fn has_on_demand_pickup_dropoff(
     pickup_dropoff_type: gtfs_structures::PickupDropOffType,
 ) -> bool {
     stop_time.pickup_type == pickup_dropoff_type || stop_time.drop_off_type == pickup_dropoff_type
+}
+
+#[test]
+fn show_validation_version() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/fare_attributes").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert_eq!(metadatas.validator_version.is_empty(), false);
 }
 
 #[test]
