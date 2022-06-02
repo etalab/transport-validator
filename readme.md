@@ -284,7 +284,7 @@ You can then ask for a validation:
 
 ## Options
 
-* `--input` or `-i`: Path to the gtfs file. Can be a directory or a zip file
+* `--input` or `-i`: Path (can be a directory or a zip file) or HTTP URL (file will be downloaded) of the GTFS file.
 * `--max-issues` or `-m`: The maxium number of issues per type. Defaults to 1000.
 * `--output-format` or `-f`: Output format (when using the validator in command line). Value by default is `json`, but `yaml` is also available.
 
