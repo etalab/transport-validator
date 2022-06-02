@@ -23,7 +23,7 @@ struct Opt {
     #[structopt(
         short = "m",
         long = "max-issues",
-        help = "The maxium number of issues per type",
+        help = "The maximum number of issues per type",
         default_value = "1000"
     )]
     max_size: usize,
