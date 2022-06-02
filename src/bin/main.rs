@@ -17,13 +17,13 @@ struct Opt {
     #[structopt(
         short = "i",
         long = "input",
-        help = "Path to the gtfs file. Can be a directory or a zip file"
+        help = "Path to the gtfs file (can be a directory or a zip file) or HTTP URL of the file (will be downloaded)"
     )]
     input: Option<String>,
     #[structopt(
         short = "m",
         long = "max-issues",
-        help = "The maxium number of issues per type",
+        help = "The maximum number of issues per type",
         default_value = "1000"
     )]
     max_size: usize,
