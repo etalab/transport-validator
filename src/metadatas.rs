@@ -10,6 +10,8 @@ pub struct Metadata {
     pub stop_areas_count: usize,
     pub stop_points_count: usize,
     pub lines_count: usize,
+    pub trips_count: usize,
+    pub trips_with_bike_info_count: usize,
     pub networks: Vec<String>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
@@ -67,6 +69,8 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .filter(|s| s.location_type == gtfs_structures::LocationType::StopPoint)
             .count(),
         lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
+        trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
+        trips_with_bike_info_count: trips_with_bike_info_count(gtfs),
         networks: gtfs
             .agencies
             .as_ref()
@@ -147,6 +151,18 @@ fn has_on_demand_pickup_dropoff(
     stop_time.pickup_type == pickup_dropoff_type || stop_time.drop_off_type == pickup_dropoff_type
 }
 
+fn trips_with_bike_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
+    gtfs
+    .trips
+    .as_ref()
+    .unwrap_or(&vec![])
+    .iter()
+    .filter(|t| {
+        t.bikes_allowed != gtfs_structures::BikesAllowedType::NoBikeInfo
+    })
+    .count()
+}
+
 #[test]
 fn show_validation_version() {
     let raw_gtfs =
@@ -212,4 +228,13 @@ fn test_count_lines_with_custom_color() {
         gtfs_structures::RawGtfs::new("test_data/custom_route_color").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
     assert_eq!(3, metadatas.lines_with_custom_color_count);
+}
+
+#[test]
+fn test_count_trips_with_bike_infos() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert_eq!(11, metadatas.trips_count);
+    assert_eq!(3, metadatas.trips_with_bike_info_count);
 }
