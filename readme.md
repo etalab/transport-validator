@@ -36,6 +36,8 @@ Give useful information about the validated file content:
 | stop_areas_count | integer | Numer of stop areas (`location_type` equal to `1` in `stops.txt`) found in the file|
 | stop_points_count | integer | Numer of stops (`location_type` equal to `0` in `stops.txt`) found in the file|
 | lines_count | integer | Numer of routes found in `routes.txt` |
+| trips_count | integer | Numer of trips found in `trips.txt` |
+| trips_with_bike_info_count | integer | Numer of trips found in `trips.txt` with bike information provided (`bikes_allowed` equal to `1` or `2`) |
 | networks | list of strings | A list of unique agencies names, found in `agency.txt` | 
 | modes | list of strings | A list of the `route_types` found in `routes.txt` | 
 | issues_count| Object | A summary of the validation issues found in the `validations` section. Keys of the object are the issue name, values are the number of corresponding issues found. |
