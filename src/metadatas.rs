@@ -152,15 +152,12 @@ fn has_on_demand_pickup_dropoff(
 }
 
 fn trips_with_bike_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
-    gtfs
-    .trips
-    .as_ref()
-    .unwrap_or(&vec![])
-    .iter()
-    .filter(|t| {
-        t.bikes_allowed != gtfs_structures::BikesAllowedType::NoBikeInfo
-    })
-    .count()
+    gtfs.trips
+        .as_ref()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter(|t| t.bikes_allowed != gtfs_structures::BikesAllowedType::NoBikeInfo)
+        .count()
 }
 
 #[test]
@@ -232,8 +229,7 @@ fn test_count_lines_with_custom_color() {
 
 #[test]
 fn test_count_trips_with_bike_infos() {
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
     let metadatas = extract_metadata(&raw_gtfs);
     assert_eq!(11, metadatas.trips_count);
     assert_eq!(3, metadatas.trips_with_bike_info_count);
