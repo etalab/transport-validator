@@ -32,7 +32,7 @@ fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
     (match route_type {
         Tramway => 100.0,
         Subway => 140.0,
-        Rail => 300.0,
+        Rail => 320.0,
         Bus => 120.0,
         Ferry => 90.0, // https://en.wikipedia.org/wiki/List_of_HSC_ferry_routes
         CableCar => 30.0,
