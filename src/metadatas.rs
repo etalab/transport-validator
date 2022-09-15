@@ -151,25 +151,26 @@ impl Metadata {
 
 fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
     gtfs.stops
-    .iter()
-    .filter(|(_, stop)|
-        if stop.wheelchair_boarding != gtfs_structures::Availability::InformationNotAvailable {
-            // information is present
-            return true;
-        } else {
-            // information not present, check for inheritance
-            let parent = stop
-                .parent_station
-                .as_ref()
-                .and_then(|parent| gtfs.stops.get(parent));
-            
-            let parent_wheelchair_boarding = parent.and_then(|s| Some(s.wheelchair_boarding));
+        .iter()
+        .filter(|(_, stop)| {
+            if stop.wheelchair_boarding != gtfs_structures::Availability::InformationNotAvailable {
+                // information is present
+                return true;
+            } else {
+                // information not present, check for inheritance
+                let parent = stop
+                    .parent_station
+                    .as_ref()
+                    .and_then(|parent| gtfs.stops.get(parent));
 
-            // true if parent has information about accessibility 
-            return parent_wheelchair_boarding == Some(Availability::Available) || parent_wheelchair_boarding == Some(Availability::NotAvailable);
-        }
-    )
-    .count()
+                let parent_wheelchair_boarding = parent.and_then(|s| Some(s.wheelchair_boarding));
+
+                // true if parent has information about accessibility
+                return parent_wheelchair_boarding == Some(Availability::Available)
+                    || parent_wheelchair_boarding == Some(Availability::NotAvailable);
+            }
+        })
+        .count()
 }
 
 fn has_on_demand_pickup_dropoff(
