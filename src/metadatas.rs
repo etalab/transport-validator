@@ -1,4 +1,5 @@
 use crate::issues::IssueType;
+use gtfs_structures::Availability;
 use itertools::Itertools;
 use rgb::RGB;
 use serde::Serialize;
@@ -9,6 +10,7 @@ pub struct Metadata {
     pub end_date: Option<String>,
     pub stop_areas_count: usize,
     pub stop_points_count: usize,
+    pub stops_with_wheelchair_info_count: Option<usize>,
     pub lines_count: usize,
     pub networks: Vec<String>,
     pub modes: Vec<String>,
@@ -66,6 +68,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .iter()
             .filter(|s| s.location_type == gtfs_structures::LocationType::StopPoint)
             .count(),
+        stops_with_wheelchair_info_count: None,
         lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
         networks: gtfs
             .agencies
@@ -138,6 +141,35 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .any(|st| has_on_demand_pickup_dropoff(st, PickupDropOffType::CoordinateWithDriver)),
         validator_version: validator_version.to_owned(),
     }
+}
+
+impl Metadata {
+    pub fn enrich_with_advanced_infos(&mut self, gtfs: &gtfs_structures::Gtfs) {
+        self.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
+    }
+}
+
+fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
+    gtfs.stops
+    .iter()
+    .filter(|(_, stop)|
+        if stop.wheelchair_boarding != gtfs_structures::Availability::InformationNotAvailable {
+            // information is present
+            return true;
+        } else {
+            // information not present, check for inheritance
+            let parent = stop
+                .parent_station
+                .as_ref()
+                .and_then(|parent| gtfs.stops.get(parent));
+            
+            let parent_wheelchair_boarding = parent.and_then(|s| Some(s.wheelchair_boarding));
+
+            // true if parent has information about accessibility 
+            return parent_wheelchair_boarding == Some(Availability::Available) || parent_wheelchair_boarding == Some(Availability::NotAvailable);
+        }
+    )
+    .count()
 }
 
 fn has_on_demand_pickup_dropoff(
