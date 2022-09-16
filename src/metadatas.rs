@@ -166,13 +166,12 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
                 // information is present
                 return true;
             } else {
-                // information not present, check for inheritance
-                let parent = stop
+                // information not present, check for inheritance from parent station
+                let parent_wheelchair_boarding = stop
                     .parent_station
                     .as_ref()
-                    .and_then(|parent| gtfs.stops.get(parent));
-
-                let parent_wheelchair_boarding = parent.and_then(|s| Some(s.wheelchair_boarding));
+                    .and_then(|parent| gtfs.stops.get(parent))
+                    .and_then(|s| Some(s.wheelchair_boarding));
 
                 // true if parent has information about accessibility
                 return parent_wheelchair_boarding == Some(Availability::Available)
@@ -203,7 +202,9 @@ fn trips_with_wheelchair_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
         .as_ref()
         .unwrap_or(&vec![])
         .iter()
-        .filter(|t| t.wheelchair_accessible != gtfs_structures::Availability::InformationNotAvailable)
+        .filter(|t| {
+            t.wheelchair_accessible != gtfs_structures::Availability::InformationNotAvailable
+        })
         .count()
 }
 
