@@ -76,6 +76,9 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
             issues
                 .iter_mut()
                 .for_each(|issue| issue.push_related_geojson(gtfs));
+
+            // advanced_metadata::enrich_advanced_metadata(&mut metadata, gtfs);
+            metadata.enrich_with_advanced_infos(gtfs);
         }
         Err(e) => {
             issues.push(create_unloadable_model_error(e));

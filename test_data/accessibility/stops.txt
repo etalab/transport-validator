@@ -1,0 +1,17 @@
+stop_id,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,wheelchair_boarding
+station_0,"station_0",,48.796058,2.449386,,,1,,
+station_1,"station_1",,48.796058,2.449386,,,1,,0
+station_2,"station_2",,48.796058,2.449385,,,1,,1
+station_3,"station_3",,48.796058,2.449186,,,1,,2
+child_0,"child_0",,48.796058,2.449186,,,0,station_0,
+child_1,"child_1",,48.796058,2.449186,,,0,station_1,
+child_2,"child_2",,48.796058,2.449186,,,0,station_2,
+child_3,"child_3",,48.796058,2.449186,,,,station_0,1
+child_4,"child_4",,48.796058,2.449186,,,,station_1,2
+child_5,"child_5",,48.796058,2.449186,,,,station_2,0
+child_6,"child_6",,48.796058,2.449186,,,2,station_0,
+child_7,"child_7",,48.796058,2.449186,,,2,station_1,
+child_8,"child_8",,48.796058,2.449186,,,3,station_2,
+child_9,"child_9",,48.796058,2.449186,,,3,station_0,1
+child_10,"child_10",,48.796058,2.449186,,,4,station_1,2
+child_11,"child_11",,48.796058,2.449186,,,4,station_2,0

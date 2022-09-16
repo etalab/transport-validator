@@ -33,18 +33,21 @@ Give useful information about the validated file content:
 |---------------------------------|--------|----------------------------------------------------------------------------------------|
 | start_date | "YYYY-MM-DD" | The starting date of the calendar information (both `calendar.txt` and `calendar_dates.txt` are taken into account). |
 | end_date | "YYYY-MM-DD" | The ending date of the calendar information (both `calendar.txt` and `calendar_dates.txt` are taken into account). |
-| stop_areas_count | integer | Numer of stop areas (`location_type` equal to `1` in `stops.txt`) found in the file|
-| stop_points_count | integer | Numer of stops (`location_type` equal to `0` in `stops.txt`) found in the file|
-| lines_count | integer | Numer of routes found in `routes.txt` |
-| trips_count | integer | Numer of trips found in `trips.txt` |
-| trips_with_bike_info_count | integer | Numer of trips found in `trips.txt` with bike information provided (`bikes_allowed` equal to `1` or `2`) |
+| stops_count | integer | Number of stops found in the file `stops.txt` (for any `location_type`)|
+| stop_areas_count | integer | Number of stop areas (`location_type` equal to `1`) found in the file `stops.txt`.|
+| stop_points_count | integer | Number of stops (`location_type` equal to `0`) found in the file `stops.txt`.|
+| stops_with_wheelchair_info_count | integer \| null | Number of stops (with any `location_type`) with wheelchair_boarding information. The information can be specified at the stop level (`wheelchair_boarding` equal to `1` or `2`), or inherited from its parent station. Can be `null` if the GTFS contains errors preventing to compute this field.|
+| lines_count | integer | Number of routes found in `routes.txt` |
+| trips_count | integer | Number of trips found in `trips.txt` |
+| trips_with_bike_info_count | integer | Number of trips found in `trips.txt` with bike information provided (`bikes_allowed` equal to `1` or `2`) |
+| trips_with_wheelchair_info_count | integer | Number of trips found in `trips.txt` with wheelchair information provided (`wheelchair_accessible` equal to `1` or `2`) |
 | networks | list of strings | A list of unique agencies names, found in `agency.txt` | 
 | modes | list of strings | A list of the `route_types` found in `routes.txt` | 
 | issues_count| Object | A summary of the validation issues found in the `validations` section. Keys of the object are the issue name, values are the number of corresponding issues found. |
 | has_fares | boolean | True if a `fare_attributes.txt` file exists and contains information |
 | has_shapes | boolean | True if a `shapes.txt` file exists and contains information |
 | has_pathways | boolean | True if a `pathways.txt` file exists and contains information |
-| lines_with_custom_color_count | integer | Numer of routes found in `routes.txt` with a custom `route_color` or a custom `route_text_color`. Custom means different from the default values. |
+| lines_with_custom_color_count | integer | Number of routes found in `routes.txt` with a custom `route_color` or a custom `route_text_color`. Custom means different from the default values. |
 | some_stops_need_phone_agency | boolean | Some stops have a `continuous_pickup` or a `continuous_drop_off` field equal to `2`. |
 | some_stops_need_phone_driver | boolean | Some stops have a `continuous_pickup` or a `continuous_drop_off` field equal to `3`. |
 | validator_version | string | The validator version as found in the `Cargo.toml` |
