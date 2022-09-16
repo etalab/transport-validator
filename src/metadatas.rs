@@ -171,7 +171,7 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
                     .parent_station
                     .as_ref()
                     .and_then(|parent| gtfs.stops.get(parent))
-                    .and_then(|s| Some(s.wheelchair_boarding));
+                    .map(|s| s.wheelchair_boarding);
 
                 // true if parent has information about accessibility
                 return parent_wheelchair_boarding == Some(Availability::Available)
