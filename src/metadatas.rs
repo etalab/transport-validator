@@ -8,6 +8,7 @@ use serde::Serialize;
 pub struct Metadata {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
+    pub stops_count: usize,
     pub stop_areas_count: usize,
     pub stop_points_count: usize,
     pub stops_with_wheelchair_info_count: Option<usize>,
@@ -56,6 +57,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
     Metadata {
         start_date: start_end.map(|(s, _)| format(s)),
         end_date: start_end.map(|(_, e)| format(e)),
+        stops_count: gtfs.stops.as_ref().map_or(0, |stops| stops.len()),
         stop_areas_count: gtfs
             .stops
             .as_ref()
