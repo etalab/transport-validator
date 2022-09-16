@@ -16,6 +16,7 @@ pub struct Metadata {
     pub lines_count: usize,
     pub trips_count: usize,
     pub trips_with_bike_info_count: usize,
+    pub trips_with_wheelchair_info_count: usize,
     pub networks: Vec<String>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
@@ -77,6 +78,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
         trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
         trips_with_bike_info_count: trips_with_bike_info_count(gtfs),
+        trips_with_wheelchair_info_count: trips_with_wheelchair_info_count(gtfs),
         networks: gtfs
             .agencies
             .as_ref()
@@ -196,6 +198,15 @@ fn trips_with_bike_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
         .count()
 }
 
+fn trips_with_wheelchair_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
+    gtfs.trips
+        .as_ref()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter(|t| t.wheelchair_accessible != gtfs_structures::Availability::InformationNotAvailable)
+        .count()
+}
+
 #[test]
 fn show_validation_version() {
     let raw_gtfs =
@@ -269,6 +280,14 @@ fn test_count_trips_with_bike_infos() {
     let metadatas = extract_metadata(&raw_gtfs);
     assert_eq!(11, metadatas.trips_count);
     assert_eq!(3, metadatas.trips_with_bike_info_count);
+}
+
+#[test]
+fn test_count_trips_with_accessibility_infos() {
+    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
+    let metadatas = extract_metadata(&raw_gtfs);
+    assert_eq!(11, metadatas.trips_count);
+    assert_eq!(3, metadatas.trips_with_wheelchair_info_count);
 }
 
 #[test]
