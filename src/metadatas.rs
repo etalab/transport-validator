@@ -3,6 +3,7 @@ use gtfs_structures::Availability;
 use itertools::Itertools;
 use rgb::RGB;
 use serde::Serialize;
+use std::convert::TryFrom;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {
@@ -268,4 +269,19 @@ fn test_count_trips_with_bike_infos() {
     let metadatas = extract_metadata(&raw_gtfs);
     assert_eq!(11, metadatas.trips_count);
     assert_eq!(3, metadatas.trips_with_bike_info_count);
+}
+
+#[test]
+fn test_count_stops_with_accessibility_infos() {
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/accessibility").expect("Failed to load data");
+    let mut metadatas = extract_metadata(&raw_gtfs);
+    let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
+
+    assert_eq!(16, metadatas.stops_count);
+    assert_eq!(None, metadatas.stops_with_wheelchair_info_count);
+
+    metadatas.enrich_with_advanced_infos(&gtfs);
+
+    assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
 }
