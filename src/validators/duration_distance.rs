@@ -1,3 +1,4 @@
+use crate::custom_rules;
 use crate::issues::{Issue, IssueType, Severity};
 use geo::algorithm::haversine_distance::HaversineDistance;
 use gtfs_structures::RouteType::*;
@@ -27,25 +28,31 @@ fn distance_and_duration(
     }
 }
 
-fn max_speed(route_type: gtfs_structures::RouteType) -> f64 {
+fn max_speed(
+    route_type: gtfs_structures::RouteType,
+    custom_rules: &custom_rules::CustomRules,
+) -> f64 {
     // Speeds are in km/h for convenience
     (match route_type {
-        Tramway => 100.0,
-        Subway => 140.0,
-        Rail => 320.0,
-        Bus => 120.0,
-        Ferry => 90.0, // https://en.wikipedia.org/wiki/List_of_HSC_ferry_routes
-        CableCar => 30.0,
-        Gondola => 45.0, // https://fr.wikipedia.org/wiki/Vanoise_Express
-        Funicular => 40.0,
-        Coach => 120.0,
-        Air => 1_000.0,
-        Taxi => 50.0,
-        Other(_) => 120.0, // We suppose it’s a bus if it is invalid
+        Tramway => custom_rules.tramway_speed.unwrap_or(100.0),
+        Subway => custom_rules.subway_speed.unwrap_or(140.0),
+        Rail => custom_rules.rail_speed.unwrap_or(320.0),
+        Bus => custom_rules.bus_speed.unwrap_or(120.0),
+        Ferry => custom_rules.ferry_speed.unwrap_or(90.0), // https://en.wikipedia.org/wiki/List_of_HSC_ferry_routes
+        CableCar => custom_rules.cable_car_speed.unwrap_or(30.0),
+        Gondola => custom_rules.gondola_speed.unwrap_or(45.0), // https://fr.wikipedia.org/wiki/Vanoise_Express
+        Funicular => custom_rules.funicular_speed.unwrap_or(40.0),
+        Coach => custom_rules.coach_speed.unwrap_or(120.0),
+        Air => custom_rules.air_speed.unwrap_or(1_000.0),
+        Taxi => custom_rules.taxi_speed.unwrap_or(50.0),
+        Other(_) => custom_rules.other_speed.unwrap_or(120.0), // We suppose it’s a bus if it is invalid
     }) / 3.6 // convert in m/s
 }
 
-fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_structures::Error> {
+fn validate_speeds(
+    gtfs: &gtfs_structures::Gtfs,
+    custom_rules: &custom_rules::CustomRules,
+) -> Result<Vec<Issue>, gtfs_structures::Error> {
     let mut issues_by_stops_and_type = std::collections::HashMap::new();
 
     for trip in gtfs.trips.values() {
@@ -69,7 +76,9 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
                             distance
                         ),
                     ))
-                } else if duration > 0.0 && distance / duration > max_speed(route.route_type) {
+                } else if duration > 0.0
+                    && distance / duration > max_speed(route.route_type, custom_rules)
+                {
                     Some((
                         Severity::Information,
                         IssueType::ExcessiveSpeed,
@@ -151,8 +160,11 @@ fn validate_speeds(gtfs: &gtfs_structures::Gtfs) -> Result<Vec<Issue>, gtfs_stru
         .collect())
 }
 
-pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
-    validate_speeds(gtfs).unwrap_or_else(|e| {
+pub fn validate(
+    gtfs: &gtfs_structures::Gtfs,
+    custom_rules: &custom_rules::CustomRules,
+) -> Vec<Issue> {
+    validate_speeds(gtfs, custom_rules).unwrap_or_else(|e| {
         vec![Issue::new(
             Severity::Fatal,
             IssueType::InvalidReference,
@@ -164,7 +176,11 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 #[test]
 fn test() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/duration_distance").unwrap();
-    let mut issues = validate(&gtfs);
+    let custom_rules = custom_rules::CustomRules {
+        ..Default::default()
+    };
+
+    let mut issues = validate(&gtfs, &custom_rules);
     issues.sort_by(|a, b| a.issue_type.cmp(&b.issue_type));
 
     assert_eq!(5, issues.len());
@@ -193,12 +209,20 @@ fn test() {
     assert_eq!("near1", issues[4].object_id);
     assert_eq!(String::from("null"), issues[4].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[4].object_name);
+
+    let custom_rules = custom_rules::CustomRules{bus_speed: Some(1_000_000.0), ..Default::default()};
+    let issues = validate(&gtfs, &custom_rules);
+    assert_eq!(0, issues.iter().filter(|issue| issue.issue_type == IssueType::ExcessiveSpeed).count());
 }
 
 #[test]
 fn test_optimisation_route_trips() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/optimisation_route_trips").unwrap();
-    let mut issues = validate(&gtfs);
+    let custom_rules = custom_rules::CustomRules {
+        ..Default::default()
+    };
+
+    let mut issues = validate(&gtfs, &custom_rules);
 
     assert_eq!(1, issues.len());
     // irrelevant to the test, but this acts as a guard in case someone modifies the fixtures
