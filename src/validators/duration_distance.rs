@@ -210,9 +210,18 @@ fn test() {
     assert_eq!(String::from("null"), issues[4].related_objects[0].id);
     assert_eq!(Some(String::from("Near1")), issues[4].object_name);
 
-    let custom_rules = custom_rules::CustomRules{bus_speed: Some(1_000_000.0), ..Default::default()};
+    let custom_rules = custom_rules::CustomRules {
+        bus_speed: Some(1_000_000.0),
+        ..Default::default()
+    };
     let issues = validate(&gtfs, &custom_rules);
-    assert_eq!(0, issues.iter().filter(|issue| issue.issue_type == IssueType::ExcessiveSpeed).count());
+    assert_eq!(
+        0,
+        issues
+            .iter()
+            .filter(|issue| issue.issue_type == IssueType::ExcessiveSpeed)
+            .count()
+    );
 }
 
 #[test]

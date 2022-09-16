@@ -19,7 +19,8 @@ pub struct CustomRules {
 pub fn custom_rules(file_path: Option<String>) -> CustomRules {
     if let Some(path) = file_path {
         let f = std::fs::File::open(path).expect("Could not open custom_rules file");
-        let d: CustomRules = serde_yaml::from_reader(f).expect("custom_rules file is not a valid YAML file");
+        let d: CustomRules =
+            serde_yaml::from_reader(f).expect("custom_rules file is not a valid YAML file");
         log::info!("Load custom rules...ok");
         d
     } else {
