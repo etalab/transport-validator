@@ -292,6 +292,35 @@ You can then ask for a validation:
 * `--input` or `-i`: Path (can be a directory or a zip file) or HTTP URL (file will be downloaded) of the GTFS file.
 * `--max-issues` or `-m`: The maxium number of issues per type. Defaults to 1000.
 * `--output-format` or `-f`: Output format (when using the validator in command line). Value by default is `json`, but `yaml` is also available.
+* `--custom-rules` or `-c`: Path to a YAML file containing custom values to use during the validation.
+
+## Custom rules
+Some values used during the validations can be customized by using the `--custom-rules` option and providing a path to a YAML file.
+
+Available customizations are:
+
+|Field|Description|
+|--|--|
+| max_tramway_speed | Maximum speed in km/h on a route_type `tramway` before triggering an `ExcessiveSpeed` warning |
+| max_subway_speed | Maximum speed in km/h on a route_type `subway` before triggering an `ExcessiveSpeed` warning |
+| max_rail_speed | Maximum speed in km/h on a route_type `rail` before triggering an `ExcessiveSpeed` warning |
+| max_bus_speed | Maximum speed in km/h on a route_type `bus` before triggering an `ExcessiveSpeed` warning |
+| max_ferry_speed | Maximum speed in km/h on a route_type `ferry` before triggering an `ExcessiveSpeed` warning |
+| max_cable_car_speed | Maximum speed in km/h on a route_type `cable car` before triggering an `ExcessiveSpeed` warning |
+| max_gondola_speed | Maximum speed in km/h on a route_type `gondola` before triggering an `ExcessiveSpeed` warning |
+| max_funicular_speed | Maximum speed in km/h on a route_type `funicular` before triggering an `ExcessiveSpeed` warning |
+| max_coach_speed | Maximum speed in km/h on a route_type `coach` before triggering an `ExcessiveSpeed` warning |
+| max_air_speed | Maximum speed in km/h on a route_type `air` before triggering an `ExcessiveSpeed` warning |
+| max_taxi_speed | Maximum speed in km/h on a route_type `taxi` before triggering an `ExcessiveSpeed` warning |
+| max_other_speed | Maximum speed in km/h on a route_type `other` before triggering an `ExcessiveSpeed` warning |
+
+### Example
+
+```yaml
+max_bus_speed: 120
+max_gondola_speed: 50
+```
+If you need to customize other values, please [let us know](https://github.com/etalab/transport-validator/issues/new).
 
 ## Lint
 

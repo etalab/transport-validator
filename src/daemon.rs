@@ -1,3 +1,4 @@
+use crate::custom_rules;
 use crate::validate::{generate_validation_from_reader, process, Response};
 use actix_web::{get, post, web, web::Json, App, Error, HttpServer};
 use futures::StreamExt;
@@ -20,7 +21,10 @@ async fn validate(params: web::Query<Params>) -> Result<Json<Response>, Error> {
     log::info!("Starting validation: {}", &params.url);
     let gtfs = gtfs_structures::RawGtfs::from_url_async(&params.url).await;
 
-    let result = process(gtfs, params.max_size.unwrap_or(1000));
+    let custom_rules = custom_rules::CustomRules {
+        ..Default::default()
+    };
+    let result = process(gtfs, params.max_size.unwrap_or(1000), &custom_rules);
     log::info!("Finished validation");
     Ok(Json(result))
 }
@@ -44,7 +48,15 @@ async fn validate_post(
         body.extend_from_slice(&chunk);
     }
     let reader = std::io::Cursor::new(body);
-    Ok(Json(generate_validation_from_reader(reader, max_size)))
+    let custom_rules = custom_rules::CustomRules {
+        ..Default::default()
+    };
+
+    Ok(Json(generate_validation_from_reader(
+        reader,
+        max_size,
+        &custom_rules,
+    )))
 }
 
 pub fn run_server() -> std::io::Result<()> {

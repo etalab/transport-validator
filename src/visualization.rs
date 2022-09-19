@@ -137,10 +137,15 @@ fn line_geometry_between_stops(
 
 #[test]
 fn test_generated_geojson() {
+    use crate::custom_rules;
     use crate::issues;
     use crate::validate;
 
-    let validation = validate::generate_validation("test_data/duration_distance", 10);
+    let custom_rules = custom_rules::CustomRules {
+        ..Default::default()
+    };
+    let validation =
+        validate::generate_validation("test_data/duration_distance", 10, &custom_rules);
     let speed_issues = validation
         .validations
         .get(&issues::IssueType::ExcessiveSpeed)

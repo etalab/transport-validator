@@ -1,4 +1,4 @@
-use validator::{daemon, validate};
+use validator::{custom_rules, daemon, validate};
 
 use structopt::clap::arg_enum;
 use structopt::StructOpt;
@@ -36,15 +36,22 @@ struct Opt {
         case_insensitive = true
     )]
     format: OutputFormat,
+    #[structopt(
+        short = "c",
+        long = "custom-rules",
+        help = "Provide a YAML file to customize some validation rules"
+    )]
+    custom_rules: Option<String>,
 }
 
 fn main() -> Result<(), anyhow::Error> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     let opt = Opt::from_args();
+    let custom_rules = custom_rules::custom_rules(opt.custom_rules);
 
     if let Some(input) = opt.input {
-        let validations = &validate::generate_validation(&input, opt.max_size);
+        let validations = &validate::generate_validation(&input, opt.max_size, &custom_rules);
         let serialized = match opt.format {
             OutputFormat::Yaml => serde_yaml::to_string(validations)?,
             OutputFormat::Json => serde_json::to_string(validations)?,

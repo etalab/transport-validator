@@ -1,4 +1,4 @@
-use crate::{issues, metadatas, validators};
+use crate::{custom_rules, issues, metadatas, validators};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;
@@ -46,7 +46,11 @@ pub struct Response {
 }
 
 /// Validates the files of the GTFS and returns its metadata and issues.
-pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize) -> Response {
+pub fn validate_and_metadata(
+    rgtfs: gtfs_structures::RawGtfs,
+    max_issues: usize,
+    custom_rules: &custom_rules::CustomRules,
+) -> Response {
     let mut validations = BTreeMap::new();
     let mut issues: Vec<_> = validators::raw_gtfs::validate(&rgtfs)
         .into_iter()
@@ -60,7 +64,7 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
             issues.extend(
                 validators::unused_stop::validate(gtfs)
                     .into_iter()
-                    .chain(validators::duration_distance::validate(gtfs))
+                    .chain(validators::duration_distance::validate(gtfs, custom_rules))
                     .chain(validators::check_name::validate(gtfs))
                     .chain(validators::check_id::validate(gtfs))
                     .chain(validators::stops::validate(gtfs))
@@ -106,18 +110,23 @@ pub fn validate_and_metadata(rgtfs: gtfs_structures::RawGtfs, max_issues: usize)
 /// Returns a [Response] with every issue on the GTFS.
 ///
 /// [Response]: struct.Response.html
-pub fn generate_validation(input: &str, max_issues: usize) -> Response {
+pub fn generate_validation(
+    input: &str,
+    max_issues: usize,
+    custom_rules: &custom_rules::CustomRules,
+) -> Response {
     log::info!("Starting validation: {}", input);
     let raw_gtfs = gtfs_structures::RawGtfs::new(input);
-    process(raw_gtfs, max_issues)
+    process(raw_gtfs, max_issues, custom_rules)
 }
 
 pub fn process(
     raw_gtfs: Result<gtfs_structures::RawGtfs, gtfs_structures::Error>,
     max_issues: usize,
+    custom_rules: &custom_rules::CustomRules,
 ) -> Response {
     match raw_gtfs {
-        Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues),
+        Ok(raw_gtfs) => self::validate_and_metadata(raw_gtfs, max_issues, custom_rules),
         Err(e) => {
             let mut validations = BTreeMap::new();
             validations.insert(
@@ -140,15 +149,22 @@ pub fn process(
 pub fn generate_validation_from_reader<T: std::io::Read + std::io::Seek>(
     reader: T,
     max_issues: usize,
+    custom_rules: &custom_rules::CustomRules,
 ) -> Response {
     let g = gtfs_structures::RawGtfs::from_reader(reader);
-    process(g, max_issues)
+    process(g, max_issues, custom_rules)
 }
 
 /// Returns a JSON with all the issues on the GTFS. Either takes an URL, a directory path or a .zip file as parameter.
-pub fn validate(input: &str, max_issues: usize) -> Result<String, anyhow::Error> {
+pub fn validate(
+    input: &str,
+    max_issues: usize,
+    custom_rules: &custom_rules::CustomRules,
+) -> Result<String, anyhow::Error> {
     Ok(serde_json::to_string(&generate_validation(
-        input, max_issues,
+        input,
+        max_issues,
+        custom_rules,
     ))?)
 }
 
@@ -156,7 +172,10 @@ pub fn validate(input: &str, max_issues: usize) -> Result<String, anyhow::Error>
 // we should have the RawGTFS rules applied, and a `Fatal` error on the stops.txt file
 #[test]
 fn test_invalid_stop_points() {
-    let issues = generate_validation("test_data/invalid_stop_file", 1000);
+    let custom_rules = custom_rules::CustomRules {
+        ..Default::default()
+    };
+    let issues = generate_validation("test_data/invalid_stop_file", 1000, &custom_rules);
 
     let unloadable_model_errors = &issues.validations[&issues::IssueType::UnloadableModel];
 

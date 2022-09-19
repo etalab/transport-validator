@@ -1,3 +1,4 @@
+pub mod custom_rules;
 pub mod daemon;
 pub mod issues;
 pub mod metadatas;
