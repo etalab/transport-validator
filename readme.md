@@ -317,8 +317,8 @@ Available customizations are:
 ### Example
 
 ```yaml
-bus_speed: 120
-gondola_speed: 50
+max_bus_speed: 120
+max_gondola_speed: 50
 ```
 If you need to customize other values, please [let us know](https://github.com/etalab/transport-validator/issues/new).
 
