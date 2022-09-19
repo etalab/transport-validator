@@ -1,2 +1,2 @@
-bus_speed: 10
-gondola_speed: 100.5
+max_bus_speed: 10
+max_gondola_speed: 100.5
