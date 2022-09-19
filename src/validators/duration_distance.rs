@@ -34,18 +34,18 @@ fn max_speed(
 ) -> f64 {
     // Speeds are in km/h for convenience
     (match route_type {
-        Tramway => custom_rules.tramway_speed.unwrap_or(100.0),
-        Subway => custom_rules.subway_speed.unwrap_or(140.0),
-        Rail => custom_rules.rail_speed.unwrap_or(320.0),
-        Bus => custom_rules.bus_speed.unwrap_or(120.0),
-        Ferry => custom_rules.ferry_speed.unwrap_or(90.0), // https://en.wikipedia.org/wiki/List_of_HSC_ferry_routes
-        CableCar => custom_rules.cable_car_speed.unwrap_or(30.0),
-        Gondola => custom_rules.gondola_speed.unwrap_or(45.0), // https://fr.wikipedia.org/wiki/Vanoise_Express
-        Funicular => custom_rules.funicular_speed.unwrap_or(40.0),
-        Coach => custom_rules.coach_speed.unwrap_or(120.0),
-        Air => custom_rules.air_speed.unwrap_or(1_000.0),
-        Taxi => custom_rules.taxi_speed.unwrap_or(50.0),
-        Other(_) => custom_rules.other_speed.unwrap_or(120.0), // We suppose it’s a bus if it is invalid
+        Tramway => custom_rules.max_tramway_speed.unwrap_or(100.0),
+        Subway => custom_rules.max_subway_speed.unwrap_or(140.0),
+        Rail => custom_rules.max_rail_speed.unwrap_or(320.0),
+        Bus => custom_rules.max_bus_speed.unwrap_or(120.0),
+        Ferry => custom_rules.max_ferry_speed.unwrap_or(90.0), // https://en.wikipedia.org/wiki/List_of_HSC_ferry_routes
+        CableCar => custom_rules.max_cable_car_speed.unwrap_or(30.0),
+        Gondola => custom_rules.max_gondola_speed.unwrap_or(45.0), // https://fr.wikipedia.org/wiki/Vanoise_Express
+        Funicular => custom_rules.max_funicular_speed.unwrap_or(40.0),
+        Coach => custom_rules.max_coach_speed.unwrap_or(120.0),
+        Air => custom_rules.max_air_speed.unwrap_or(1_000.0),
+        Taxi => custom_rules.max_taxi_speed.unwrap_or(50.0),
+        Other(_) => custom_rules.max_other_speed.unwrap_or(120.0), // We suppose it’s a bus if it is invalid
     }) / 3.6 // convert in m/s
 }
 
