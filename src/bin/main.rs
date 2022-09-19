@@ -38,7 +38,7 @@ struct Opt {
     format: OutputFormat,
     #[structopt(
         short = "c",
-        long = "custom_rules",
+        long = "custom-rules",
         help = "Provide a YAML file to customize some validation rules"
     )]
     custom_rules: Option<String>,
