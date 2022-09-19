@@ -34,8 +34,8 @@ pub fn custom_rules(file_path: Option<String>) -> CustomRules {
 fn test_no_custom_rules() {
     let file_path = None;
     let custom_rules = custom_rules(file_path);
-    assert_eq!(None, custom_rules.bus_speed);
-    assert_eq!(None, custom_rules.air_speed);
+    assert_eq!(None, custom_rules.max_bus_speed);
+    assert_eq!(None, custom_rules.max_air_speed);
 }
 
 #[test]
