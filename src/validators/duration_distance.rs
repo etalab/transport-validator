@@ -211,7 +211,7 @@ fn test() {
     assert_eq!(Some(String::from("Near1")), issues[4].object_name);
 
     let custom_rules = custom_rules::CustomRules {
-        bus_speed: Some(1_000_000.0),
+        max_bus_speed: Some(1_000_000.0),
         ..Default::default()
     };
     let issues = validate(&gtfs, &custom_rules);
