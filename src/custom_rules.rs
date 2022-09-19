@@ -2,18 +2,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
 pub struct CustomRules {
-    pub tramway_speed: Option<f64>,
-    pub subway_speed: Option<f64>,
-    pub rail_speed: Option<f64>,
-    pub bus_speed: Option<f64>,
-    pub ferry_speed: Option<f64>,
-    pub cable_car_speed: Option<f64>,
-    pub gondola_speed: Option<f64>,
-    pub funicular_speed: Option<f64>,
-    pub coach_speed: Option<f64>,
-    pub air_speed: Option<f64>,
-    pub taxi_speed: Option<f64>,
-    pub other_speed: Option<f64>,
+    pub max_tramway_speed: Option<f64>,
+    pub max_subway_speed: Option<f64>,
+    pub max_rail_speed: Option<f64>,
+    pub max_bus_speed: Option<f64>,
+    pub max_ferry_speed: Option<f64>,
+    pub max_cable_car_speed: Option<f64>,
+    pub max_gondola_speed: Option<f64>,
+    pub max_funicular_speed: Option<f64>,
+    pub max_coach_speed: Option<f64>,
+    pub max_air_speed: Option<f64>,
+    pub max_taxi_speed: Option<f64>,
+    pub max_other_speed: Option<f64>,
 }
 
 pub fn custom_rules(file_path: Option<String>) -> CustomRules {
