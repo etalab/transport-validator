@@ -55,7 +55,7 @@ fn test_no_file() {
 }
 
 #[test]
-#[should_panic(expected = "custom_rules file is not a valid YAML file")]
+#[should_panic(expected = "custom-rules file is not a valid YAML file")]
 fn test_bad_file() {
     let file_path = Some(String::from("test_data/custom_rules/bad_custom_rules.yml"));
     custom_rules(file_path);
