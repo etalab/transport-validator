@@ -292,7 +292,7 @@ You can then ask for a validation:
 * `--input` or `-i`: Path (can be a directory or a zip file) or HTTP URL (file will be downloaded) of the GTFS file.
 * `--max-issues` or `-m`: The maxium number of issues per type. Defaults to 1000.
 * `--output-format` or `-f`: Output format (when using the validator in command line). Value by default is `json`, but `yaml` is also available.
-* `--custom_rules` or `-c`: Path to a YAML file containing custom values to use during the validation.
+* `--custom-rules` or `-c`: Path to a YAML file containing custom values to use during the validation.
 
 ## Custom rules
 Some values used during the validations can be customized by using the `--custom_rules` option and providing a path to a YAML file.
