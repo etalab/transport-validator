@@ -301,18 +301,18 @@ Available customizations are:
 
 |Field|Description|
 |--|--|
-| tramway_speed | Maximum speed in km/h on a route_type `tramway` before triggering an `ExcessiveSpeed` warning |
-| subway_speed | Maximum speed in km/h on a route_type `subway` before triggering an `ExcessiveSpeed` warning |
-| rail_speed | Maximum speed in km/h on a route_type `rail` before triggering an `ExcessiveSpeed` warning |
-| bus_speed | Maximum speed in km/h on a route_type `bus` before triggering an `ExcessiveSpeed` warning |
-| ferry_speed | Maximum speed in km/h on a route_type `ferry` before triggering an `ExcessiveSpeed` warning |
-| cable_car_speed | Maximum speed in km/h on a route_type `cable car` before triggering an `ExcessiveSpeed` warning |
-| gondola_speed | Maximum speed in km/h on a route_type `gondola` before triggering an `ExcessiveSpeed` warning |
-| funicular_speed | Maximum speed in km/h on a route_type `funicular` before triggering an `ExcessiveSpeed` warning |
-| coach_speed | Maximum speed in km/h on a route_type `coach` before triggering an `ExcessiveSpeed` warning |
-| air_speed | Maximum speed in km/h on a route_type `air` before triggering an `ExcessiveSpeed` warning |
-| taxi_speed | Maximum speed in km/h on a route_type `taxi` before triggering an `ExcessiveSpeed` warning |
-| other_speed | Maximum speed in km/h on a route_type `other` before triggering an `ExcessiveSpeed` warning |
+| max_tramway_speed | Maximum speed in km/h on a route_type `tramway` before triggering an `ExcessiveSpeed` warning |
+| max_subway_speed | Maximum speed in km/h on a route_type `subway` before triggering an `ExcessiveSpeed` warning |
+| max_rail_speed | Maximum speed in km/h on a route_type `rail` before triggering an `ExcessiveSpeed` warning |
+| max_bus_speed | Maximum speed in km/h on a route_type `bus` before triggering an `ExcessiveSpeed` warning |
+| max_ferry_speed | Maximum speed in km/h on a route_type `ferry` before triggering an `ExcessiveSpeed` warning |
+| max_cable_car_speed | Maximum speed in km/h on a route_type `cable car` before triggering an `ExcessiveSpeed` warning |
+| max_gondola_speed | Maximum speed in km/h on a route_type `gondola` before triggering an `ExcessiveSpeed` warning |
+| max_funicular_speed | Maximum speed in km/h on a route_type `funicular` before triggering an `ExcessiveSpeed` warning |
+| max_coach_speed | Maximum speed in km/h on a route_type `coach` before triggering an `ExcessiveSpeed` warning |
+| max_air_speed | Maximum speed in km/h on a route_type `air` before triggering an `ExcessiveSpeed` warning |
+| max_taxi_speed | Maximum speed in km/h on a route_type `taxi` before triggering an `ExcessiveSpeed` warning |
+| max_other_speed | Maximum speed in km/h on a route_type `other` before triggering an `ExcessiveSpeed` warning |
 
 ### Example
 
