@@ -42,9 +42,9 @@ fn test_no_custom_rules() {
 fn test_some_custom_rules() {
     let file_path = Some(String::from("test_data/custom_rules/custom_rules.yml"));
     let custom_rules = custom_rules(file_path);
-    assert_eq!(Some(10.), custom_rules.bus_speed);
-    assert_eq!(Some(100.5), custom_rules.gondola_speed);
-    assert_eq!(None, custom_rules.air_speed);
+    assert_eq!(Some(10.), custom_rules.max_bus_speed);
+    assert_eq!(Some(100.5), custom_rules.max_gondola_speed);
+    assert_eq!(None, custom_rules.max_air_speed);
 }
 
 #[test]
