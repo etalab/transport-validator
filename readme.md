@@ -295,7 +295,7 @@ You can then ask for a validation:
 * `--custom-rules` or `-c`: Path to a YAML file containing custom values to use during the validation.
 
 ## Custom rules
-Some values used during the validations can be customized by using the `--custom_rules` option and providing a path to a YAML file.
+Some values used during the validations can be customized by using the `--custom-rules` option and providing a path to a YAML file.
 
 Available customizations are:
 
