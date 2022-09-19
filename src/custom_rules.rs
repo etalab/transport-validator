@@ -48,7 +48,7 @@ fn test_some_custom_rules() {
 }
 
 #[test]
-#[should_panic(expected = "Could not open custom_rules file")]
+#[should_panic(expected = "Could not open custom-rules file")]
 fn test_no_file() {
     let file_path = Some(String::from("xxx"));
     custom_rules(file_path);
