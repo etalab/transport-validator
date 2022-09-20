@@ -353,6 +353,8 @@ fn test_count_trips_with_accessibility_infos() {
 
 #[test]
 fn test_count_stops_with_accessibility_infos() {
+    use std::convert::TryFrom;
+
     let raw_gtfs =
         gtfs_structures::RawGtfs::new("test_data/accessibility").expect("Failed to load data");
     let mut metadatas = extract_metadata(&raw_gtfs);
