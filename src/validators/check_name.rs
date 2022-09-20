@@ -44,7 +44,7 @@ fn test_routes() {
     let issues = validate(&gtfs);
     let route_name_issues: Vec<_> = issues
         .iter()
-        .filter(|issue| issue.object_id == "35".to_string())
+        .filter(|issue| issue.object_id == *"35")
         .collect();
 
     assert_eq!(1, route_name_issues.len());
@@ -58,7 +58,7 @@ fn test_stops() {
     let issues = validate(&gtfs);
     let stop_name_issues: Vec<_> = issues
         .iter()
-        .filter(|issue| issue.object_id == "close1".to_string())
+        .filter(|issue| issue.object_id == *"close1")
         .collect();
 
     assert_eq!(1, stop_name_issues.len());
@@ -72,7 +72,7 @@ fn test_agencies() {
     let issues = validate(&gtfs);
     let agency_name_issues: Vec<_> = issues
         .iter()
-        .filter(|issue| issue.object_id == "1".to_string())
+        .filter(|issue| issue.object_id == *"1")
         .collect();
 
     assert_eq!(1, agency_name_issues.len());
@@ -86,7 +86,7 @@ fn test_feed_info() {
     let issues = validate(&gtfs);
     let publisher_name_issues: Vec<_> = issues
         .iter()
-        .filter(|issue| issue.object_id == "".to_string())
+        .filter(|issue| issue.object_id == *"")
         .collect();
 
     assert_eq!(1, publisher_name_issues.len());
