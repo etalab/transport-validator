@@ -1,9 +1,10 @@
 use crate::issues::IssueType;
+use chrono::NaiveDate;
 use gtfs_structures::Availability;
 use itertools::Itertools;
 use rgb::RGB;
 use serde::Serialize;
-use std::convert::TryFrom;
+use std::collections::HashMap;
 
 #[derive(Serialize, Debug)]
 pub struct Metadata {
@@ -18,6 +19,7 @@ pub struct Metadata {
     pub trips_with_bike_info_count: usize,
     pub trips_with_wheelchair_info_count: usize,
     pub networks: Vec<String>,
+    pub networks_start_end_dates: Option<HashMap<String, Option<(String, String)>>>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
@@ -87,6 +89,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .map(|a| a.name.to_owned())
             .unique()
             .collect(),
+        networks_start_end_dates: None,
         modes: gtfs
             .routes
             .as_ref()
@@ -155,6 +158,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
 impl Metadata {
     pub fn enrich_with_advanced_infos(&mut self, gtfs: &gtfs_structures::Gtfs) {
         self.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
+        self.networks_start_end_dates = Some(networks_start_end_dates(gtfs));
     }
 }
 
@@ -179,6 +183,62 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
             }
         })
         .count()
+}
+
+fn extract_calendar_dates(
+    trip: &gtfs_structures::Trip,
+    gtfs: &gtfs_structures::Gtfs,
+) -> Vec<NaiveDate> {
+    let mut from_calendar = gtfs
+        .calendar
+        .get(&trip.service_id)
+        // take both start and end dates
+        .map(|c| vec![c.start_date, c.end_date])
+        .unwrap_or(vec![]);
+
+    let from_calendar_dates: Vec<NaiveDate> = gtfs
+        .calendar_dates
+        .get(&trip.service_id)
+        .unwrap_or(&vec![])
+        .iter()
+        // keep only added calendar dates
+        .filter(|cd| cd.exception_type == gtfs_structures::Exception::Added)
+        .map(|cd| cd.date)
+        .collect();
+
+    from_calendar.extend(from_calendar_dates);
+    from_calendar
+}
+
+fn networks_start_end_dates(
+    gtfs: &gtfs_structures::Gtfs,
+) -> HashMap<String, Option<(String, String)>> {
+    let mut res = HashMap::new();
+    let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
+
+    for agency in gtfs.agencies.iter() {
+        // for each agency
+        let date = gtfs
+            .routes
+            .values()
+            // filter the routes corresponding to this agency
+            .filter(|route| route.agency_id == agency.id)
+            // take corresponding trips
+            .flat_map(|route| {
+                gtfs.trips
+                    .values()
+                    .filter(move |trips| trips.route_id == route.to_owned().id)
+            })
+            // get all dates in calendar files linked to those trips
+            .flat_map(|trip| extract_calendar_dates(trip, gtfs))
+            .minmax()
+            .into_option()
+            .map(|(d1, d2)| (format(d1), format(d2)));
+
+        res.insert(agency.name.to_owned(), date);
+    }
+
+    res
 }
 
 fn has_on_demand_pickup_dropoff(
