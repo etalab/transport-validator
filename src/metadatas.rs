@@ -185,60 +185,77 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
         .count()
 }
 
-fn extract_calendar_dates(
-    trip: &gtfs_structures::Trip,
-    gtfs: &gtfs_structures::Gtfs,
-) -> Vec<NaiveDate> {
-    let mut from_calendar = gtfs
+#[derive(Clone, Copy)]
+struct Interval(chrono::NaiveDate, chrono::NaiveDate);
+
+impl Interval {
+    fn update_bounds(&mut self, other: &Interval) {
+        self.update_bounds_with_date(&other.0);
+        self.update_bounds_with_date(&other.1);
+    }
+    fn update_bounds_with_date(&mut self, d: &NaiveDate) {
+        if self.0 > *d {
+            self.0 = *d;
+        }
+        if self.1 < *d {
+            self.1 = *d;
+        }
+    }
+}
+
+fn compute_services_start_end_dates(gtfs: &gtfs_structures::Gtfs) -> HashMap<&str, Interval> {
+    let mut res: HashMap<&str, Interval> = gtfs
         .calendar
-        .get(&trip.service_id)
-        // take both start and end dates
-        .map(|c| vec![c.start_date, c.end_date])
-        .unwrap_or(vec![]);
-
-    let from_calendar_dates: Vec<NaiveDate> = gtfs
-        .calendar_dates
-        .get(&trip.service_id)
-        .unwrap_or(&vec![])
         .iter()
-        // keep only added calendar dates
-        .filter(|cd| cd.exception_type == gtfs_structures::Exception::Added)
-        .map(|cd| cd.date)
+        .map(|(id, c)| (id.as_str(), Interval(c.start_date, c.end_date)))
         .collect();
-
-    from_calendar.extend(from_calendar_dates);
-    from_calendar
+    for (calendar_id, calendar_dates) in &gtfs.calendar_dates {
+        for d in calendar_dates
+            .iter()
+            .filter(|cd| cd.exception_type == gtfs_structures::Exception::Added)
+        {
+            res.entry(calendar_id)
+                .and_modify(|i| i.update_bounds_with_date(&d.date))
+                .or_insert(Interval(d.date, d.date));
+        }
+    }
+    res
 }
 
 fn networks_start_end_dates(
     gtfs: &gtfs_structures::Gtfs,
 ) -> HashMap<String, Option<(String, String)>> {
-    let mut res = HashMap::new();
     let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
 
-    for agency in gtfs.agencies.iter() {
-        // for each agency
-        let date = gtfs
-            .routes
-            .values()
-            // filter the routes corresponding to this agency
-            .filter(|route| route.agency_id == agency.id)
-            // take corresponding trips
-            .flat_map(|route| {
-                gtfs.trips
-                    .values()
-                    .filter(move |trips| trips.route_id == route.to_owned().id)
-            })
-            // get all dates in calendar files linked to those trips
-            .flat_map(|trip| extract_calendar_dates(trip, gtfs))
-            .minmax()
-            .into_option()
-            .map(|(d1, d2)| (format(d1), format(d2)));
+    let services_start_end_dates = compute_services_start_end_dates(gtfs);
+    let mut agencies_start_end_dates: HashMap<Option<String>, Interval> = HashMap::default();
 
-        res.insert(agency.name.to_owned(), date);
+    for (agency_id, service_id) in gtfs.trips.iter().filter_map(|(_trip_id, trip)| {
+        gtfs.get_route(&trip.route_id)
+            .map(|route| (route.agency_id.clone(), trip.service_id.as_str()))
+            .ok()
+    }) {
+        if let Some(service_bounds) = services_start_end_dates.get(&service_id) {
+            agencies_start_end_dates
+                .entry(agency_id)
+                .and_modify(|i| i.update_bounds(service_bounds))
+                .or_insert(service_bounds.clone());
+        }
     }
 
-    res
+    agencies_start_end_dates
+        .into_iter()
+        .map(|(id, i)| {
+            (
+                gtfs.agencies
+                    .iter()
+                    .find(|a| &a.id == &id)
+                    .map(|a| a.name.clone())
+                    .unwrap_or("default_agency".to_string()),
+                Some((format(i.0), format(i.1))),
+            )
+        })
+        .collect()
 }
 
 fn has_on_demand_pickup_dropoff(
