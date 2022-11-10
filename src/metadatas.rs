@@ -19,7 +19,7 @@ pub struct Metadata {
     pub trips_with_bike_info_count: usize,
     pub trips_with_wheelchair_info_count: usize,
     pub networks: Vec<String>,
-    pub networks_start_end_dates: Option<HashMap<String, Option<(String, String)>>>,
+    pub networks_start_end_dates: Option<HashMap<String, Option<HashMap<String, String>>>>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
@@ -225,13 +225,13 @@ fn compute_services_start_end_dates(gtfs: &gtfs_structures::Gtfs) -> HashMap<&st
 fn networks_start_end_dates(
     metadata: &Metadata,
     gtfs: &gtfs_structures::Gtfs,
-) -> HashMap<String, Option<(String, String)>> {
+) -> HashMap<String, Option<HashMap<String, String>>> {
     let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
-    let result: HashMap<String, Option<(String, String)>> = if metadata.networks.len() == 1 {
+    let result: HashMap<String, Option<HashMap<String, String>>> = if metadata.networks.len() == 1 {
         // if there is only one agency, get data from existing metadata
         let mut agency_start_end_dates = HashMap::default();
         let start_end = match (metadata.start_date.as_ref(), metadata.end_date.as_ref()) {
-            (Some(sd), Some(ed)) => Some((sd.to_owned(), ed.to_owned())),
+            (Some(sd), Some(ed)) => Some(HashMap::from([(String::from("start_date"), sd.to_owned()), (String::from("end_date"), ed.to_owned())])),
             _ => None,
         };
         agency_start_end_dates.insert(metadata.networks[0].to_owned(), start_end);
@@ -263,7 +263,7 @@ fn networks_start_end_dates(
                         .find(|a| &a.id == &id)
                         .map(|a| a.name.clone())
                         .unwrap_or("default_agency".to_string()),
-                    Some((format(i.0), format(i.1))),
+                    Some(HashMap::from([(String::from("start_date"), format(i.0)), (String::from("end_date"), format(i.1))]))
                 )
             })
             .collect()
@@ -400,6 +400,28 @@ fn test_count_stops_with_accessibility_infos() {
 }
 
 #[test]
+fn test_network_start_end_dates() {
+    use std::convert::TryFrom;
+
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/agency_single").expect("Failed to load data");
+    let mut metadatas = extract_metadata(&raw_gtfs);
+    let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
+    metadatas.enrich_with_advanced_infos(&gtfs);
+
+    let networks_start_end_dates = metadatas.networks_start_end_dates.unwrap();
+
+    assert_eq!(1,networks_start_end_dates.len());
+
+    let start_end = networks_start_end_dates.get("BIBUS").unwrap().as_ref().unwrap();
+    assert_eq!("2017-01-01", start_end.get("start_date").unwrap());
+    assert_eq!("2017-01-15", start_end.get("end_date").unwrap());
+
+    assert_eq!(metadatas.start_date.unwrap(), start_end.get("start_date").unwrap().to_owned());
+    assert_eq!(metadatas.end_date.unwrap(), start_end.get("end_date").unwrap().to_owned());
+}
+
+#[test]
 fn test_networks_start_end_dates() {
     use std::convert::TryFrom;
 
@@ -416,13 +438,11 @@ fn test_networks_start_end_dates() {
 
     assert_eq!(2,networks_start_end_dates.len());
 
-    let (ter_start_date, _ter_end_date) = networks_start_end_dates.get("Ter").unwrap().as_ref().unwrap();
-    let (d1, d2) = (ter_start_date.to_owned(), _ter_end_date.to_owned());
-    assert_eq!("2019-01-01", d1);
-    assert_eq!("2022-01-01", d2);
+    let start_end = networks_start_end_dates.get("Ter").unwrap().as_ref().unwrap();
+    assert_eq!("2019-01-01", start_end.get("start_date").unwrap());
+    assert_eq!("2022-01-01", start_end.get("end_date").unwrap());
 
-    let (ter_start_date, _ter_end_date) = networks_start_end_dates.get("BIBUS").unwrap().as_ref().unwrap();
-    let (d1, d2) = (ter_start_date.to_owned(), _ter_end_date.to_owned());
-    assert_eq!("2016-01-01", d1);
-    assert_eq!("2023-01-01", d2);
+    let start_end = networks_start_end_dates.get("BIBUS").unwrap().as_ref().unwrap();
+    assert_eq!("2016-01-01", start_end.get("start_date").unwrap());
+    assert_eq!("2023-01-01", start_end.get("end_date").unwrap());
 }
