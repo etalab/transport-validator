@@ -158,7 +158,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
 impl Metadata {
     pub fn enrich_with_advanced_infos(&mut self, gtfs: &gtfs_structures::Gtfs) {
         self.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
-        self.networks_start_end_dates = Some(networks_start_end_dates(gtfs));
+        self.networks_start_end_dates = Some(networks_start_end_dates(self, gtfs));
     }
 }
 
@@ -223,39 +223,53 @@ fn compute_services_start_end_dates(gtfs: &gtfs_structures::Gtfs) -> HashMap<&st
 }
 
 fn networks_start_end_dates(
+    metadata: &Metadata,
     gtfs: &gtfs_structures::Gtfs,
 ) -> HashMap<String, Option<(String, String)>> {
     let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
+    let result: HashMap<String, Option<(String, String)>> = if metadata.networks.len() == 1 {
+        // if there is only one agency, get data from existing metadata
+        let mut agency_start_end_dates = HashMap::default();
+        let start_end = match (metadata.start_date.as_ref(), metadata.end_date.as_ref()) {
+            (Some(sd), Some(ed)) => Some((sd.to_owned(), ed.to_owned())),
+            _ => None,
+        };
+        agency_start_end_dates.insert(metadata.networks[0].to_owned(), start_end);
+        agency_start_end_dates
+    } else {
+        // multi-agency case
+        let mut agencies_start_end_dates: HashMap<Option<String>, Interval> = HashMap::default();
+        let services_start_end_dates = compute_services_start_end_dates(gtfs);
 
-    let services_start_end_dates = compute_services_start_end_dates(gtfs);
-    let mut agencies_start_end_dates: HashMap<Option<String>, Interval> = HashMap::default();
-
-    for (agency_id, service_id) in gtfs.trips.iter().filter_map(|(_trip_id, trip)| {
-        gtfs.get_route(&trip.route_id)
-            .map(|route| (route.agency_id.clone(), trip.service_id.as_str()))
-            .ok()
-    }) {
-        if let Some(service_bounds) = services_start_end_dates.get(&service_id) {
-            agencies_start_end_dates
-                .entry(agency_id)
-                .and_modify(|i| i.update_bounds(service_bounds))
-                .or_insert(service_bounds.clone());
+        for (agency_id, service_id) in gtfs.trips.iter().filter_map(|(_trip_id, trip)| {
+            gtfs.get_route(&trip.route_id)
+                .map(|route| (route.agency_id.clone(), trip.service_id.as_str()))
+                .ok()
+        }) {
+            if let Some(service_bounds) = services_start_end_dates.get(&service_id) {
+                agencies_start_end_dates
+                    .entry(agency_id)
+                    .and_modify(|i| i.update_bounds(service_bounds))
+                    .or_insert(service_bounds.clone());
+            }
         }
-    }
 
-    agencies_start_end_dates
-        .into_iter()
-        .map(|(id, i)| {
-            (
-                gtfs.agencies
-                    .iter()
-                    .find(|a| &a.id == &id)
-                    .map(|a| a.name.clone())
-                    .unwrap_or("default_agency".to_string()),
-                Some((format(i.0), format(i.1))),
-            )
-        })
-        .collect()
+        agencies_start_end_dates
+            .into_iter()
+            .map(|(id, i)| {
+                (
+                    gtfs.agencies
+                        .iter()
+                        .find(|a| &a.id == &id)
+                        .map(|a| a.name.clone())
+                        .unwrap_or("default_agency".to_string()),
+                    Some((format(i.0), format(i.1))),
+                )
+            })
+            .collect()
+    };
+
+    result
 }
 
 fn has_on_demand_pickup_dropoff(
@@ -383,4 +397,32 @@ fn test_count_stops_with_accessibility_infos() {
     metadatas.enrich_with_advanced_infos(&gtfs);
 
     assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
+}
+
+#[test]
+fn test_networks_start_end_dates() {
+    use std::convert::TryFrom;
+
+    let raw_gtfs =
+        gtfs_structures::RawGtfs::new("test_data/agency_multiple").expect("Failed to load data");
+    let mut metadatas = extract_metadata(&raw_gtfs);
+    let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
+
+    assert_eq!(None, metadatas.networks_start_end_dates);
+
+    metadatas.enrich_with_advanced_infos(&gtfs);
+
+    let networks_start_end_dates = metadatas.networks_start_end_dates.unwrap();
+
+    assert_eq!(2,networks_start_end_dates.len());
+
+    let (ter_start_date, _ter_end_date) = networks_start_end_dates.get("Ter").unwrap().as_ref().unwrap();
+    let (d1, d2) = (ter_start_date.to_owned(), _ter_end_date.to_owned());
+    assert_eq!("2019-01-01", d1);
+    assert_eq!("2022-01-01", d2);
+
+    let (ter_start_date, _ter_end_date) = networks_start_end_dates.get("BIBUS").unwrap().as_ref().unwrap();
+    let (d1, d2) = (ter_start_date.to_owned(), _ter_end_date.to_owned());
+    assert_eq!("2016-01-01", d1);
+    assert_eq!("2023-01-01", d2);
 }
