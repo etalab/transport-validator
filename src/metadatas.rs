@@ -168,7 +168,7 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
         .filter(|(_, stop)| {
             if stop.wheelchair_boarding != gtfs_structures::Availability::InformationNotAvailable {
                 // information is present
-                return true;
+                true
             } else {
                 // information not present, check for inheritance from parent station
                 let parent_wheelchair_boarding = stop
@@ -178,8 +178,8 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
                     .map(|s| s.wheelchair_boarding);
 
                 // true if parent has information about accessibility
-                return parent_wheelchair_boarding == Some(Availability::Available)
-                    || parent_wheelchair_boarding == Some(Availability::NotAvailable);
+                parent_wheelchair_boarding == Some(Availability::Available)
+                    || parent_wheelchair_boarding == Some(Availability::NotAvailable)
             }
         })
         .count()
@@ -305,104 +305,111 @@ fn trips_with_wheelchair_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
         .count()
 }
 
-#[test]
-fn show_validation_version() {
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/fare_attributes").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert_eq!(metadatas.validator_version.is_empty(), false);
-}
-
-#[test]
-fn test_has_fares() {
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/fare_attributes").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert!(metadatas.has_fares);
-}
-
-#[test]
-fn test_has_shapes() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/shapes").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert!(metadatas.has_shapes);
-}
-
-#[test]
-fn test_no_optional_files() {
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/no_optional_files").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert!(!metadatas.has_fares);
-    assert!(!metadatas.has_shapes);
-    assert!(!metadatas.has_pathways);
-}
-
-#[test]
-fn test_stop_need_phone_agency() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/arrange_by_phone_stops")
-        .expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert!(metadatas.some_stops_need_phone_agency);
-    assert!(!metadatas.some_stops_need_phone_driver);
-}
-
-#[test]
-fn test_stop_need_phone_driver() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/coordinate_with_driver_stops")
-        .expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert!(!metadatas.some_stops_need_phone_agency);
-    assert!(metadatas.some_stops_need_phone_driver);
-}
-
-#[test]
-fn test_has_pathways() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/missing_mandatory_files")
-        .expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert!(metadatas.has_pathways);
-}
-
-#[test]
-fn test_count_lines_with_custom_color() {
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/custom_route_color").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert_eq!(3, metadatas.lines_with_custom_color_count);
-}
-
-#[test]
-fn test_count_trips_with_bike_infos() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert_eq!(11, metadatas.trips_count);
-    assert_eq!(3, metadatas.trips_with_bike_info_count);
-}
-
-#[test]
-fn test_count_trips_with_accessibility_infos() {
-    let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
-    let metadatas = extract_metadata(&raw_gtfs);
-    assert_eq!(11, metadatas.trips_count);
-    assert_eq!(3, metadatas.trips_with_wheelchair_info_count);
-}
-
-#[test]
-fn test_count_stops_with_accessibility_infos() {
+#[cfg(test)]
+mod tests {
+    use super::*;
     use std::convert::TryFrom;
 
-    let raw_gtfs =
-        gtfs_structures::RawGtfs::new("test_data/accessibility").expect("Failed to load data");
-    let mut metadatas = extract_metadata(&raw_gtfs);
-    let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
+    #[test]
+    fn show_validation_version() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/fare_attributes")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(!metadatas.validator_version.is_empty());
+    }
 
-    assert_eq!(16, metadatas.stops_count);
-    assert_eq!(None, metadatas.stops_with_wheelchair_info_count);
+    #[test]
+    fn test_has_fares() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/fare_attributes")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(metadatas.has_fares);
+    }
 
-    metadatas.enrich_with_advanced_infos(&gtfs);
+    #[test]
+    fn test_has_shapes() {
+        let raw_gtfs =
+            gtfs_structures::RawGtfs::new("test_data/shapes").expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(metadatas.has_shapes);
+    }
 
-    assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
+    #[test]
+    fn test_no_optional_files() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/no_optional_files")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(!metadatas.has_fares);
+        assert!(!metadatas.has_shapes);
+        assert!(!metadatas.has_pathways);
+    }
+
+    #[test]
+    fn test_stop_need_phone_agency() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/arrange_by_phone_stops")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(metadatas.some_stops_need_phone_agency);
+        assert!(!metadatas.some_stops_need_phone_driver);
+    }
+
+    #[test]
+    fn test_stop_need_phone_driver() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/coordinate_with_driver_stops")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(!metadatas.some_stops_need_phone_agency);
+        assert!(metadatas.some_stops_need_phone_driver);
+    }
+
+    #[test]
+    fn test_has_pathways() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/missing_mandatory_files")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert!(metadatas.has_pathways);
+    }
+
+    #[test]
+    fn test_count_lines_with_custom_color() {
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/custom_route_color")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert_eq!(3, metadatas.lines_with_custom_color_count);
+    }
+
+    #[test]
+    fn test_count_trips_with_bike_infos() {
+        let raw_gtfs =
+            gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert_eq!(11, metadatas.trips_count);
+        assert_eq!(3, metadatas.trips_with_bike_info_count);
+    }
+
+    #[test]
+    fn test_count_trips_with_accessibility_infos() {
+        let raw_gtfs =
+            gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert_eq!(11, metadatas.trips_count);
+        assert_eq!(3, metadatas.trips_with_wheelchair_info_count);
+    }
+
+    #[test]
+    fn test_count_stops_with_accessibility_infos() {
+        let raw_gtfs =
+            gtfs_structures::RawGtfs::new("test_data/accessibility").expect("Failed to load data");
+        let mut metadatas = extract_metadata(&raw_gtfs);
+        let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
+
+        assert_eq!(16, metadatas.stops_count);
+        assert_eq!(None, metadatas.stops_with_wheelchair_info_count);
+
+        metadatas.enrich_with_advanced_infos(&gtfs);
+
+        assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
+    }
 }
 
 #[test]
