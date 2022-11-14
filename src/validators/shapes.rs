@@ -17,7 +17,29 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             Issue::new(Severity::Error, IssueType::InvalidCoordinates, id)
                 .object_type(gtfs_structures::ObjectType::Shape)
         });
-    missing_coord.chain(valid).collect()
+    let valid_shape_id = gtfs
+        .trips
+        .iter()
+        .map(|(_id, trip)| invalid_shape_id(trip, gtfs))
+        .filter_map(|o| o);
+
+    missing_coord.chain(valid).chain(valid_shape_id).collect()
+}
+
+fn invalid_shape_id(trip: &gtfs_structures::Trip, gtfs: &gtfs_structures::Gtfs) -> Option<Issue> {
+    match &trip.shape_id {
+        None => None,
+        Some(shape_id) => {
+            if gtfs.shapes.contains_key(shape_id) {
+                None
+            } else {
+                Some(
+                    Issue::new(Severity::Error, IssueType::InvalidShapeId, &trip.id)
+                        .object_type(gtfs_structures::ObjectType::Trip),
+                )
+            }
+        }
+    }
 }
 
 fn has_coord(shape: &gtfs_structures::Shape) -> bool {
