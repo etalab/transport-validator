@@ -19,7 +19,7 @@ pub struct Metadata {
     pub trips_with_bike_info_count: usize,
     pub trips_with_wheelchair_info_count: usize,
     pub networks: Vec<String>,
-    pub networks_start_end_dates: Option<HashMap<String, Option<HashMap<String, String>>>>,
+    pub networks_start_end_dates: Option<HashMap<String, Option<Interval>>>,
     pub modes: Vec<String>,
     pub issues_count: std::collections::BTreeMap<IssueType, usize>,
     pub has_fares: bool,
@@ -185,8 +185,8 @@ fn stops_with_wheelchair_info_count(gtfs: &gtfs_structures::Gtfs) -> usize {
         .count()
 }
 
-#[derive(Clone, Copy)]
-struct Interval(chrono::NaiveDate, chrono::NaiveDate);
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Interval(chrono::NaiveDate, chrono::NaiveDate);
 
 impl Interval {
     fn update_bounds(&mut self, other: &Interval) {
@@ -200,6 +200,25 @@ impl Interval {
         if self.1 < *d {
             self.1 = *d;
         }
+    }
+}
+
+#[derive(Serialize)]
+struct IntervalHelper {
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+}
+
+impl Serialize for Interval {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        IntervalHelper {
+            start_date: self.0,
+            end_date: self.1,
+        }
+        .serialize(serializer)
     }
 }
 
@@ -225,16 +244,12 @@ fn compute_services_start_end_dates(gtfs: &gtfs_structures::Gtfs) -> HashMap<&st
 fn networks_start_end_dates(
     metadata: &Metadata,
     gtfs: &gtfs_structures::Gtfs,
-) -> HashMap<String, Option<HashMap<String, String>>> {
-    let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
-    let result: HashMap<String, Option<HashMap<String, String>>> = if metadata.networks.len() == 1 {
+) -> HashMap<String, Option<Interval>> {
+    let result: HashMap<String, Option<Interval>> = if metadata.networks.len() == 1 {
         // if there is only one agency, get data from existing metadata
         let mut agency_start_end_dates = HashMap::default();
         let start_end = match (metadata.start_date.as_ref(), metadata.end_date.as_ref()) {
-            (Some(sd), Some(ed)) => Some(HashMap::from([
-                (String::from("start_date"), sd.to_owned()),
-                (String::from("end_date"), ed.to_owned()),
-            ])),
+            (Some(sd), Some(ed)) => Some(Interval(sd.parse().unwrap(), ed.parse().unwrap())),
             _ => None,
         };
         agency_start_end_dates.insert(metadata.networks[0].to_owned(), start_end);
@@ -266,10 +281,7 @@ fn networks_start_end_dates(
                         .find(|a| &a.id == &id)
                         .map(|a| a.name.clone())
                         .unwrap_or("default_agency".to_string()),
-                    Some(HashMap::from([
-                        (String::from("start_date"), format(i.0)),
-                        (String::from("end_date"), format(i.1)),
-                    ])),
+                    Some(i),
                 )
             })
             .collect()
@@ -431,16 +443,16 @@ fn test_network_start_end_dates() {
         .unwrap()
         .as_ref()
         .unwrap();
-    assert_eq!("2017-01-01", start_end.get("start_date").unwrap());
-    assert_eq!("2017-01-15", start_end.get("end_date").unwrap());
-
     assert_eq!(
-        metadatas.start_date.unwrap(),
-        start_end.get("start_date").unwrap().to_owned()
+        Interval("2017-01-01".parse().unwrap(), "2017-01-15".parse().unwrap()),
+        start_end.to_owned()
     );
     assert_eq!(
-        metadatas.end_date.unwrap(),
-        start_end.get("end_date").unwrap().to_owned()
+        Interval(
+            metadatas.start_date.unwrap().parse().unwrap(),
+            metadatas.end_date.unwrap().parse().unwrap()
+        ),
+        start_end.to_owned()
     );
 }
 
@@ -466,14 +478,33 @@ fn test_networks_start_end_dates() {
         .unwrap()
         .as_ref()
         .unwrap();
-    assert_eq!("2019-01-01", start_end.get("start_date").unwrap());
-    assert_eq!("2022-01-01", start_end.get("end_date").unwrap());
+
+    assert_eq!(
+        Interval("2019-01-01".parse().unwrap(), "2022-01-01".parse().unwrap()),
+        start_end.to_owned()
+    );
 
     let start_end = networks_start_end_dates
         .get("BIBUS")
         .unwrap()
         .as_ref()
         .unwrap();
-    assert_eq!("2016-01-01", start_end.get("start_date").unwrap());
-    assert_eq!("2023-01-01", start_end.get("end_date").unwrap());
+
+    assert_eq!(
+        Interval("2016-01-01".parse().unwrap(), "2023-01-01".parse().unwrap()),
+        start_end.to_owned()
+    );
+}
+
+#[test]
+fn test_interval_serialization() {
+    let i = Interval(
+        NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+        NaiveDate::from_ymd_opt(2023, 1, 2).unwrap(),
+    );
+
+    assert_eq!(
+        serde_json::to_string(&i).unwrap(),
+        "{\"start_date\":\"2022-01-01\",\"end_date\":\"2023-01-02\"}"
+    )
 }
