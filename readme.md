@@ -42,6 +42,7 @@ Give useful information about the validated file content:
 | trips_with_bike_info_count | integer | Number of trips found in `trips.txt` with bike information provided (`bikes_allowed` equal to `1` or `2`) |
 | trips_with_wheelchair_info_count | integer | Number of trips found in `trips.txt` with wheelchair information provided (`wheelchair_accessible` equal to `1` or `2`) |
 | networks | list of strings | A list of unique agencies names, found in `agency.txt` | 
+| networks_start_end_dates | map | Gives the starting and ending dates of the calendar information for each network. For example: `{"agency name 1":{"start_date":"2022-08-18","end_date":"2022-10-23"}, "agency name 2":{"start_date":"2020-08-18","end_date":"2023-10-23"}}` | 
 | modes | list of strings | A list of the `route_types` found in `routes.txt` | 
 | issues_count| Object | A summary of the validation issues found in the `validations` section. Keys of the object are the issue name, values are the number of corresponding issues found. |
 | has_fares | boolean | True if a `fare_attributes.txt` file exists and contains information |
