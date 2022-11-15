@@ -22,20 +22,18 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let invalid_shape_id = gtfs
         .trips
         .iter()
-        .map(|(_id, trip)| create_invalid_shape_id_issue(trip, gtfs))
-        .filter_map(|o| o);
+        .filter_map(|(_id, trip)| create_invalid_shape_id_issue(trip, gtfs));
 
-    let used_shape_id: HashSet<String> = gtfs
+    let used_shape_id: HashSet<&String> = gtfs
         .trips
         .iter()
-        .map(|(_trip_id, trip)| trip.shape_id.to_owned())
-        .filter_map(|o| o)
+        .filter_map(|(_trip_id, trip)| trip.shape_id.as_ref())
         .collect();
 
-    let existing_shape_id: HashSet<String> = gtfs
+    let existing_shape_id: HashSet<&String> = gtfs
         .shapes
         .iter()
-        .map(|(shape_id, _shape)| shape_id.to_owned())
+        .map(|(shape_id, _shape)| shape_id)
         .collect();
 
     let unused_shape_id = existing_shape_id.difference(&used_shape_id).map(|id| {
