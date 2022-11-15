@@ -125,6 +125,7 @@ Here is a human friendly list of them :
 | InvalidStopLocationTypeInTrip | Warning | Only Stop Points are allowed to be used in a Trip |
 | InvalidStopParent | Warning | The parent station of this stop is not a valid one |
 | IdNotAscii | Warning | The identifier is not only ASCII characters |
+| UnusedShapeId | Warning | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
 |  |  |  |
 | MissingId | Error | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing. |
 | InvalidCoordinates | Error | The coordinates of a shape point or a stop are not valid. |
@@ -134,6 +135,7 @@ Here is a human friendly list of them :
 | InvalidTransfers | Error | The number of transfers of a fare is not valid. |
 | InvalidTransferDuration | Error | The transfer duration of a fare is not valid. |
 | ImpossibleToInterpolateStopTimes | Error | It's impossible to interpolate the departure/arrival of some stoptimes of the trip |
+| InvalidShapeId | Error | A shape_id referenced in trips.txt does not exist in shapes.txt |
 |  |  |  |
 | InvalidReference | Fatal | Reference not valid. For example a stop referenced by a stop time that does not exist |
 | InvalidArchive | Fatal | .zip Archive not valid. |
