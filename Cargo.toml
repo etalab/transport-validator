@@ -10,7 +10,7 @@ codegen-units = 1   # Reduce number of codegen units to increase optimizations.
 panic = 'abort'     # Abort on panic
 
 [dependencies]
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 chrono-tz = "0.6"
 env_logger = "0.9"
 anyhow = "1"
