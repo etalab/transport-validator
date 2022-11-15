@@ -19,7 +19,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
             Issue::new(Severity::Error, IssueType::InvalidCoordinates, id)
                 .object_type(gtfs_structures::ObjectType::Shape)
         });
-    let valid_shape_id = gtfs
+    let invalid_shape_id = gtfs
         .trips
         .iter()
         .map(|(_id, trip)| create_invalid_shape_id_issue(trip, gtfs))
@@ -45,7 +45,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 
     missing_coord
         .chain(valid)
-        .chain(valid_shape_id)
+        .chain(invalid_shape_id)
         .chain(unused_shape_id)
         .collect()
 }
