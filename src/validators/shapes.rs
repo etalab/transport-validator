@@ -39,7 +39,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .collect();
 
     let unused_shape_id = existing_shape_id.difference(&used_shape_id).map(|id| {
-        Issue::new(Severity::Warning, IssueType::UnusedShapeId, id)
+        Issue::new(Severity::Information, IssueType::UnusedShapeId, id)
             .object_type(gtfs_structures::ObjectType::Shape)
     });
 

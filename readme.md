@@ -112,6 +112,7 @@ Here is a human friendly list of them :
 | InvalidRouteType | Information | The type of a route is not valid. |
 | DuplicateStops | Information | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
 | ExtraFile | Information | The file does not belong to a GTFS archive |
+| UnusedShapeId | Information | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
 |  |  |  |
 | NegativeTravelTime | Warning | The travel duration between two stops is negative. |
 | MissingName | Warning | An agency, a route or a stop has its name missing. |
@@ -125,7 +126,6 @@ Here is a human friendly list of them :
 | InvalidStopLocationTypeInTrip | Warning | Only Stop Points are allowed to be used in a Trip |
 | InvalidStopParent | Warning | The parent station of this stop is not a valid one |
 | IdNotAscii | Warning | The identifier is not only ASCII characters |
-| UnusedShapeId | Warning | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
 |  |  |  |
 | MissingId | Error | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing. |
 | InvalidCoordinates | Error | The coordinates of a shape point or a stop are not valid. |
