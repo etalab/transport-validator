@@ -113,6 +113,7 @@ Here is a human friendly list of them :
 | InvalidRouteType | Information | The type of a route is not valid. |
 | DuplicateStops | Information | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
 | ExtraFile | Information | The file does not belong to a GTFS archive |
+| UnusedShapeId | Information | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
 |  |  |  |
 | NegativeTravelTime | Warning | The travel duration between two stops is negative. |
 | MissingName | Warning | An agency, a route or a stop has its name missing. |
@@ -135,6 +136,7 @@ Here is a human friendly list of them :
 | InvalidTransfers | Error | The number of transfers of a fare is not valid. |
 | InvalidTransferDuration | Error | The transfer duration of a fare is not valid. |
 | ImpossibleToInterpolateStopTimes | Error | It's impossible to interpolate the departure/arrival of some stoptimes of the trip |
+| InvalidShapeId | Error | A shape_id referenced in trips.txt does not exist in shapes.txt |
 |  |  |  |
 | InvalidReference | Fatal | Reference not valid. For example a stop referenced by a stop time that does not exist |
 | InvalidArchive | Fatal | .zip Archive not valid. |

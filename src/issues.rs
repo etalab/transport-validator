@@ -85,6 +85,10 @@ pub enum IssueType {
     InvalidStopParent,
     /// The Id is not in ASCII encoding
     IdNotAscii,
+    /// The shape id referenced in trips.txt does not exist
+    InvalidShapeId,
+    /// A shape id defined in shapes.txt is not used elsewhere
+    UnusedShapeId,
 }
 
 /// Represents an object related to another object that is causing an issue.
