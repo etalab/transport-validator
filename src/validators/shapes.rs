@@ -60,7 +60,8 @@ fn create_invalid_shape_id_issue(
             } else {
                 Some(
                     Issue::new(Severity::Error, IssueType::InvalidShapeId, &trip.id)
-                        .object_type(gtfs_structures::ObjectType::Trip),
+                        .object_type(gtfs_structures::ObjectType::Trip)
+                        .details(&format!("invalid shape id: {}", shape_id)),
                 )
             }
         }
@@ -121,6 +122,10 @@ fn test_invalid_shape_id() {
 
     assert_eq!(1, invalid_shape_id.len());
     assert_eq!("AB1", invalid_shape_id[0].object_id);
+    assert_eq!(
+        "invalid shape id: non_existing_shape_id",
+        invalid_shape_id[0].details.as_ref().unwrap()
+    );
     assert_eq!(IssueType::InvalidShapeId, invalid_shape_id[0].issue_type);
 }
 
