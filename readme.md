@@ -114,6 +114,7 @@ Here is a human friendly list of them :
 | DuplicateStops | Information | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
 | ExtraFile | Information | The file does not belong to a GTFS archive |
 | UnusedShapeId | Information | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
+| NoShape | Information | No shape has been defined for trip. While shapes are not mandatory, they improve the quality of transit data |
 |  |  |  |
 | NegativeTravelTime | Warning | The travel duration between two stops is negative. |
 | MissingName | Warning | An agency, a route or a stop has its name missing. |
