@@ -41,6 +41,7 @@ Give useful information about the validated file content:
 | trips_count | integer | Number of trips found in `trips.txt` |
 | trips_with_bike_info_count | integer | Number of trips found in `trips.txt` with bike information provided (`bikes_allowed` equal to `1` or `2`) |
 | trips_with_wheelchair_info_count | integer | Number of trips found in `trips.txt` with wheelchair information provided (`wheelchair_accessible` equal to `1` or `2`) |
+| trips_with_shape_count | integer | Number of trips found in `trips.txt` with an attached shape |
 | networks | list of strings | A list of unique agencies names, found in `agency.txt` | 
 | networks_start_end_dates | map | Gives the starting and ending dates of the calendar information for each network. For example: `{"agency name 1":{"start_date":"2022-08-18","end_date":"2022-10-23"}, "agency name 2":{"start_date":"2020-08-18","end_date":"2023-10-23"}}` | 
 | modes | list of strings | A list of the `route_types` found in `routes.txt` | 
@@ -114,7 +115,6 @@ Here is a human friendly list of them :
 | DuplicateStops | Information | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
 | ExtraFile | Information | The file does not belong to a GTFS archive |
 | UnusedShapeId | Information | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
-| NoShape | Information | No shape has been defined for trip. While shapes are not mandatory, they improve the quality of transit data |
 |  |  |  |
 | NegativeTravelTime | Warning | The travel duration between two stops is negative. |
 | MissingName | Warning | An agency, a route or a stop has its name missing. |
