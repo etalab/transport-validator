@@ -341,6 +341,10 @@ Lint your code running:
 cargo fmt --all -- --write-mode=diff
 ```
 
+## Contact
+
+Questions? Comments? Get in touch with the transport.data.gouv.fr's technical team: [tech@transport.beta.gouv.fr](mailto:tech@transport.beta.gouv.fr)
+
 ## Alternatives
 
 * [Google Transitfeed](https://github.com/google/transitfeed)
