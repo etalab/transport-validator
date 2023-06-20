@@ -18,6 +18,7 @@ pub struct Metadata {
     pub trips_count: usize,
     pub trips_with_bike_info_count: usize,
     pub trips_with_wheelchair_info_count: usize,
+    pub trips_with_shape_count: usize,
     pub networks: Vec<String>,
     pub networks_start_end_dates: Option<HashMap<String, Option<Interval>>>,
     pub modes: Vec<String>,
@@ -81,6 +82,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
         trips_with_bike_info_count: trips_with_bike_info_count(gtfs),
         trips_with_wheelchair_info_count: trips_with_wheelchair_info_count(gtfs),
+        trips_with_shape_count: trips_without_shape_count(gtfs),
         networks: gtfs
             .agencies
             .as_ref()
@@ -315,6 +317,15 @@ fn trips_with_wheelchair_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
         .count()
 }
 
+fn trips_without_shape_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
+    gtfs.trips
+        .as_ref()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter(|t| t.shape_id.is_some())
+        .count()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -419,6 +430,16 @@ mod tests {
         metadatas.enrich_with_advanced_infos(&gtfs);
 
         assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
+    }
+
+    #[test]
+    fn test_count_trips_without_shapes() {
+        let raw_gtfs =
+            gtfs_structures::RawGtfs::new("test_data/shapes").expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+
+        // only `STBA` and `AB1` have a shape, even if `AB1` has an invalid one, it will be counted (but it will have an InvalidShape issue)
+        assert_eq!(2, metadatas.trips_with_shape_count);
     }
 }
 
