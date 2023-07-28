@@ -69,7 +69,7 @@ fn create_invalid_shape_id_issue(
 }
 
 fn has_coord(shape: &gtfs_structures::Shape) -> bool {
-    shape.latitude != 0.0 && shape.longitude != 0.0
+    shape.latitude != 0.0 || shape.longitude != 0.0
 }
 
 fn valid_coord(shape: &gtfs_structures::Shape) -> bool {
