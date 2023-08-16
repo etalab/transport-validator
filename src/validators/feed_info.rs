@@ -5,14 +5,14 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .feed_info
         .iter()
         .filter(is_missing_url)
-        .map(|feed_info| make_issue(feed_info, Severity::Warning, IssueType::MissingUrl));
+        .map(|feed_info| make_issue(feed_info, Severity::Error, IssueType::MissingUrl));
     let invalid_url = gtfs
         .feed_info
         .iter()
         .filter(|fi| !is_missing_url(fi) && is_invalid_url(fi))
         .map(|feed_info| {
-            make_issue(feed_info, Severity::Warning, IssueType::InvalidUrl).details(&format!(
-                "The feed_publisher_url (in feed_infos.txt) {} is invalid",
+            make_issue(feed_info, Severity::Error, IssueType::InvalidUrl).details(&format!(
+                "The feed_publisher_url (in feed_info.txt) {} is invalid",
                 feed_info.url
             ))
         });
@@ -45,8 +45,10 @@ fn is_missing_url(feed: &&gtfs_structures::FeedInfo) -> bool {
 }
 
 fn is_invalid_url(feed: &&gtfs_structures::FeedInfo) -> bool {
+    // https://gtfs.org/schedule/reference/#field-types
+    // URL - A fully qualified URL that includes http:// or https://
     !url::Url::parse(feed.url.as_ref())
-        .map(|url| vec!["https", "http", "ftp"].contains(&url.scheme()))
+        .map(|url| vec!["https", "http"].contains(&url.scheme()))
         .unwrap_or(false)
 }
 

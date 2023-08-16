@@ -5,13 +5,13 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .agencies
         .iter()
         .filter(|agency| !has_url(agency))
-        .map(|agency| Issue::new_with_obj(Severity::Warning, IssueType::MissingUrl, agency));
+        .map(|agency| Issue::new_with_obj(Severity::Error, IssueType::MissingUrl, agency));
     let invalid_url =
         gtfs.agencies
             .iter()
             .filter(|agency| has_url(agency) && !valid_url(agency))
             .map(|agency| {
-                Issue::new_with_obj(Severity::Warning, IssueType::InvalidUrl, agency).details(
+                Issue::new_with_obj(Severity::Error, IssueType::InvalidUrl, agency).details(
                     &format!("The agency_url (in agency.txt) {} is invalid", agency.url),
                 )
             });
@@ -28,8 +28,10 @@ fn has_url(agency: &gtfs_structures::Agency) -> bool {
 }
 
 fn valid_url(agency: &gtfs_structures::Agency) -> bool {
+    // https://gtfs.org/schedule/reference/#field-types
+    // URL - A fully qualified URL that includes http:// or https://
     match url::Url::parse(agency.url.as_ref()) {
-        Ok(url) => vec!["https", "http", "ftp"].contains(&url.scheme()),
+        Ok(url) => vec!["https", "http"].contains(&url.scheme()),
         _ => false,
     }
 }
