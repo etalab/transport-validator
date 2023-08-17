@@ -34,7 +34,7 @@ async fn index() -> &'static str {
     r#"GTFS Validation tool (https://github.com/etalab/transport-validator-rust)
 Use it with /validate?url=https://.../gtfs.zip
 
-This software is open-source.
+This software is open-source and distributed under the MIT license.
 See the code and the documentation: https://github.com/etalab/transport-validator"#
 }
 
