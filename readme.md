@@ -120,8 +120,6 @@ Here is a human friendly list of them :
 | MissingName | Warning | An agency, a route or a stop has its name missing. |
 | MissingCoordinates | Warning | A shape point or a stop is missing its coordinate(s). |
 | NullDuration | Warning | The travel duration between two stops is null. |
-| MissingUrl | Warning | An agency or a feed publisher is missing its URL. |
-| InvalidUrl | Warning | The URL of an agency or a feed publisher is not valid. |
 | MissingLanguage | Warning | The publisher language code is missing. |
 | InvalidLanguage | Warning | The publisher language code is not valid. |
 | DuplicateObjectId | Warning | The object has at least one object with the same id. |
@@ -130,6 +128,8 @@ Here is a human friendly list of them :
 | IdNotAscii | Warning | The identifier is not only ASCII characters |
 |  |  |  |
 | MissingId | Error | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing. |
+| MissingUrl | Error | An agency or a feed publisher is missing its URL. |
+| InvalidUrl | Error | The URL of an agency or a feed publisher is not valid. |
 | InvalidCoordinates | Error | The coordinates of a shape point or a stop are not valid. |
 | InvalidTimezone | Error | The TimeZone of an agency is not valid. |
 | MissingPrice | Error | A fare is missing its price. |
