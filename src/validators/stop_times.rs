@@ -38,7 +38,7 @@ fn check_location_type(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item = Iss
         })
     });
 
-    wrong_stops.into_iter().map(|(_, v)| v)
+    wrong_stops.into_values()
 }
 
 // All stop_sequence of the stop times of a given trip should be different
@@ -49,6 +49,8 @@ fn check_valid_stop_sequence(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item
             .iter()
             .tuple_windows()
             .filter_map(|(s1, s2)| {
+                // All stoptimes are sorted by stopsequence (thus the importance of correct stop sequences)
+                // so we just need to check the next stoptime
                 if s1.stop_sequence == s2.stop_sequence {
                     Some(once(s1).chain(once(s2)))
                 } else {
