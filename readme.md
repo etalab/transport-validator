@@ -144,6 +144,7 @@ Here is a human friendly list of them :
 | InvalidArchive | Fatal | .zip Archive not valid. |
 | UnloadableModel | Fatal | A fatal error has occured by building the links in the model |
 | MissingMandatoryFile | Fatal | Mandatory file missing |
+| SubFolder | Error | Files were in a subfolder, which is [explicitly forbidden by the specification](https://gtfs.org/schedule/reference/#file-requirements) |
 
 ### Geojson information
 When relevant for the check, geojson information is added for each check output, making the GTFS debug process easier.
