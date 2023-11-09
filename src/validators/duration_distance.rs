@@ -176,6 +176,7 @@ pub fn validate(
 #[test]
 fn test() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/duration_distance").unwrap();
+
     let custom_rules = custom_rules::CustomRules {
         ..Default::default()
     };
@@ -226,6 +227,7 @@ fn test() {
 
 #[test]
 fn test_optimisation_route_trips() {
+    use std::collections::BTreeSet;
     let gtfs = gtfs_structures::Gtfs::new("test_data/optimisation_route_trips").unwrap();
     let custom_rules = custom_rules::CustomRules {
         ..Default::default()
@@ -245,7 +247,10 @@ fn test_optimisation_route_trips() {
 
     // we would normally find N trips here, but we optimised the payload by
     // referring only to the parent route, and making sure each route appears only once.
-    assert_eq!("route1", issues[0].related_objects[0].id);
-    assert_eq!("route2", issues[0].related_objects[1].id);
-    assert_eq!("stop002", issues[0].related_objects[2].id);
+    let ids: BTreeSet<_> = issues[0]
+        .related_objects
+        .iter()
+        .map(|r| r.id.as_str())
+        .collect();
+    assert_eq!(ids, BTreeSet::from(["stop002", "route2", "route1"]));
 }

@@ -16,7 +16,7 @@ pub fn validate(gtfs: &Gtfs) -> Vec<Issue> {
         .collect()
 }
 
-fn get_non_standard_route_type(route: &Route) -> Option<(&Route, i32)> {
+fn get_non_standard_route_type(route: &Route) -> Option<(&Route, i16)> {
     match route.route_type {
         RouteType::Other(rt) => Some((route, rt)),
         _ => None,
