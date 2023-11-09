@@ -111,5 +111,18 @@ mod tests {
             Some("Data is contained in sub solder: gtfs".to_string()),
             first_issue.details
         );
+
+        let j = serde_json::to_string_pretty(first_issue).unwrap();
+
+        assert_eq!(
+            r#"{
+  "severity": "Error",
+  "issue_type": "SubFolder",
+  "object_id": "gtfs",
+  "related_objects": [],
+  "details": "Data is contained in sub solder: gtfs"
+}"#,
+            j
+        );
     }
 }
