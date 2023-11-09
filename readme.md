@@ -113,6 +113,7 @@ Here is a human friendly list of them :
 | CloseStops | Information | Two stops very close to each other in the same trips |
 | InvalidRouteType | Information | The type of a route is not valid. |
 | DuplicateStops | Information | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
+| DuplicateStopSequence | Error | Several stop times in a trip have the same `stop_sequence` value. The stop_sequence values within a trip must be unique. |
 | ExtraFile | Information | The file does not belong to a GTFS archive |
 | UnusedShapeId | Information | A shape_id defined in shapes.txt is not used elsewhere in the GTFS |
 |  |  |  |

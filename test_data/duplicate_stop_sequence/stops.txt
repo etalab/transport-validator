@@ -1,0 +1,4 @@
+stop_id,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,wheelchair_boarding
+stopA,"Stop A",,48.796058,2.449386,,,,,
+stopB,"Stop B",,48.796058,2.449385,,,,,
+stopC,"Stop C",,48.796058,2.449186,,,,,

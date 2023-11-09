@@ -89,6 +89,8 @@ pub enum IssueType {
     InvalidShapeId,
     /// A shape id defined in shapes.txt is not used elsewhere
     UnusedShapeId,
+    /// Duplicate stop sequence in trip
+    DuplicateStopSequence,
 }
 
 /// Represents an object related to another object that is causing an issue.
