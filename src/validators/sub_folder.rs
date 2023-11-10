@@ -23,7 +23,7 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         let parent = parent_folder.to_str().unwrap_or("invalid_parent_folder");
         issues.push(
             Issue::new(Severity::Error, IssueType::SubFolder, parent)
-                .details(&format!("Data is contained in sub solder: {}", parent)),
+                .details(&format!("Data is contained in a subfolder: {}", parent)),
         );
     }
 
