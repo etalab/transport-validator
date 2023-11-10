@@ -1,19 +1,20 @@
+use std::path::Path;
+
 use crate::{Issue, IssueType, Severity};
 
 pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
     let mut issues = vec![];
-    dbg!(&raw_gtfs.files);
+
     if let Some(parent_folder) = raw_gtfs
         .files
         .iter()
         .filter(|f| dbg!(f).ends_with("stops.txt"))
         .find_map(|f| {
-            let parent = std::path::Path::new(f).parent();
-            // Note: the parent of a file can be Some(""), so we filter this explicitly
-            if parent.map(|p| p.as_os_str().is_empty()).unwrap_or(true) {
-                None
-            } else {
-                parent
+            // Note: the parent of a file can be Some(""), in this case, we consider that there is no parent folder
+            match Path::new(f).parent() {
+                None => None,
+                Some(p) if p == Path::new("") => None,
+                p => p,
             }
         })
     {
@@ -52,7 +53,7 @@ mod tests {
         {
             let buff = Cursor::new(&mut data);
             let mut zw = ZipWriter::new(buff);
-            let path = std::path::Path::new(dir_path);
+            let path = Path::new(dir_path);
 
             for entry in WalkDir::new(path) {
                 let entry = entry?;
@@ -117,7 +118,7 @@ mod tests {
   "issue_type": "SubFolder",
   "object_id": "gtfs",
   "related_objects": [],
-  "details": "Data is contained in sub solder: gtfs"
+  "details": "Data is contained in a subfolder: gtfs"
 }"#,
             j
         );
