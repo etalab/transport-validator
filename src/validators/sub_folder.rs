@@ -108,7 +108,7 @@ mod tests {
         assert_eq!(Severity::Error, first_issue.severity);
         assert_eq!("gtfs", first_issue.object_id);
         assert_eq!(
-            Some("Data is contained in sub solder: gtfs".to_string()),
+            Some("Data is contained in a subfolder: gtfs".to_string()),
             first_issue.details
         );
 
