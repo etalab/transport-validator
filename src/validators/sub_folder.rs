@@ -8,9 +8,6 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
         .iter()
         .filter(|f| dbg!(f).ends_with("stops.txt"))
         .find_map(|f| {
-            dbg!(f);
-            dbg!(std::path::Path::new(f));
-            dbg!(std::path::Path::new(f).parent());
             let parent = std::path::Path::new(f).parent();
             // Note: the parent of a file can be Some(""), so we filter this explicitly
             if parent.map(|p| p.as_os_str().is_empty()).unwrap_or(true) {
