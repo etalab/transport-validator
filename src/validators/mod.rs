@@ -13,4 +13,5 @@ pub mod route_type;
 pub mod shapes;
 pub mod stop_times;
 pub mod stops;
+pub mod sub_folder;
 pub mod unused_stop;

@@ -91,6 +91,8 @@ pub enum IssueType {
     UnusedShapeId,
     /// Duplicate stop sequence in trip
     DuplicateStopSequence,
+    /// The .txt files within the GTFS are located in a subfolder, which is now explicitly forbidden by the specification
+    SubFolder,
 }
 
 /// Represents an object related to another object that is causing an issue.
