@@ -8,7 +8,7 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
     if let Some(parent_folder) = raw_gtfs
         .files
         .iter()
-        .filter(|f| dbg!(f).ends_with("stops.txt"))
+        .filter(|f| f.ends_with("stops.txt"))
         .find_map(|f| {
             // Note: the parent of a file can be Some(""), in this case, we consider that there is no parent folder
             match Path::new(f).parent() {
