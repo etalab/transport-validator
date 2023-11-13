@@ -56,6 +56,7 @@ pub fn validate_and_metadata(
         .into_iter()
         .chain(validators::invalid_reference::validate(&rgtfs))
         .chain(validators::file_presence::validate(&rgtfs))
+        .chain(validators::sub_folder::validate(&rgtfs))
         .collect();
     let mut metadata = metadatas::extract_metadata(&rgtfs);
 
