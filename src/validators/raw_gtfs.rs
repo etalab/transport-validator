@@ -2,7 +2,6 @@ use crate::issues::{Issue, IssueType, Severity};
 
 fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
     objects: &Result<Vec<O>, gtfs_structures::Error>,
-    severity: Severity,
 ) -> Vec<Issue> {
     let mut ids = std::collections::HashSet::<String>::new();
     let mut issues = vec![];
@@ -10,7 +9,7 @@ fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
         let id = o.id().to_owned();
         if ids.contains(&id) {
             issues.push(
-                Issue::new(severity, IssueType::DuplicateObjectId, &id)
+                Issue::new(Severity::Error, IssueType::DuplicateObjectId, &id)
                     .object_type(o.object_type()),
             );
         }
@@ -20,23 +19,16 @@ fn check_duplicates<O: gtfs_structures::Id + gtfs_structures::Type>(
 }
 
 pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
-    check_duplicates(&raw_gtfs.stops, Severity::Warning)
+    check_duplicates(&raw_gtfs.stops)
         .into_iter()
-        .chain(check_duplicates(&raw_gtfs.routes, Severity::Warning).into_iter())
-        .chain(check_duplicates(&raw_gtfs.trips, Severity::Warning).into_iter())
+        .chain(check_duplicates(&raw_gtfs.routes).into_iter())
+        .chain(check_duplicates(&raw_gtfs.trips).into_iter())
+        .chain(check_duplicates(&raw_gtfs.agencies).into_iter())
+        .chain(check_duplicates(&raw_gtfs.pathways.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
+        .chain(check_duplicates(&raw_gtfs.shapes.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
+        .chain(check_duplicates(raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
         .chain(
-            check_duplicates(
-                raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![])),
-                Severity::Error,
-            )
-            .into_iter(),
-        )
-        .chain(
-            check_duplicates(
-                raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])),
-                Severity::Warning,
-            )
-            .into_iter(),
+            check_duplicates(raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![]))).into_iter(),
         )
         .collect()
 }
@@ -45,40 +37,44 @@ pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
 fn test_duplicates() {
     // in the dataset, every last line has been duplicated
     let gtfs = gtfs_structures::RawGtfs::new("test_data/duplicates").unwrap();
-    let issues = validate(&gtfs);
-    assert_eq!(5, issues.len());
-    assert_eq!("stop5", issues[0].object_id);
-    assert_eq!(IssueType::DuplicateObjectId, issues[0].issue_type);
+    let issues = dbg!(validate(&gtfs));
+    assert_eq!(7, issues.len());
+
     assert_eq!(
-        Some(gtfs_structures::ObjectType::Stop),
-        issues[0].object_type
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "stop5")
+            .object_type(gtfs_structures::ObjectType::Stop),
+        issues[0]
     );
 
-    assert_eq!("CITY", issues[1].object_id);
-    assert_eq!(IssueType::DuplicateObjectId, issues[1].issue_type);
     assert_eq!(
-        Some(gtfs_structures::ObjectType::Route),
-        issues[1].object_type
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "CITY")
+            .object_type(gtfs_structures::ObjectType::Route),
+        issues[1]
+    );
+    assert_eq!(
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "AAMV4")
+            .object_type(gtfs_structures::ObjectType::Trip),
+        issues[2]
+    );
+    assert_eq!(
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "DTA")
+            .object_type(gtfs_structures::ObjectType::Agency),
+        issues[3]
+    );
+    assert_eq!(
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "pathway1")
+            .object_type(gtfs_structures::ObjectType::Pathway),
+        issues[4]
+    );
+    assert_eq!(
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "WE")
+            .object_type(gtfs_structures::ObjectType::Calendar),
+        issues[5]
     );
 
-    assert_eq!("AAMV4", issues[2].object_id);
-    assert_eq!(IssueType::DuplicateObjectId, issues[2].issue_type);
     assert_eq!(
-        Some(gtfs_structures::ObjectType::Trip),
-        issues[2].object_type
-    );
-
-    assert_eq!("WE", issues[3].object_id);
-    assert_eq!(IssueType::DuplicateObjectId, issues[3].issue_type);
-    assert_eq!(
-        Some(gtfs_structures::ObjectType::Calendar),
-        issues[3].object_type
-    );
-
-    assert_eq!("a", issues[4].object_id);
-    assert_eq!(IssueType::DuplicateObjectId, issues[4].issue_type);
-    assert_eq!(
-        Some(gtfs_structures::ObjectType::Fare),
-        issues[4].object_type
+        Issue::new(Severity::Error, IssueType::DuplicateObjectId, "a")
+            .object_type(gtfs_structures::ObjectType::Fare),
+        issues[6]
     );
 }

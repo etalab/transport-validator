@@ -123,7 +123,7 @@ Here is a human friendly list of them :
 | NullDuration | Warning | The travel duration between two stops is null. |
 | MissingLanguage | Warning | The publisher language code is missing. |
 | InvalidLanguage | Warning | The publisher language code is not valid. |
-| DuplicateObjectId | Warning | The object has at least one object with the same id. |
+| DuplicateObjectId | Error | The object has at least one object with the same id. |
 | InvalidStopLocationTypeInTrip | Warning | Only Stop Points are allowed to be used in a Trip |
 | InvalidStopParent | Warning | The parent station of this stop is not a valid one |
 | IdNotAscii | Warning | The identifier is not only ASCII characters |
