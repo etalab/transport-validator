@@ -1,6 +1,6 @@
 use crate::issues::IssueType;
 use chrono::NaiveDate;
-use gtfs_structures::Availability;
+use gtfs_structures::{Availability, Error};
 use itertools::Itertools;
 use rgb::RGB;
 use serde::Serialize;
@@ -10,7 +10,22 @@ use std::collections::HashMap;
 pub struct Metadata {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
+    pub networks: Vec<String>,
+    pub networks_start_end_dates: Option<HashMap<String, Option<Interval>>>,
+    pub modes: Vec<String>,
+    pub issues_count: std::collections::BTreeMap<IssueType, usize>,
+    pub has_fares: bool,
+    pub has_shapes: bool,
+    pub has_pathways: bool,
+    // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
+    pub some_stops_need_phone_agency: bool,
+    // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
+    pub some_stops_need_phone_driver: bool,
+    pub validator_version: String,
     pub stops_count: usize,
+
+    pub stats: Stats,
+    // legacy fields, now counter should be in stats
     pub stop_areas_count: usize,
     pub stop_points_count: usize,
     pub stops_with_wheelchair_info_count: Option<usize>,
@@ -19,19 +34,31 @@ pub struct Metadata {
     pub trips_with_bike_info_count: usize,
     pub trips_with_wheelchair_info_count: usize,
     pub trips_with_shape_count: usize,
-    pub networks: Vec<String>,
-    pub networks_start_end_dates: Option<HashMap<String, Option<Interval>>>,
-    pub modes: Vec<String>,
-    pub issues_count: std::collections::BTreeMap<IssueType, usize>,
-    pub has_fares: bool,
-    pub has_shapes: bool,
-    pub has_pathways: bool,
     pub lines_with_custom_color_count: usize,
-    // some stops have a pickup_type or drop_off_type equal to "ArrangeByPhone"
-    pub some_stops_need_phone_agency: bool,
-    // some stops have a pickup_type or drop_off_type equal to "CoordinateWithDriver"
-    pub some_stops_need_phone_driver: bool,
-    pub validator_version: String,
+    pub trips_with_trip_headsign_count: usize,
+}
+
+#[derive(Serialize, Debug)]
+pub struct Stats {
+    pub stops_count: usize,
+    pub stop_areas_count: usize,
+    pub stop_points_count: usize,
+    pub stops_with_wheelchair_info_count: Option<usize>,
+
+    pub lines_count: usize,
+    pub lines_with_custom_color_count: usize,
+    pub lines_with_short_name_count: usize,
+    pub lines_with_long_name_count: usize,
+
+    pub trips_count: usize,
+    pub trips_with_bike_info_count: usize,
+    pub trips_with_wheelchair_info_count: usize,
+    pub trips_with_shape_count: usize,
+    pub trips_with_trip_headsign_count: usize,
+
+    pub transfers_count: usize,
+    pub fares_attribute_count: usize,
+    // pub fares_rules_count: usize,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
@@ -58,31 +85,23 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         .into_option();
     let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
     let validator_version = env!("CARGO_PKG_VERSION");
+    let stats = compute_stats(gtfs);
 
     Metadata {
         start_date: start_end.map(|(s, _)| format(s)),
         end_date: start_end.map(|(_, e)| format(e)),
-        stops_count: gtfs.stops.as_ref().map_or(0, |stops| stops.len()),
-        stop_areas_count: gtfs
-            .stops
-            .as_ref()
-            .unwrap_or(&vec![])
-            .iter()
-            .filter(|s| s.location_type == gtfs_structures::LocationType::StopArea)
-            .count(),
-        stop_points_count: gtfs
-            .stops
-            .as_ref()
-            .unwrap_or(&vec![])
-            .iter()
-            .filter(|s| s.location_type == gtfs_structures::LocationType::StopPoint)
-            .count(),
+        stops_count: stats.stops_count,
+        stop_areas_count: stats.stop_areas_count,
+        stop_points_count: stats.stop_points_count,
         stops_with_wheelchair_info_count: None,
-        lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
-        trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
-        trips_with_bike_info_count: trips_with_bike_info_count(gtfs),
-        trips_with_wheelchair_info_count: trips_with_wheelchair_info_count(gtfs),
-        trips_with_shape_count: trips_without_shape_count(gtfs),
+        lines_count: stats.lines_count,
+        trips_count: stats.trips_count,
+        trips_with_bike_info_count: stats.trips_with_bike_info_count,
+        trips_with_wheelchair_info_count: stats.trips_with_wheelchair_info_count,
+        trips_with_shape_count: stats.trips_with_shape_count,
+        trips_with_trip_headsign_count: stats.trips_with_trip_headsign_count,
+        lines_with_custom_color_count: stats.lines_with_custom_color_count,
+        stats: stats,
         networks: gtfs
             .agencies
             .as_ref()
@@ -126,21 +145,6 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             Some(Ok(p)) => !p.is_empty(),
             _ => false,
         },
-        lines_with_custom_color_count: gtfs
-            .routes
-            .as_ref()
-            .unwrap_or(&vec![])
-            .iter()
-            .filter(|r| {
-                let text_default_color = RGB { r: 0, g: 0, b: 0 }; // black
-                let route_default_color = RGB {
-                    r: 255,
-                    g: 255,
-                    b: 255,
-                }; // white
-                r.text_color != text_default_color || r.color != route_default_color
-            })
-            .count(),
         some_stops_need_phone_agency: gtfs
             .stop_times
             .as_ref()
@@ -161,6 +165,55 @@ impl Metadata {
     pub fn enrich_with_advanced_infos(&mut self, gtfs: &gtfs_structures::Gtfs) {
         self.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
         self.networks_start_end_dates = Some(networks_start_end_dates(self, gtfs));
+    }
+}
+
+pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
+    Stats {
+        stops_count: gtfs.stops.as_ref().map_or(0, |stops| stops.len()),
+        stop_areas_count: counts_objects(&gtfs.stops, |s| {
+            s.location_type == gtfs_structures::LocationType::StopArea
+        }),
+        stop_points_count: counts_objects(&gtfs.stops, |s| {
+            s.location_type == gtfs_structures::LocationType::StopPoint
+        }),
+        stops_with_wheelchair_info_count: None,
+
+        lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
+        lines_with_custom_color_count: counts_objects(&gtfs.routes, |r| {
+            let text_default_color = RGB { r: 0, g: 0, b: 0 }; // black
+            let route_default_color = RGB {
+                r: 255,
+                g: 255,
+                b: 255,
+            }; // white
+            r.text_color != text_default_color || r.color != route_default_color
+        }),
+        lines_with_long_name_count: counts_objects(&gtfs.routes, |r| !r.long_name.is_empty()),
+        lines_with_short_name_count: counts_objects(&gtfs.routes, |r| !r.short_name.is_empty()),
+
+        trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
+        trips_with_bike_info_count: counts_objects(&gtfs.trips, |t| {
+            t.bikes_allowed != gtfs_structures::BikesAllowedType::NoBikeInfo
+        }),
+        trips_with_wheelchair_info_count: counts_objects(&gtfs.trips, |t| {
+            t.wheelchair_accessible != gtfs_structures::Availability::InformationNotAvailable
+        }),
+        trips_with_shape_count: counts_objects(&gtfs.trips, |t| t.shape_id.is_some()),
+        trips_with_trip_headsign_count: counts_objects(&gtfs.trips, |t| {
+            t.trip_headsign.is_some() && t.trip_headsign != Some("".to_string())
+        }),
+
+        fares_attribute_count: gtfs
+            .fare_attributes
+            .as_ref()
+            .and_then(|r| r.as_ref().ok().map(|v| v.len()))
+            .unwrap_or(0),
+        transfers_count: gtfs
+            .transfers
+            .as_ref()
+            .and_then(|r| r.as_ref().ok().map(|v| v.len()))
+            .unwrap_or(0),
     }
 }
 
@@ -199,12 +252,8 @@ impl Interval {
         self.update_bounds_with_date(&other.end_date);
     }
     fn update_bounds_with_date(&mut self, d: &NaiveDate) {
-        if self.start_date > *d {
-            self.start_date = *d;
-        }
-        if self.end_date < *d {
-            self.end_date = *d;
-        }
+        self.start_date = core::cmp::min(self.start_date, *d);
+        self.end_date = core::cmp::max(self.end_date, *d);
     }
 }
 
@@ -297,32 +346,15 @@ fn has_on_demand_pickup_dropoff(
     stop_time.pickup_type == pickup_dropoff_type || stop_time.drop_off_type == pickup_dropoff_type
 }
 
-fn trips_with_bike_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
-    gtfs.trips
+fn counts_objects<T>(
+    objects: &Result<Vec<T>, Error>,
+    matches: for<'a> fn(&'a &T) -> bool,
+) -> usize {
+    objects
         .as_ref()
-        .unwrap_or(&vec![])
+        .unwrap_or(&Vec::new())
         .iter()
-        .filter(|t| t.bikes_allowed != gtfs_structures::BikesAllowedType::NoBikeInfo)
-        .count()
-}
-
-fn trips_with_wheelchair_info_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
-    gtfs.trips
-        .as_ref()
-        .unwrap_or(&vec![])
-        .iter()
-        .filter(|t| {
-            t.wheelchair_accessible != gtfs_structures::Availability::InformationNotAvailable
-        })
-        .count()
-}
-
-fn trips_without_shape_count(gtfs: &gtfs_structures::RawGtfs) -> usize {
-    gtfs.trips
-        .as_ref()
-        .unwrap_or(&vec![])
-        .iter()
-        .filter(|t| t.shape_id.is_some())
+        .filter(matches)
         .count()
 }
 
@@ -397,24 +429,24 @@ mod tests {
             .expect("Failed to load data");
         let metadatas = extract_metadata(&raw_gtfs);
         assert_eq!(3, metadatas.lines_with_custom_color_count);
+        assert_eq!(3, metadatas.stats.lines_with_custom_color_count);
+        assert_eq!(3, metadatas.stats.lines_with_long_name_count);
+        assert_eq!(4, metadatas.stats.lines_with_short_name_count);
     }
 
     #[test]
-    fn test_count_trips_with_bike_infos() {
+    fn test_count_trips() {
         let raw_gtfs =
             gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
         let metadatas = extract_metadata(&raw_gtfs);
         assert_eq!(11, metadatas.trips_count);
         assert_eq!(3, metadatas.trips_with_bike_info_count);
-    }
-
-    #[test]
-    fn test_count_trips_with_accessibility_infos() {
-        let raw_gtfs =
-            gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
-        let metadatas = extract_metadata(&raw_gtfs);
-        assert_eq!(11, metadatas.trips_count);
         assert_eq!(3, metadatas.trips_with_wheelchair_info_count);
+
+        assert_eq!(3, metadatas.stats.trips_with_bike_info_count);
+        assert_eq!(3, metadatas.stats.trips_with_wheelchair_info_count);
+        assert_eq!(0, metadatas.stats.trips_with_shape_count);
+        assert_eq!(9, metadatas.stats.trips_with_trip_headsign_count);
     }
 
     #[test]
