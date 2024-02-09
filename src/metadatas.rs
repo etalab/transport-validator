@@ -58,7 +58,7 @@ pub struct Stats {
 
     pub transfers_count: usize,
     pub fares_attribute_count: usize,
-    // pub fares_rules_count: usize,
+    pub fares_rules_count: usize,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
@@ -209,6 +209,12 @@ pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
             .as_ref()
             .and_then(|r| r.as_ref().ok().map(|v| v.len()))
             .unwrap_or(0),
+        fares_rules_count: gtfs
+            .fare_rules
+            .as_ref()
+            .and_then(|r| r.as_ref().ok().map(|v| v.len()))
+            .unwrap_or(0),
+
         transfers_count: gtfs
             .transfers
             .as_ref()
@@ -447,6 +453,32 @@ mod tests {
         assert_eq!(3, metadatas.stats.trips_with_wheelchair_info_count);
         assert_eq!(0, metadatas.stats.trips_with_shape_count);
         assert_eq!(9, metadatas.stats.trips_with_trip_headsign_count);
+
+        // also check the fares in the tests data
+        assert_eq!(2, metadatas.stats.fares_attribute_count);
+        assert_eq!(4, metadatas.stats.fares_rules_count);
+
+        assert_eq!(
+            serde_json::to_string_pretty(&metadatas.stats).unwrap(),
+            r#"{
+  "stops_count": 17,
+  "stop_areas_count": 2,
+  "stop_points_count": 9,
+  "stops_with_wheelchair_info_count": null,
+  "lines_count": 5,
+  "lines_with_custom_color_count": 0,
+  "lines_with_short_name_count": 0,
+  "lines_with_long_name_count": 4,
+  "trips_count": 11,
+  "trips_with_bike_info_count": 3,
+  "trips_with_wheelchair_info_count": 3,
+  "trips_with_shape_count": 0,
+  "trips_with_trip_headsign_count": 9,
+  "transfers_count": 0,
+  "fares_attribute_count": 2,
+  "fares_rules_count": 4
+}"#
+        )
     }
 
     #[test]
@@ -472,6 +504,7 @@ mod tests {
 
         // only `STBA` and `AB1` have a shape, even if `AB1` has an invalid one, it will be counted (but it will have an InvalidShape issue)
         assert_eq!(2, metadatas.trips_with_shape_count);
+        assert_eq!(2, metadatas.stats.trips_with_shape_count);
     }
 }
 
