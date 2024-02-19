@@ -45,10 +45,10 @@ pub struct Stats {
     pub stop_points_count: usize,
     pub stops_with_wheelchair_info_count: Option<usize>,
 
-    pub lines_count: usize,
-    pub lines_with_custom_color_count: usize,
-    pub lines_with_short_name_count: usize,
-    pub lines_with_long_name_count: usize,
+    pub routes_count: usize,
+    pub routes_with_custom_color_count: usize,
+    pub routes_with_short_name_count: usize,
+    pub routes_with_long_name_count: usize,
 
     pub trips_count: usize,
     pub trips_with_bike_info_count: usize,
@@ -94,13 +94,13 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         stop_areas_count: stats.stop_areas_count,
         stop_points_count: stats.stop_points_count,
         stops_with_wheelchair_info_count: None,
-        lines_count: stats.lines_count,
+        lines_count: stats.routes_count,
         trips_count: stats.trips_count,
         trips_with_bike_info_count: stats.trips_with_bike_info_count,
         trips_with_wheelchair_info_count: stats.trips_with_wheelchair_info_count,
         trips_with_shape_count: stats.trips_with_shape_count,
         trips_with_trip_headsign_count: stats.trips_with_trip_headsign_count,
-        lines_with_custom_color_count: stats.lines_with_custom_color_count,
+        lines_with_custom_color_count: stats.routes_with_custom_color_count,
         stats: stats,
         networks: gtfs
             .agencies
@@ -163,7 +163,8 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
 
 impl Metadata {
     pub fn enrich_with_advanced_infos(&mut self, gtfs: &gtfs_structures::Gtfs) {
-        self.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
+        self.stats.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
+        self.stops_with_wheelchair_info_count = self.stats.stops_with_wheelchair_info_count;
         self.networks_start_end_dates = Some(networks_start_end_dates(self, gtfs));
     }
 }
@@ -179,8 +180,8 @@ pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
         }),
         stops_with_wheelchair_info_count: None,
 
-        lines_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
-        lines_with_custom_color_count: counts_objects(&gtfs.routes, |r| {
+        routes_count: gtfs.routes.as_ref().map(|r| r.len()).unwrap_or(0),
+        routes_with_custom_color_count: counts_objects(&gtfs.routes, |r| {
             let text_default_color = RGB { r: 0, g: 0, b: 0 }; // black
             let route_default_color = RGB {
                 r: 255,
@@ -189,8 +190,8 @@ pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
             }; // white
             r.text_color != text_default_color || r.color != route_default_color
         }),
-        lines_with_long_name_count: counts_objects(&gtfs.routes, |r| !r.long_name.is_empty()),
-        lines_with_short_name_count: counts_objects(&gtfs.routes, |r| !r.short_name.is_empty()),
+        routes_with_long_name_count: counts_objects(&gtfs.routes, |r| !r.long_name.is_empty()),
+        routes_with_short_name_count: counts_objects(&gtfs.routes, |r| !r.short_name.is_empty()),
 
         trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
         trips_with_bike_info_count: counts_objects(&gtfs.trips, |t| {
@@ -430,21 +431,21 @@ mod tests {
     }
 
     #[test]
-    fn test_count_lines_with_custom_color() {
+    fn test_count_routes_with_custom_color() {
         let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/custom_route_color")
             .expect("Failed to load data");
         let metadatas = extract_metadata(&raw_gtfs);
         assert_eq!(3, metadatas.lines_with_custom_color_count);
-        assert_eq!(3, metadatas.stats.lines_with_custom_color_count);
-        assert_eq!(3, metadatas.stats.lines_with_long_name_count);
-        assert_eq!(4, metadatas.stats.lines_with_short_name_count);
+        assert_eq!(3, metadatas.stats.routes_with_custom_color_count);
+        assert_eq!(3, metadatas.stats.routes_with_long_name_count);
+        assert_eq!(4, metadatas.stats.routes_with_short_name_count);
     }
 
     #[test]
     fn test_count_trips() {
         let raw_gtfs =
             gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
-        let metadatas = extract_metadata(&raw_gtfs);
+        let mut metadatas = extract_metadata(&raw_gtfs);
         assert_eq!(11, metadatas.trips_count);
         assert_eq!(3, metadatas.trips_with_bike_info_count);
         assert_eq!(3, metadatas.trips_with_wheelchair_info_count);
@@ -465,10 +466,10 @@ mod tests {
   "stop_areas_count": 2,
   "stop_points_count": 9,
   "stops_with_wheelchair_info_count": null,
-  "lines_count": 5,
-  "lines_with_custom_color_count": 0,
-  "lines_with_short_name_count": 0,
-  "lines_with_long_name_count": 4,
+  "routes_count": 5,
+  "routes_with_custom_color_count": 0,
+  "routes_with_short_name_count": 0,
+  "routes_with_long_name_count": 4,
   "trips_count": 11,
   "trips_with_bike_info_count": 3,
   "trips_with_wheelchair_info_count": 3,
@@ -478,7 +479,32 @@ mod tests {
   "fares_attribute_count": 2,
   "fares_rules_count": 4
 }"#
-        )
+        );
+
+        // we'll get the stops_with_wheelchair_info_count stat after enriching the stats with the GTFS instead of the RawGTFS
+        let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
+        metadatas.enrich_with_advanced_infos(&gtfs);
+        assert_eq!(
+            serde_json::to_string_pretty(&metadatas.stats).unwrap(),
+            r#"{
+  "stops_count": 17,
+  "stop_areas_count": 2,
+  "stop_points_count": 9,
+  "stops_with_wheelchair_info_count": 0,
+  "routes_count": 5,
+  "routes_with_custom_color_count": 0,
+  "routes_with_short_name_count": 0,
+  "routes_with_long_name_count": 4,
+  "trips_count": 11,
+  "trips_with_bike_info_count": 3,
+  "trips_with_wheelchair_info_count": 3,
+  "trips_with_shape_count": 0,
+  "trips_with_trip_headsign_count": 9,
+  "transfers_count": 0,
+  "fares_attribute_count": 2,
+  "fares_rules_count": 4
+}"#
+        );
     }
 
     #[test]
@@ -494,6 +520,28 @@ mod tests {
         metadatas.enrich_with_advanced_infos(&gtfs);
 
         assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
+
+        assert_eq!(
+            serde_json::to_string_pretty(&metadatas.stats).unwrap(),
+            r#"{
+  "stops_count": 16,
+  "stop_areas_count": 4,
+  "stop_points_count": 6,
+  "stops_with_wheelchair_info_count": 10,
+  "routes_count": 1,
+  "routes_with_custom_color_count": 1,
+  "routes_with_short_name_count": 1,
+  "routes_with_long_name_count": 1,
+  "trips_count": 6,
+  "trips_with_bike_info_count": 0,
+  "trips_with_wheelchair_info_count": 0,
+  "trips_with_shape_count": 0,
+  "trips_with_trip_headsign_count": 6,
+  "transfers_count": 0,
+  "fares_attribute_count": 0,
+  "fares_rules_count": 0
+}"#
+        );
     }
 
     #[test]
