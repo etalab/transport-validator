@@ -25,17 +25,6 @@ pub struct Metadata {
     pub stops_count: usize,
 
     pub stats: Stats,
-    // legacy fields, now counter should be in stats
-    pub stop_areas_count: usize,
-    pub stop_points_count: usize,
-    pub stops_with_wheelchair_info_count: Option<usize>,
-    pub lines_count: usize,
-    pub trips_count: usize,
-    pub trips_with_bike_info_count: usize,
-    pub trips_with_wheelchair_info_count: usize,
-    pub trips_with_shape_count: usize,
-    pub lines_with_custom_color_count: usize,
-    pub trips_with_trip_headsign_count: usize,
 }
 
 #[derive(Serialize, Debug)]
@@ -91,16 +80,6 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         start_date: start_end.map(|(s, _)| format(s)),
         end_date: start_end.map(|(_, e)| format(e)),
         stops_count: stats.stops_count,
-        stop_areas_count: stats.stop_areas_count,
-        stop_points_count: stats.stop_points_count,
-        stops_with_wheelchair_info_count: None,
-        lines_count: stats.routes_count,
-        trips_count: stats.trips_count,
-        trips_with_bike_info_count: stats.trips_with_bike_info_count,
-        trips_with_wheelchair_info_count: stats.trips_with_wheelchair_info_count,
-        trips_with_shape_count: stats.trips_with_shape_count,
-        trips_with_trip_headsign_count: stats.trips_with_trip_headsign_count,
-        lines_with_custom_color_count: stats.routes_with_custom_color_count,
         stats: stats,
         networks: gtfs
             .agencies
@@ -164,7 +143,6 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
 impl Metadata {
     pub fn enrich_with_advanced_infos(&mut self, gtfs: &gtfs_structures::Gtfs) {
         self.stats.stops_with_wheelchair_info_count = Some(stops_with_wheelchair_info_count(gtfs));
-        self.stops_with_wheelchair_info_count = self.stats.stops_with_wheelchair_info_count;
         self.networks_start_end_dates = Some(networks_start_end_dates(self, gtfs));
     }
 }
@@ -435,7 +413,6 @@ mod tests {
         let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/custom_route_color")
             .expect("Failed to load data");
         let metadatas = extract_metadata(&raw_gtfs);
-        assert_eq!(3, metadatas.lines_with_custom_color_count);
         assert_eq!(3, metadatas.stats.routes_with_custom_color_count);
         assert_eq!(3, metadatas.stats.routes_with_long_name_count);
         assert_eq!(4, metadatas.stats.routes_with_short_name_count);
@@ -446,10 +423,8 @@ mod tests {
         let raw_gtfs =
             gtfs_structures::RawGtfs::new("test_data/stops").expect("Failed to load data");
         let mut metadatas = extract_metadata(&raw_gtfs);
-        assert_eq!(11, metadatas.trips_count);
-        assert_eq!(3, metadatas.trips_with_bike_info_count);
-        assert_eq!(3, metadatas.trips_with_wheelchair_info_count);
 
+        assert_eq!(11, metadatas.stats.trips_count);
         assert_eq!(3, metadatas.stats.trips_with_bike_info_count);
         assert_eq!(3, metadatas.stats.trips_with_wheelchair_info_count);
         assert_eq!(0, metadatas.stats.trips_with_shape_count);
@@ -513,14 +488,9 @@ mod tests {
             gtfs_structures::RawGtfs::new("test_data/accessibility").expect("Failed to load data");
         let mut metadatas = extract_metadata(&raw_gtfs);
         let gtfs = gtfs_structures::Gtfs::try_from(raw_gtfs).expect("Failed to load GTFS");
-
         assert_eq!(16, metadatas.stops_count);
-        assert_eq!(None, metadatas.stops_with_wheelchair_info_count);
 
         metadatas.enrich_with_advanced_infos(&gtfs);
-
-        assert_eq!(Some(10), metadatas.stops_with_wheelchair_info_count);
-
         assert_eq!(
             serde_json::to_string_pretty(&metadatas.stats).unwrap(),
             r#"{
@@ -551,7 +521,6 @@ mod tests {
         let metadatas = extract_metadata(&raw_gtfs);
 
         // only `STBA` and `AB1` have a shape, even if `AB1` has an invalid one, it will be counted (but it will have an InvalidShape issue)
-        assert_eq!(2, metadatas.trips_with_shape_count);
         assert_eq!(2, metadatas.stats.trips_with_shape_count);
     }
 }
