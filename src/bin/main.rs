@@ -1,45 +1,50 @@
 #[cfg(feature = "daemon")]
 use validator::daemon;
 use validator::{custom_rules, validate};
+use clap::{Parser, ValueEnum};
 
-use structopt::clap::arg_enum;
-use structopt::StructOpt;
-arg_enum! {
-    #[derive(Debug)]
-    enum OutputFormat {
-        Json,
-        Yaml,
-        PrettyJson
+#[derive(Debug, ValueEnum, PartialEq, Eq, Clone, Copy)]
+enum OutputFormat {
+    Json,
+    Yaml,
+    PrettyJson,
+}
+
+impl std::fmt::Display for OutputFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.to_possible_value()
+            .expect("no values are skipped")
+            .get_name()
+            .fmt(f)
     }
 }
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "gtfs-validator", about = "Validates the gtfs file.")]
+#[derive(Parser, Debug)]
+#[command(name = "gtfs-validator", about = "Validates the gtfs file.")]
 struct Opt {
-    #[structopt(
-        short = "i",
+    #[arg(
+        short,
         long = "input",
         help = "Path to the gtfs file (can be a directory or a zip file) or HTTP URL of the file (will be downloaded)"
     )]
     input: Option<String>,
-    #[structopt(
-        short = "m",
+    #[arg(
+        short,
         long = "max-issues",
         help = "The maximum number of issues per type",
         default_value = "1000"
     )]
     max_size: usize,
-    #[structopt(
-        short = "f",
+    #[arg(
+        short,
         long = "output-format",
         help = "Output format (when using the validator in command line)",
-        default_value = "json",
-        possible_values = &OutputFormat::variants(),
-        case_insensitive = true
+        default_value_t = OutputFormat::Json,
+        value_enum
     )]
     format: OutputFormat,
-    #[structopt(
-        short = "c",
+    #[arg(
+        short,
         long = "custom-rules",
         help = "Provide a YAML file to customize some validation rules"
     )]
@@ -50,7 +55,7 @@ fn main() -> Result<(), anyhow::Error> {
     #[cfg(feature = "daemon")]
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     let custom_rules = custom_rules::custom_rules(opt.custom_rules);
 
     if let Some(input) = opt.input {
