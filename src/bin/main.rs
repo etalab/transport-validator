@@ -1,7 +1,7 @@
+use clap::{Parser, ValueEnum};
 #[cfg(feature = "daemon")]
 use validator::daemon;
 use validator::{custom_rules, validate};
-use clap::{Parser, ValueEnum};
 
 #[derive(Debug, ValueEnum, PartialEq, Eq, Clone, Copy)]
 enum OutputFormat {

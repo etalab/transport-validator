@@ -168,8 +168,12 @@ pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
             }; // white
             r.text_color != text_default_color || r.color != route_default_color
         }),
-        routes_with_long_name_count: counts_objects(&gtfs.routes, |r| !r.long_name.is_empty()),
-        routes_with_short_name_count: counts_objects(&gtfs.routes, |r| !r.short_name.is_empty()),
+        routes_with_long_name_count: counts_objects(&gtfs.routes, |r| {
+            !r.long_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
+        }),
+        routes_with_short_name_count: counts_objects(&gtfs.routes, |r| {
+            !r.short_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
+        }),
 
         trips_count: gtfs.trips.as_ref().map(|t| t.len()).unwrap_or(0),
         trips_with_bike_info_count: counts_objects(&gtfs.trips, |t| {

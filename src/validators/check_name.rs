@@ -4,7 +4,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let route_issues = gtfs
         .routes
         .values()
-        .filter(empty_name)
+        .filter(|r| empty_route_name(r))
         .map(make_missing_name_issue);
     let stop_issues = gtfs
         .stops
@@ -30,6 +30,12 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 
 fn empty_name<T: std::fmt::Display>(o: &T) -> bool {
     format!("{}", o).is_empty()
+}
+
+// a route has a name if it has either a short or a long name
+fn empty_route_name(r: &gtfs_structures::Route) -> bool {
+    r.short_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
+        || r.long_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
 }
 
 fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
