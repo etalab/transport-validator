@@ -317,6 +317,12 @@ cargo run --release -- -i some_gtfs.zip
 cargo run --release -- -i https://example.com/network.gfts
 ```
 
+If you do not intend to run the validator as a dæmon, it can be compiled without dæmon support, saving on compile time and binary size:
+
+```
+cargo run --release --no-default-features -- -i some_gtfs.zip
+```
+
 ### Run as a dæmon
 
 The validator can run as a HTTP dæmon to validate any file from a url.
