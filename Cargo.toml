@@ -17,11 +17,11 @@ read-url = ["gtfs-structures/read-url"]
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 chrono-tz = "0.8"
-env_logger = { version = "0.10", optional = true }
+env_logger = { version = "0.11", optional = true }
 anyhow = "1"
 futures = { version = "0.3", optional = true }
-geo = "0.27"
-gtfs-structures = { version = "0.40", default-features = false }
+geo = "0.28"
+gtfs-structures = { version = "0.41", default-features = false }
 iso4217 = "0.3"
 isolang = "2.1"
 itertools = "0.12"
@@ -29,7 +29,7 @@ log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9"
-structopt = "0.3"
+clap = { version =  "4.5", features = ["derive"] }
 url = "2"
 actix-web = { version = "4.0", optional = true }
 actix-rt = { version = "2", optional = true }
