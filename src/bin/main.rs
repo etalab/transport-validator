@@ -1,4 +1,6 @@
-use validator::{custom_rules, daemon, validate};
+#[cfg(feature = "daemon")]
+use validator::daemon;
+use validator::{custom_rules, validate};
 
 use structopt::clap::arg_enum;
 use structopt::StructOpt;
@@ -45,6 +47,7 @@ struct Opt {
 }
 
 fn main() -> Result<(), anyhow::Error> {
+    #[cfg(feature = "daemon")]
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     let opt = Opt::from_args();
@@ -59,8 +62,17 @@ fn main() -> Result<(), anyhow::Error> {
         };
         println!("{}", serialized);
     } else {
-        log::info!("Starting the validator as a dæmon");
-        daemon::run_server()?;
+        #[cfg(feature = "daemon")]
+        {
+            log::info!("Starting the validator as a dæmon");
+            daemon::run_server()?;
+        }
+        #[cfg(not(feature = "daemon"))]
+        {
+            eprintln!("transport-validator was compiled without support for running as daemon.");
+            eprintln!("use -i to supply a local file to test instead.");
+            std::process::exit(1);
+        }
     }
     Ok(())
 }

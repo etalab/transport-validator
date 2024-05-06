@@ -1,4 +1,5 @@
 pub mod custom_rules;
+#[cfg(feature = "daemon")]
 pub mod daemon;
 pub mod issues;
 pub mod metadatas;
