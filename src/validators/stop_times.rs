@@ -10,6 +10,7 @@ const MAX_TRIPS: usize = 20;
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     check_location_type(gtfs)
         .chain(check_valid_stop_sequence(gtfs))
+        .chain(check_times_increase(gtfs))
         .collect()
 }
 
@@ -72,6 +73,31 @@ fn check_valid_stop_sequence(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item
     })
 }
 
+fn check_times_increase(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item = Issue> + '_ {
+    gtfs.trips
+        .values()
+        .map(|trip| {
+            trip.stop_times.iter().filter_map(move |st| {
+                match (st.arrival_time, st.departure_time) {
+                    (Some(arrival), Some(departure)) if arrival > departure => {
+                        let issue = Issue::new_with_obj(
+                            Severity::Warning,
+                            IssueType::NegativeStopDuration,
+                            trip,
+                        )
+                        .details(&format!(
+                            "Departure time before arrival time at stop sequence {}",
+                            st.stop_sequence
+                        ));
+                        Some(issue)
+                    }
+                    _ => None,
+                }
+            })
+        })
+        .flatten()
+}
+
 #[test]
 fn test_location_type() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/stop_times_location_type").unwrap();
@@ -120,4 +146,19 @@ fn test_stop_sequences() {
     );
     assert_eq!("trip3", &issues[1].object_id);
     assert_eq!(2, issues[1].related_objects.len());
+}
+
+#[test]
+fn test_times_increase() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/stop_times_increase").unwrap();
+    let issues = dbg!(validate(&gtfs));
+
+    assert_eq!(1, issues.len());
+    let first_issue = &issues[0];
+    assert_eq!(IssueType::NegativeStopDuration, first_issue.issue_type);
+    assert_eq!("ITB1", first_issue.object_id);
+    assert_eq!(
+        Some("Departure time before arrival time at stop sequence 8"),
+        first_issue.details.as_deref()
+    );
 }

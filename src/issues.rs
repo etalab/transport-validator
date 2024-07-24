@@ -30,6 +30,8 @@ pub enum IssueType {
     ExcessiveSpeed,
     /// The travel duration between two stops is negative.
     NegativeTravelTime,
+    /// A stop_time's departure is earlier than its arrival.
+    NegativeStopDuration,
     /// Two stops very close to each other in the same trips
     CloseStops,
     /// The travel duration between two stops is null.
