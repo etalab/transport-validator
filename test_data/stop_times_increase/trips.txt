@@ -1,0 +1,3 @@
+route_id,trip_id,trip_headsign,trip_short_name,direction_id,service_id,wheelchair_accessible,bikes_allowed
+ITB,ITB1,Freyung,1,0,basic,2,1
+ITB,ITB2,Passau,2,0,basic,2,1
