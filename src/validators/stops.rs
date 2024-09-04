@@ -87,8 +87,6 @@ fn check_coord(stop: &gtfs_structures::Stop) -> Option<Issue> {
                 (Some(lon), Some(lat)) if lon == 0.0 && lat == 0.0 => {
                     "Latitude and longitude are missing"
                 }
-                (Some(lon), _) if lon == 0.0 => "Longitude is missing",
-                (_, Some(lat)) if lat == 0.0 => "Latitude is missing",
                 _ => "Coordinates are ok",
             }),
         )
@@ -99,7 +97,7 @@ fn check_coord(stop: &gtfs_structures::Stop) -> Option<Issue> {
 
 fn has_coord(stop: &gtfs_structures::Stop) -> bool {
     match (stop.latitude, stop.longitude) {
-        (Some(lon), Some(lat)) => lon != 0.0 && lat != 0.0,
+        (Some(lon), Some(lat)) => lon != 0.0 || lat != 0.0,
         _ => false,
     }
 }
@@ -133,7 +131,7 @@ fn test_missing() {
         .collect();
 
     assert_eq!(1, missing_coord_issue.len());
-    assert_eq!("AMV", missing_coord_issue[0].object_id);
+    assert_eq!("null_island", missing_coord_issue[0].object_id);
     assert_eq!(
         IssueType::MissingCoordinates,
         missing_coord_issue[0].issue_type
