@@ -441,9 +441,9 @@ mod tests {
         assert_eq!(
             serde_json::to_string_pretty(&metadatas.stats).unwrap(),
             r#"{
-  "stops_count": 17,
+  "stops_count": 19,
   "stop_areas_count": 2,
-  "stop_points_count": 9,
+  "stop_points_count": 11,
   "stops_with_wheelchair_info_count": null,
   "routes_count": 5,
   "routes_with_custom_color_count": 0,
@@ -466,9 +466,9 @@ mod tests {
         assert_eq!(
             serde_json::to_string_pretty(&metadatas.stats).unwrap(),
             r#"{
-  "stops_count": 17,
+  "stops_count": 19,
   "stop_areas_count": 2,
-  "stop_points_count": 9,
+  "stop_points_count": 11,
   "stops_with_wheelchair_info_count": 0,
   "routes_count": 5,
   "routes_with_custom_color_count": 0,

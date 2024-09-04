@@ -15,4 +15,6 @@ entrance_bad_parent,bad entrance,,36.909489,-116.768242,,,2,BULLFROG
 good_entrance,good entrance,,36.909489,-116.768242,,,2,PARENT
 EMSI,E Main St / S Irving St (Demo),,36.905697,-116.76218,,,,
 AMV,Amargosa Valley (Demo),,0.0,-116.40094,,,,
+DIJON,Dijon Valley (Demo),,-42.1337,0.0,,,,
+null_island,Null Island,,0.0,0.0,,,,
 PARENT,Moo,,92.462154,-116.40094,,,1,
