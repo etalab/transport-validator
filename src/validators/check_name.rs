@@ -1,4 +1,5 @@
 use crate::issues::{Issue, IssueType, Severity};
+use gtfs_structures::LocationType;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let route_issues = gtfs
@@ -9,6 +10,14 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let stop_issues = gtfs
         .stops
         .values()
+        .filter(|stop| {
+            [
+                LocationType::StopPoint,
+                LocationType::StopArea,
+                LocationType::StationEntrance,
+            ]
+            .contains(&stop.location_type)
+        })
         .filter(empty_name)
         .map(make_missing_name_issue);
     let agency_issues = gtfs
@@ -20,7 +29,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .feed_info
         .iter()
         .filter(empty_name)
-        .map(|_feed_info| Issue::new(Severity::Warning, IssueType::MissingName, ""));
+        .map(|_feed_info| Issue::new(Severity::Error, IssueType::MissingName, ""));
     route_issues
         .chain(stop_issues)
         .chain(agency_issues)
@@ -41,7 +50,7 @@ fn empty_route_name(r: &gtfs_structures::Route) -> bool {
 fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
     o: &T,
 ) -> Issue {
-    Issue::new_with_obj(Severity::Warning, IssueType::MissingName, o)
+    Issue::new_with_obj(Severity::Error, IssueType::MissingName, o)
 }
 
 #[test]
@@ -56,6 +65,7 @@ fn test_routes() {
     assert_eq!(1, route_name_issues.len());
     assert_eq!("35", route_name_issues[0].object_id);
     assert_eq!(IssueType::MissingName, route_name_issues[0].issue_type);
+    assert_eq!(Severity::Error, route_name_issues[0].severity);
 }
 
 #[test]
@@ -70,6 +80,7 @@ fn test_stops() {
     assert_eq!(1, stop_name_issues.len());
     assert_eq!("close1", stop_name_issues[0].object_id);
     assert_eq!(IssueType::MissingName, stop_name_issues[0].issue_type);
+    assert_eq!(Severity::Error, stop_name_issues[0].severity);
 }
 
 #[test]
@@ -84,6 +95,7 @@ fn test_agencies() {
     assert_eq!(1, agency_name_issues.len());
     assert_eq!("1", agency_name_issues[0].object_id);
     assert_eq!(IssueType::MissingName, agency_name_issues[0].issue_type);
+    assert_eq!(Severity::Error, agency_name_issues[0].severity);
 }
 
 #[test]
@@ -98,4 +110,5 @@ fn test_feed_info() {
     assert_eq!(1, publisher_name_issues.len());
     assert_eq!("", publisher_name_issues[0].object_id);
     assert_eq!(IssueType::MissingName, publisher_name_issues[0].issue_type);
+    assert_eq!(Severity::Error, publisher_name_issues[0].severity);
 }
