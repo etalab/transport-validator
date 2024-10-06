@@ -32,7 +32,7 @@ fn check_shapes_duplicates(
         if ids.contains(&id) {
             shape_issues
                 .entry(shape.id.clone())
-                .or_insert_with(|| vec![])
+                .or_default()
                 .push(shape.sequence);
         }
         ids.insert(id);
@@ -64,17 +64,21 @@ fn check_shapes_duplicates(
 pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
     check_duplicates(&raw_gtfs.stops)
         .into_iter()
-        .chain(check_duplicates(&raw_gtfs.routes).into_iter())
-        .chain(check_duplicates(&raw_gtfs.trips).into_iter())
-        .chain(check_duplicates(&raw_gtfs.agencies).into_iter())
-        .chain(check_duplicates(&raw_gtfs.pathways.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
-        .chain(check_duplicates(raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![]))).into_iter())
-        .chain(
-            check_duplicates(raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![]))).into_iter(),
-        )
-        .chain(
-            check_shapes_duplicates(&raw_gtfs.shapes.as_ref().unwrap_or(&Ok(vec![]))).into_iter(),
-        )
+        .chain(check_duplicates(&raw_gtfs.routes))
+        .chain(check_duplicates(&raw_gtfs.trips))
+        .chain(check_duplicates(&raw_gtfs.agencies))
+        .chain(check_duplicates(
+            raw_gtfs.pathways.as_ref().unwrap_or(&Ok(vec![])),
+        ))
+        .chain(check_duplicates(
+            raw_gtfs.calendar.as_ref().unwrap_or(&Ok(vec![])),
+        ))
+        .chain(check_duplicates(
+            raw_gtfs.fare_attributes.as_ref().unwrap_or(&Ok(vec![])),
+        ))
+        .chain(check_shapes_duplicates(
+            raw_gtfs.shapes.as_ref().unwrap_or(&Ok(vec![])),
+        ))
         .collect()
 }
 

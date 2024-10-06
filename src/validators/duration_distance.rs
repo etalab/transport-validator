@@ -154,10 +154,7 @@ fn validate_speeds(
         }
     }
 
-    Ok(issues_by_stops_and_type
-        .into_iter()
-        .map(|(_k, v)| v)
-        .collect())
+    Ok(issues_by_stops_and_type.into_values().collect())
 }
 
 pub fn validate(

@@ -74,28 +74,25 @@ fn check_valid_stop_sequence(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item
 }
 
 fn check_times_increase(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item = Issue> + '_ {
-    gtfs.trips
-        .values()
-        .map(|trip| {
-            trip.stop_times.iter().filter_map(move |st| {
-                match (st.arrival_time, st.departure_time) {
-                    (Some(arrival), Some(departure)) if arrival > departure => {
-                        let issue = Issue::new_with_obj(
-                            Severity::Warning,
-                            IssueType::NegativeStopDuration,
-                            trip,
-                        )
-                        .details(&format!(
-                            "Departure time before arrival time at stop sequence {}",
-                            st.stop_sequence
-                        ));
-                        Some(issue)
-                    }
-                    _ => None,
+    gtfs.trips.values().flat_map(|trip| {
+        trip.stop_times
+            .iter()
+            .filter_map(move |st| match (st.arrival_time, st.departure_time) {
+                (Some(arrival), Some(departure)) if arrival > departure => {
+                    let issue = Issue::new_with_obj(
+                        Severity::Warning,
+                        IssueType::NegativeStopDuration,
+                        trip,
+                    )
+                    .details(&format!(
+                        "Departure time before arrival time at stop sequence {}",
+                        st.stop_sequence
+                    ));
+                    Some(issue)
                 }
+                _ => None,
             })
-        })
-        .flatten()
+    })
 }
 
 #[test]
