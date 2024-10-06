@@ -14,7 +14,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 
     // A stop can be the parent station
     for stop in gtfs.stops.values() {
-        for parent in &stop.parent_station {
+        if let Some(parent) = &stop.parent_station {
             if used_stops.contains(&stop.id) {
                 used_stops.insert(parent.to_owned());
             }
