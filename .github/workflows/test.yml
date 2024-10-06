@@ -1,6 +1,9 @@
 name: Run test suite
 on: push
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   test:
     name: Lint and test
