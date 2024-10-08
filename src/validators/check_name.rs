@@ -44,7 +44,7 @@ fn empty_name<T: std::fmt::Display>(o: &T) -> bool {
 // a route has a name if it has either a short or a long name
 fn empty_route_name(r: &gtfs_structures::Route) -> bool {
     r.short_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
-        || r.long_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
+        && r.long_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
 }
 
 fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type + std::fmt::Display>(
@@ -57,6 +57,7 @@ fn make_missing_name_issue<T: gtfs_structures::Id + gtfs_structures::Type + std:
 fn test_routes() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/check_name").unwrap();
     let issues = validate(&gtfs);
+
     let route_name_issues: Vec<_> = issues
         .iter()
         .filter(|issue| issue.object_id == *"35")
@@ -66,6 +67,20 @@ fn test_routes() {
     assert_eq!("35", route_name_issues[0].object_id);
     assert_eq!(IssueType::MissingName, route_name_issues[0].issue_type);
     assert_eq!(Severity::Error, route_name_issues[0].severity);
+
+    let route_name_issues: Vec<_> = issues
+        .iter()
+        .filter(|issue| issue.object_id == *"36")
+        .collect();
+
+    assert_eq!(0, route_name_issues.len());
+
+    let route_name_issues: Vec<_> = issues
+        .iter()
+        .filter(|issue| issue.object_id == *"37")
+        .collect();
+
+    assert_eq!(0, route_name_issues.len());
 }
 
 #[test]
