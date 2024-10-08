@@ -31,7 +31,7 @@ fn valid_url(agency: &gtfs_structures::Agency) -> bool {
     // https://gtfs.org/schedule/reference/#field-types
     // URL - A fully qualified URL that includes http:// or https://
     match url::Url::parse(agency.url.as_ref()) {
-        Ok(url) => vec!["https", "http"].contains(&url.scheme()),
+        Ok(url) => ["https", "http"].contains(&url.scheme()),
         _ => false,
     }
 }

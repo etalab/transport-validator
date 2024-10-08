@@ -14,12 +14,12 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     let invalid_transfers = gtfs
         .fare_attributes
         .values()
-        .filter(|fare_attributes| !valid_transfers(*fare_attributes))
+        .filter(|fare_attributes| !valid_transfers(fare_attributes))
         .map(|fare_attributes| make_issue(fare_attributes, IssueType::InvalidTransfers));
     let invalid_duration = gtfs
         .fare_attributes
         .values()
-        .filter(|fare_attributes| !valid_duration(*fare_attributes))
+        .filter(|fare_attributes| !valid_duration(fare_attributes))
         .map(|fare_attributes| make_issue(fare_attributes, IssueType::InvalidTransferDuration));
     missing_price
         .chain(invalid_currency)

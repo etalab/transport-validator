@@ -53,7 +53,7 @@ fn extra_files(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
 pub fn validate(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
     missing_files(raw_gtfs)
         .into_iter()
-        .chain(extra_files(raw_gtfs).into_iter())
+        .chain(extra_files(raw_gtfs))
         .collect()
 }
 

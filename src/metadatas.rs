@@ -80,7 +80,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
         start_date: start_end.map(|(s, _)| format(s)),
         end_date: start_end.map(|(_, e)| format(e)),
         stops_count: stats.stops_count,
-        stats: stats,
+        stats,
         networks: gtfs
             .agencies
             .as_ref()
@@ -306,7 +306,7 @@ fn networks_start_end_dates(
                 agencies_start_end_dates
                     .entry(agency_id)
                     .and_modify(|i| i.update_bounds(service_bounds))
-                    .or_insert(service_bounds.clone());
+                    .or_insert(*service_bounds);
             }
         }
 
@@ -316,7 +316,7 @@ fn networks_start_end_dates(
                 (
                     gtfs.agencies
                         .iter()
-                        .find(|a| &a.id == &id)
+                        .find(|a| a.id == id)
                         .map(|a| a.name.clone())
                         .unwrap_or("default_agency".to_string()),
                     Some(i),
