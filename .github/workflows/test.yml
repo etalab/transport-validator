@@ -1,15 +1,15 @@
 name: Run test suite
 on: push
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   test:
     name: Lint and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
       - run: cargo fmt --all -- --check
       - run: cargo clippy
       - run: cargo build

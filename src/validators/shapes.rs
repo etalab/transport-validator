@@ -30,11 +30,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .filter_map(|(_trip_id, trip)| trip.shape_id.as_ref())
         .collect();
 
-    let existing_shape_id: HashSet<&String> = gtfs
-        .shapes
-        .iter()
-        .map(|(shape_id, _shape)| shape_id)
-        .collect();
+    let existing_shape_id: HashSet<&String> = gtfs.shapes.keys().collect();
 
     let unused_shape_id = existing_shape_id.difference(&used_shape_id).map(|id| {
         Issue::new(Severity::Information, IssueType::UnusedShapeId, id)

@@ -48,7 +48,7 @@ fn is_invalid_url(feed: &&gtfs_structures::FeedInfo) -> bool {
     // https://gtfs.org/schedule/reference/#field-types
     // URL - A fully qualified URL that includes http:// or https://
     !url::Url::parse(feed.url.as_ref())
-        .map(|url| vec!["https", "http"].contains(&url.scheme()))
+        .map(|url| ["https", "http"].contains(&url.scheme()))
         .unwrap_or(false)
 }
 

@@ -1,13 +1,16 @@
 [package]
 name = "validator"
 version = "0.3.0"
-authors = ["Tristram Gräbener <tristramg@gmail.com>", "Francis Chabouis <fchabouis@gmail.com>"]
-edition = "2018"
+authors = [
+    "Tristram Gräbener <tristramg@gmail.com>",
+    "Francis Chabouis <fchabouis@gmail.com>",
+]
+edition = "2021"
 
 [profile.release]
-lto = true          # Enable Link Time Optimization
-codegen-units = 1   # Reduce number of codegen units to increase optimizations.
-panic = 'abort'     # Abort on panic
+lto = true        # Enable Link Time Optimization
+codegen-units = 1 # Reduce number of codegen units to increase optimizations.
+panic = 'abort'   # Abort on panic
 
 [features]
 default = ["daemon"]
@@ -16,7 +19,7 @@ read-url = ["gtfs-structures/read-url"]
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
-chrono-tz = "0.8"
+chrono-tz = "0.10"
 env_logger = { version = "0.11", optional = true }
 anyhow = "1"
 futures = { version = "0.3", optional = true }
@@ -24,19 +27,19 @@ geo = "0.28"
 gtfs-structures = { version = "0.41", default-features = false }
 iso4217 = "0.3"
 isolang = "2.1"
-itertools = "0.12"
+itertools = "0.13"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9"
-clap = { version =  "4.5", features = ["derive"] }
-url = "2"
-actix-web = { version = "4.0", optional = true }
-actix-rt = { version = "2", optional = true }
+clap = { version = "4.5", features = ["derive"] }
+url = "2.5"
+actix-web = { version = "4.9", optional = true }
+actix-rt = { version = "2.10", optional = true }
 geojson = "0.24"
 rgb = "0.8"
 
 [dev-dependencies]
-tempfile = "3.8.1"
-walkdir = "2.4.0"
-zip = "0.6"
+tempfile = "3.13"
+walkdir = "2.4"
+zip = "2.2"

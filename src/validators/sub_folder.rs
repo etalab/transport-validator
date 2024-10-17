@@ -58,15 +58,16 @@ mod tests {
             for entry in WalkDir::new(path) {
                 let entry = entry?;
                 let path = entry.path();
+                let options = FileOptions::<()>::default();
                 let name = path
                     .strip_prefix(Path::new(dir_path))?
                     .as_os_str()
                     .to_str()
                     .unwrap();
                 if path.is_dir() {
-                    zw.add_directory(name, FileOptions::default())?;
+                    zw.add_directory(name, options)?;
                 } else {
-                    zw.start_file(name, FileOptions::default())?;
+                    zw.start_file(name, options)?;
                     let file_data = std::fs::read(path)?;
                     zw.write_all(file_data.as_slice())?;
                 }
