@@ -13,6 +13,10 @@ const OPTIONAL_FILES: &[&str] = &[
     "calendar.txt",
     "calendar_dates.txt",
     "fare_rules.txt",
+    "fare_media.txt",
+    "fare_products.txt",
+    "fare_leg_rules.txt",
+    "fare_leg_join_rules.txt",
     "feed_info.txt",
     "frequencies.txt",
     "transfers.txt",
@@ -22,6 +26,15 @@ const OPTIONAL_FILES: &[&str] = &[
     "feed_info.txt",
     "translations.txt",
     "attributions.txt",
+    "timeframes.txt",
+    "areas.txt",
+    "stop_areas.txt",
+    "networks.txt",
+    "route_networks.txt",
+    "location_groups.txt",
+    "location_group_stops.txt",
+    "locations.geojson",
+    "booking_rules.txt",
 ];
 
 fn missing_files(raw_gtfs: &gtfs_structures::RawGtfs) -> Vec<Issue> {
