@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use gtfs_structures::Trip;
 
 use crate::issues::Issue;
@@ -7,7 +9,14 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     gtfs.trips
         .values()
         .filter_map(|trip| {
-            if trip.stop_times.len() == 1 {
+            let mut stops = HashSet::new();
+            for stop_time in &trip.stop_times {
+                stops.insert(stop_time.stop.id.to_owned());
+                if stops.len() > 1 {
+                    break;
+                }
+            }
+            if stops.len() < 2 {
                 Some(mk_issue(trip))
             } else {
                 None
