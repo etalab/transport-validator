@@ -95,6 +95,9 @@ pub enum IssueType {
     DuplicateStopSequence,
     /// The .txt files within the GTFS are located in a subfolder, which is now explicitly forbidden by the specification
     SubFolder,
+    /// A trip must visit more than one stop in stop_times.txt to be usable by passengers for
+    /// boarding and alighting.
+    UnusableTrip,
 }
 
 /// Represents an object related to another object that is causing an issue.

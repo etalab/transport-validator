@@ -14,4 +14,5 @@ pub mod shapes;
 pub mod stop_times;
 pub mod stops;
 pub mod sub_folder;
+pub mod unusable_trip;
 pub mod unused_stop;

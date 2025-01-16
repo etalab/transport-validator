@@ -76,7 +76,8 @@ pub fn validate_and_metadata(
                     .chain(validators::fare_attributes::validate(gtfs))
                     .chain(validators::feed_info::validate(gtfs))
                     .chain(validators::stop_times::validate(gtfs))
-                    .chain(validators::interpolated_stoptimes::validate(gtfs)),
+                    .chain(validators::interpolated_stoptimes::validate(gtfs))
+                    .chain(validators::unusable_trip::validate(gtfs)),
             );
             issues
                 .iter_mut()
