@@ -26,7 +26,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
 }
 
 fn mk_issue(trip: &Trip) -> Issue {
-    Issue::new_with_obj(Severity::Error, IssueType::UnusableTrip, trip)
+    Issue::new_with_obj(Severity::Warning, IssueType::UnusableTrip, trip)
 }
 
 #[test]
