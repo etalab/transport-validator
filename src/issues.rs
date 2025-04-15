@@ -98,6 +98,9 @@ pub enum IssueType {
     /// A trip must visit more than one stop in stop_times.txt to be usable by passengers for
     /// boarding and alighting.
     UnusableTrip,
+    /// The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service
+    /// is never running.
+    NoCalendar,
 }
 
 /// Represents an object related to another object that is causing an issue.
