@@ -167,6 +167,8 @@ Here is a human friendly list of them :
 |                                  |             |                                                                                                                                                                                          |
 | MissingId                        | Error       | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing.                                                                                                      |
 | MissingUrl                       | Error       | An agency or a feed publisher is missing its URL.                                                                                                                                        |
+| NoCalendar                       | Warning     | The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service is never running.                                                                                        |
+
 | InvalidUrl                       | Error       | The URL of an agency or a feed publisher is not valid.                                                                                                                                   |
 | InvalidCoordinates               | Error       | The coordinates of a shape point or a stop are not valid.                                                                                                                                |
 | InvalidTimezone                  | Error       | The TimeZone of an agency is not valid.                                                                                                                                                  |

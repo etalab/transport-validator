@@ -1,4 +1,5 @@
 pub mod agency;
+pub mod calendar;
 pub mod check_id;
 pub mod check_name;
 pub mod duplicate_stops;

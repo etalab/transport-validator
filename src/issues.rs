@@ -100,6 +100,9 @@ pub enum IssueType {
     UnusableTrip,
     /// When there are multiple agencies, `agency_id` must be filled for each route
     MissingAgencyId,
+    /// The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service
+    /// is never running.
+    NoCalendar,
 }
 
 /// Represents an object related to another object that is causing an issue.
