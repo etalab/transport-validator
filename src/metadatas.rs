@@ -10,6 +10,9 @@ use std::collections::HashMap;
 pub struct Metadata {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
+    pub feed_contact_emails: HashMap<String, String>,
+    pub feed_start_dates: HashMap<String, String>,
+    pub feed_end_dates: HashMap<String, String>,
     pub networks: Vec<String>,
     pub networks_start_end_dates: Option<HashMap<String, Option<Interval>>>,
     pub modes: Vec<String>,
@@ -75,10 +78,31 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
     let format = |d: chrono::NaiveDate| d.format("%Y-%m-%d").to_string();
     let validator_version = env!("CARGO_PKG_VERSION");
     let stats = compute_stats(gtfs);
+    let default = vec![];
+    let feed_info = gtfs
+        .feed_info
+        .as_ref()
+        .and_then(|f| f.as_ref().ok())
+        .unwrap_or(&default);
 
     Metadata {
         start_date: start_end.map(|(s, _)| format(s)),
         end_date: start_end.map(|(_, e)| format(e)),
+        feed_contact_emails: feed_info
+            .iter()
+            .filter(|f| f.contact_email.is_some())
+            .map(|f| (f.name.to_owned(), f.contact_email.to_owned().unwrap()))
+            .collect(),
+        feed_start_dates: feed_info
+            .iter()
+            .filter(|f| f.start_date.is_some())
+            .map(|f| (f.name.to_owned(), format(f.start_date.unwrap())))
+            .collect(),
+        feed_end_dates: feed_info
+            .iter()
+            .filter(|f| f.end_date.is_some())
+            .map(|f| (f.name.to_owned(), format(f.end_date.unwrap())))
+            .collect(),
         stops_count: stats.stops_count,
         stats,
         networks: gtfs
@@ -358,6 +382,47 @@ mod tests {
             .expect("Failed to load data");
         let metadatas = extract_metadata(&raw_gtfs);
         assert!(!metadatas.validator_version.is_empty());
+    }
+
+    #[test]
+    fn test_feed_info_metadata() {
+        let raw_gtfs =
+            gtfs_structures::RawGtfs::new("test_data/feed_info").expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+        assert_eq!(
+            HashMap::from([
+                ("SNCF".to_owned(), "contact@sncf.fr".to_owned()),
+                ("BIBUS".to_owned(), "contact@bibus.fr".to_owned())
+            ]),
+            metadatas.feed_contact_emails
+        );
+        assert_eq!(
+            HashMap::from([
+                ("SNCF".to_owned(), "2018-07-09".to_owned()),
+                ("BIBUS".to_owned(), "2019-01-02".to_owned())
+            ]),
+            metadatas.feed_start_dates
+        );
+        assert_eq!(
+            HashMap::from([
+                ("SNCF".to_owned(), "2018-09-27".to_owned()),
+                ("BIBUS".to_owned(), "2019-02-04".to_owned())
+            ]),
+            metadatas.feed_end_dates
+        );
+    }
+
+    #[test]
+    fn test_feed_info_not_present_metadata() {
+        // feed_info.txt is not present
+        let raw_gtfs = gtfs_structures::RawGtfs::new("test_data/fare_attributes")
+            .expect("Failed to load data");
+        let metadatas = extract_metadata(&raw_gtfs);
+
+        assert!(!raw_gtfs.files.contains(&"feed_info.txt".to_owned()));
+        assert_eq!(HashMap::new(), metadatas.feed_contact_emails);
+        assert_eq!(HashMap::new(), metadatas.feed_start_dates);
+        assert_eq!(HashMap::new(), metadatas.feed_end_dates);
     }
 
     #[test]
