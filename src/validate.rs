@@ -69,7 +69,7 @@ pub fn validate_and_metadata(
                     .chain(validators::check_name::validate(gtfs))
                     .chain(validators::check_id::validate(gtfs))
                     .chain(validators::stops::validate(gtfs))
-                    .chain(validators::route_type::validate(gtfs))
+                    .chain(validators::routes::validate(gtfs))
                     .chain(validators::shapes::validate(gtfs))
                     .chain(validators::agency::validate(gtfs))
                     .chain(validators::calendar::validate(gtfs))
