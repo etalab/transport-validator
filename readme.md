@@ -70,6 +70,8 @@ There is also a `stats` object inside with various statistics about the data:
 | transfers_count                  | integer         | Number of transfers                                                                                                     |
 | fares_attribute_count            | integer         | Number of fares attributes                                                                                              |
 | fares_rules_count                | integer         | Number of fares rules                                                                                                   |
+| fares_products_count             | integer         | Number of fares products                                                                                                |
+| fares_media_count                | integer         | Number of fares media                                                                                                   |
 
 Note: For the `stops_with_wheelchair_info_count`, the information can be specified at the stop level (`wheelchair_boarding` equal to `1` or `2`), or inherited from its parent station. Can be `null` if the GTFS contains errors preventing to compute this field.
 

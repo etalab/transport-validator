@@ -49,8 +49,11 @@ pub struct Stats {
     pub trips_with_trip_headsign_count: usize,
 
     pub transfers_count: usize,
+
     pub fares_attribute_count: usize,
     pub fares_rules_count: usize,
+    pub fares_products_count: usize,
+    pub fares_media_count: usize,
 }
 
 pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
@@ -221,7 +224,16 @@ pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
             .as_ref()
             .and_then(|r| r.as_ref().ok().map(|v| v.len()))
             .unwrap_or(0),
-
+        fares_products_count: gtfs
+            .fare_products
+            .as_ref()
+            .and_then(|r| r.as_ref().ok().map(|v| v.len()))
+            .unwrap_or(0),
+        fares_media_count: gtfs
+            .fare_media
+            .as_ref()
+            .and_then(|r| r.as_ref().ok().map(|v| v.len()))
+            .unwrap_or(0),
         transfers_count: gtfs
             .transfers
             .as_ref()
@@ -521,7 +533,9 @@ mod tests {
   "trips_with_trip_headsign_count": 9,
   "transfers_count": 0,
   "fares_attribute_count": 2,
-  "fares_rules_count": 4
+  "fares_rules_count": 4,
+  "fares_products_count": 0,
+  "fares_media_count": 0
 }"#
         );
 
@@ -546,7 +560,9 @@ mod tests {
   "trips_with_trip_headsign_count": 9,
   "transfers_count": 0,
   "fares_attribute_count": 2,
-  "fares_rules_count": 4
+  "fares_rules_count": 4,
+  "fares_products_count": 0,
+  "fares_media_count": 0
 }"#
         );
     }
@@ -578,7 +594,9 @@ mod tests {
   "trips_with_trip_headsign_count": 6,
   "transfers_count": 0,
   "fares_attribute_count": 0,
-  "fares_rules_count": 0
+  "fares_rules_count": 0,
+  "fares_products_count": 0,
+  "fares_media_count": 0
 }"#
         );
     }
