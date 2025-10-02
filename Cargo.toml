@@ -24,7 +24,7 @@ env_logger = { version = "0.11", optional = true }
 anyhow = "1"
 futures = { version = "0.3", optional = true }
 geo = "0.28"
-gtfs-structures = { version = "0.41", default-features = false }
+gtfs-structures = { version = "0.45", default-features = false }
 iso4217 = "0.3"
 isolang = "2.1"
 itertools = "0.13"

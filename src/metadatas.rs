@@ -190,7 +190,7 @@ pub fn compute_stats(gtfs: &gtfs_structures::RawGtfs) -> Stats {
                 g: 255,
                 b: 255,
             }; // white
-            r.text_color != text_default_color || r.color != route_default_color
+            r.text_color() != text_default_color || r.color() != route_default_color
         }),
         routes_with_long_name_count: counts_objects(&gtfs.routes, |r| {
             !r.long_name.as_ref().map(|n| n.is_empty()).unwrap_or(true)
