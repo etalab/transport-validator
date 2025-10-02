@@ -37,6 +37,9 @@ Give useful information about the validated file content:
 | start_date                   | "YYYY-MM-DD"    | The starting date of the calendar information (both `calendar.txt` and `calendar_dates.txt` are taken into account).                                                                                                                        |
 | end_date                     | "YYYY-MM-DD"    | The ending date of the calendar information (both `calendar.txt` and `calendar_dates.txt` are taken into account).                                                                                                                          |
 | networks_start_end_dates     | map             | Gives the starting and ending dates of the calendar information for each network. For example: `{"agency name 1":{"start_date":"2022-08-18","end_date":"2022-10-23"}, "agency name 2":{"start_date":"2020-08-18","end_date":"2023-10-23"}}` |
+| feed_contact_emails     | map             | Gives the feed contact email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "contact@example.com"}` |
+| feed_start_dates     | map             | Gives the feed start email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "2025-02-20"}` |
+| feed_end_dates     | map             | Gives the feed end email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "2025-02-20"}` |
 | networks                     | list of strings | A list of unique agencies names, found in `agency.txt`                                                                                                                                                                                      |
 | modes                        | list of strings | A list of the `route_types` found in `routes.txt`                                                                                                                                                                                           |
 | issues_count                 | Object          | A summary of the validation issues found in the `validations` section. Keys of the object are the issue name, values are the number of corresponding issues found.                                                                          |
@@ -67,6 +70,8 @@ There is also a `stats` object inside with various statistics about the data:
 | transfers_count                  | integer         | Number of transfers                                                                                                     |
 | fares_attribute_count            | integer         | Number of fares attributes                                                                                              |
 | fares_rules_count                | integer         | Number of fares rules                                                                                                   |
+| fares_products_count             | integer         | Number of fares products                                                                                                |
+| fares_media_count                | integer         | Number of fares media                                                                                                   |
 
 Note: For the `stops_with_wheelchair_info_count`, the information can be specified at the stop level (`wheelchair_boarding` equal to `1` or `2`), or inherited from its parent station. Can be `null` if the GTFS contains errors preventing to compute this field.
 
@@ -154,6 +159,7 @@ Here is a human friendly list of them :
 |                                  |             |                                                                                                                                                                                          |
 | NegativeTravelTime               | Warning     | The travel duration between two stops is negative.                                                                                                                                       |
 | NegativeStopDuration             | Warning     | The `departure_time` at a stop is earlier than its `arrival_time`.                                                                                                                       |
+| MissingAgencyId                  | Error       | When there are multiple agencies, the `agency_id` must be filled for each route.                                                                                                           |
 | MissingName                      | Error       | An agency, a route or a stop has its name missing.                                                                                                                                       |
 | MissingCoordinates               | Warning     | A shape point or a stop is missing its coordinate(s).                                                                                                                                    |
 | NullDuration                     | Warning     | The travel duration between two stops is null.                                                                                                                                           |
@@ -166,6 +172,8 @@ Here is a human friendly list of them :
 |                                  |             |                                                                                                                                                                                          |
 | MissingId                        | Error       | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing.                                                                                                      |
 | MissingUrl                       | Error       | An agency or a feed publisher is missing its URL.                                                                                                                                        |
+| NoCalendar                       | Warning     | The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service is never running.                                                                                        |
+
 | InvalidUrl                       | Error       | The URL of an agency or a feed publisher is not valid.                                                                                                                                   |
 | InvalidCoordinates               | Error       | The coordinates of a shape point or a stop are not valid.                                                                                                                                |
 | InvalidTimezone                  | Error       | The TimeZone of an agency is not valid.                                                                                                                                                  |

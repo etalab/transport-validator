@@ -1,4 +1,5 @@
 pub mod agency;
+pub mod calendar;
 pub mod check_id;
 pub mod check_name;
 pub mod duplicate_stops;
@@ -9,7 +10,7 @@ pub mod file_presence;
 pub mod interpolated_stoptimes;
 pub mod invalid_reference;
 pub mod raw_gtfs;
-pub mod route_type;
+pub mod routes;
 pub mod shapes;
 pub mod stop_times;
 pub mod stops;
