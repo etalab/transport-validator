@@ -139,10 +139,7 @@ pub fn extract_metadata(gtfs: &gtfs_structures::RawGtfs) -> Metadata {
             .unique()
             .collect(),
         issues_count: std::collections::BTreeMap::new(),
-        has_fares: match &gtfs.fare_attributes {
-            Some(Ok(fa)) => !fa.is_empty(),
-            _ => false,
-        },
+        has_fares: has_fares_v1(gtfs) || has_fares_v2(gtfs),
         has_shapes: match &gtfs.shapes {
             Some(Ok(s)) => !s.is_empty(),
             _ => false,
@@ -381,6 +378,20 @@ fn counts_objects<T>(
         .iter()
         .filter(matches)
         .count()
+}
+
+fn has_fares_v1(gtfs: &gtfs_structures::RawGtfs) -> bool {
+    match &gtfs.fare_attributes {
+        Some(Ok(fa)) => !fa.is_empty(),
+        _ => false,
+    }
+}
+
+fn has_fares_v2(gtfs: &gtfs_structures::RawGtfs) -> bool {
+    match &gtfs.fare_products {
+        Some(Ok(fp)) => !fp.is_empty(),
+        _ => false,
+    }
 }
 
 #[cfg(test)]
