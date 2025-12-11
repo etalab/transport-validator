@@ -37,7 +37,7 @@ mod tests {
     use std::io::Write;
     use tempfile;
     use walkdir::WalkDir;
-    use zip::{write::FileOptions, ZipWriter};
+    use zip::{ZipWriter, write::FileOptions};
 
     #[test]
     fn valid_layout() {

@@ -159,10 +159,12 @@ fn test_valid() {
 fn test_stop_parent() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/stops").unwrap();
     let issues = validate(&gtfs);
-    let invalid_coord_issue: Vec<_> = dbg!(issues
-        .iter()
-        .filter(|issue| issue.issue_type == IssueType::InvalidStopParent)
-        .collect());
+    let invalid_coord_issue: Vec<_> = dbg!(
+        issues
+            .iter()
+            .filter(|issue| issue.issue_type == IssueType::InvalidStopParent)
+            .collect()
+    );
 
     assert_eq!(6, invalid_coord_issue.len());
     let stop_area_issue = invalid_coord_issue
