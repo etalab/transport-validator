@@ -20,7 +20,7 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         .feed_info
         .iter()
         .filter(missing_lang)
-        .map(|feed_info| make_issue(feed_info, Severity::Warning, IssueType::MissingLanguage));
+        .map(|feed_info| make_issue(feed_info, Severity::Error, IssueType::MissingLanguage));
     let invalid_lang = gtfs.feed_info.iter().filter(invalid_lang).map(|feed_info| {
         make_issue(feed_info, Severity::Warning, IssueType::InvalidLanguage)
             .details(&format!("Language code {} does not exist", feed_info.lang))
@@ -105,6 +105,7 @@ fn test_missing_lang() {
 
     assert_eq!(1, missing_lang_issue.len());
     assert_eq!(IssueType::MissingLanguage, missing_lang_issue[0].issue_type);
+    assert_eq!(Severity::Error, missing_lang_issue[0].severity);
 }
 
 #[test]
@@ -118,6 +119,7 @@ fn test_valid_lang() {
         .collect();
     assert_eq!(1, invalid_lang_issue.len());
     assert_eq!(IssueType::InvalidLanguage, invalid_lang_issue[0].issue_type);
+    assert_eq!(Severity::Warning, invalid_lang_issue[0].severity);
 }
 
 #[test]
