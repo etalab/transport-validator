@@ -134,12 +134,14 @@ pub fn process(
             let mut validations = BTreeMap::new();
             validations.insert(
                 issues::IssueType::InvalidArchive,
-                vec![issues::Issue::new(
-                    issues::Severity::Fatal,
-                    issues::IssueType::InvalidArchive,
-                    "",
-                )
-                .details(&format!("{}", e))],
+                vec![
+                    issues::Issue::new(
+                        issues::Severity::Fatal,
+                        issues::IssueType::InvalidArchive,
+                        "",
+                    )
+                    .details(&format!("{}", e)),
+                ],
             );
             Response {
                 metadata: None,

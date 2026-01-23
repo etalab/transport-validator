@@ -1,6 +1,6 @@
 use crate::issues::*;
-use geo::algorithm::haversine_distance::HaversineDistance;
 use geo::Point;
+use geo::algorithm::haversine_distance::HaversineDistance;
 use itertools::Itertools;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {

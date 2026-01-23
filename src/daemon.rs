@@ -1,6 +1,6 @@
 use crate::custom_rules;
-use crate::validate::{generate_validation_from_reader, process, Response};
-use actix_web::{get, post, web, web::Json, App, Error, HttpServer};
+use crate::validate::{Response, generate_validation_from_reader, process};
+use actix_web::{App, Error, HttpServer, get, post, web, web::Json};
 use futures::StreamExt;
 use serde::Deserialize;
 use std::env;

@@ -61,7 +61,7 @@ fn main() -> Result<(), anyhow::Error> {
     if let Some(input) = opt.input {
         let validations = &validate::generate_validation(&input, opt.max_size, &custom_rules);
         let serialized = match opt.format {
-            OutputFormat::Yaml => serde_yaml::to_string(validations)?,
+            OutputFormat::Yaml => serde_norway::to_string(validations)?,
             OutputFormat::Json => serde_json::to_string(validations)?,
             OutputFormat::PrettyJson => serde_json::to_string_pretty(validations)?,
         };
