@@ -2,7 +2,7 @@ use crate::issues::*;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
     if gtfs.calendar.len() + gtfs.calendar_dates.len() == 0 {
-        vec![Issue::new(Severity::Warning, IssueType::NoCalendar, "")]
+        vec![Issue::new(Severity::Error, IssueType::NoCalendar, "")]
     } else {
         vec![]
     }
@@ -14,7 +14,7 @@ fn test_empty() {
     let issues = validate(&gtfs);
     let warning_issues: Vec<_> = issues
         .iter()
-        .filter(|issue| issue.severity == Severity::Warning)
+        .filter(|issue| issue.severity == Severity::Error)
         .collect();
 
     assert_eq!(1, warning_issues.len());
