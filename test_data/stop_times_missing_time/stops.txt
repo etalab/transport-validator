@@ -1,0 +1,10 @@
+stop_id,stop_name,stop_lat,stop_lon
+PA,Passau Hbf,48.574138,13.450749
+TB,Tiefenbach,48.615011,13.423320
+FI,Fischhaus,48.654944,13.441398
+KA,Kalteneck,48.689733,13.453046
+FU,Fürsteneck,48.718501,13.470006
+NM,Neuhausmühle,48.726536,13.506747
+RB,Röhrnbach,48.736858,13.526125
+WK,Waldkirchen,48.737063,13.606507
+FR,Freyung,48.802758,13.548300
