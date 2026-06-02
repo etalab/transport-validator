@@ -38,6 +38,7 @@ actix-web = { version = "4.9", optional = true }
 actix-rt = { version = "2.10", optional = true }
 geojson = "0.24"
 rgb = "0.8"
+tikv-jemallocator = "0.6"
 
 [dev-dependencies]
 tempfile = "3.13"
