@@ -1,0 +1,47 @@
+# rumdl configuration file
+
+# Global configuration options
+[global]
+# List of rules to disable (uncomment and modify as needed)
+# disable = []
+
+# List of rules to enable exclusively (replaces defaults; only these rules will run)
+# enable = []
+
+# Additional rules to enable on top of defaults (additive, does not replace)
+# Use this to activate opt-in rules like MD060, MD063, MD072, MD073, MD074
+extend-enable = ["MD060"]
+
+# Additional rules to disable on top of the disable list (additive)
+# extend-disable = []
+
+# List of file/directory patterns to include for linting (if provided, only these will be linted)
+# include = [
+# ]
+
+# List of file/directory patterns to exclude from linting
+exclude = [
+    # Common directories to exclude
+    ".git",
+    ".github",
+    "node_modules",
+    "vendor",
+    "dist",
+    "build",
+
+    # Specific files or patterns
+    "CHANGELOG.md",
+    "LICENSE.md",
+]
+
+# Respect .gitignore files when scanning directories (default: true)
+respect-gitignore = true
+
+[MD013]
+reflow = true
+
+[MD060]
+style = "aligned"
+
+[MD036]
+fix = false
