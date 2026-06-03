@@ -305,6 +305,12 @@ git clone https://github.com/etalab/transport-validator/
 cd transport-validator
 ```
 
+By default, the project uses [jemalloc](https://jemalloc.net/) as the memory allocator to reduce memory usage in production. jemalloc is not supported on Windows/MSVC. To build without it:
+
+```
+cargo build --no-default-features --features daemon
+```
+
 ## Run the validator
 
 ### Run from a local directory
