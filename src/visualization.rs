@@ -1,5 +1,4 @@
 use crate::issues;
-use geojson::Value::Point;
 use geojson::{Feature, FeatureCollection};
 use gtfs_structures::{Gtfs, ObjectType};
 use serde_json::{Map, to_value};
@@ -62,7 +61,7 @@ fn geojson_feature_point(stop_id: &str, gtfs: &Gtfs) -> Option<Feature> {
 
 fn get_stop_geom(stop: &Arc<gtfs_structures::Stop>) -> Option<geojson::Geometry> {
     match (&stop.longitude, &stop.latitude) {
-        (Some(lon), Some(lat)) => Some(geojson::Geometry::new(Point(vec![*lon, *lat]))),
+        (Some(lon), Some(lat)) => Some(geojson::Geometry::new_point(vec![*lon, *lat])),
         _ => None,
     }
 }
@@ -126,10 +125,12 @@ fn line_geometry_between_stops(
                 return None;
             }
 
-            Some(geojson::Geometry::new(geojson::Value::LineString(vec![
-                vec![*lon1, *lat1],
-                vec![*lon2, *lat2],
-            ])))
+            Some(geojson::Geometry::new(
+                geojson::GeometryValue::new_line_string(vec![
+                    vec![*lon1, *lat1],
+                    vec![*lon2, *lat2],
+                ]),
+            ))
         }
         _ => None,
     }
@@ -157,6 +158,6 @@ fn test_generated_geojson() {
     assert_eq!(3, issue.geojson.as_ref().unwrap().features.len());
     assert_eq!(
         issue.geojson.as_ref().unwrap().to_string(),
-        "{\"features\":[{\"geometry\":{\"coordinates\":[2.449186,48.796058],\"type\":\"Point\"},\"properties\":{\"id\":\"near1\",\"name\":\"Near1\"},\"type\":\"Feature\"},{\"geometry\":{\"coordinates\":[0.0,0.0],\"type\":\"Point\"},\"properties\":{\"id\":\"null\",\"name\":\"Null Island\"},\"type\":\"Feature\"},{\"geometry\":{\"coordinates\":[[2.449186,48.796058],[0.0,0.0]],\"type\":\"LineString\"},\"properties\":{\"details\":\"computed speed between the stops is 325858.52 km/h (5430975 m travelled in 60 seconds)\"},\"type\":\"Feature\"}],\"type\":\"FeatureCollection\"}"
+        "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[2.449186,48.796058]},\"properties\":{\"id\":\"near1\",\"name\":\"Near1\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[0.0,0.0]},\"properties\":{\"id\":\"null\",\"name\":\"Null Island\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[2.449186,48.796058],[0.0,0.0]]},\"properties\":{\"details\":\"computed speed between the stops is 325858.52 km/h (5430975 m travelled in 60 seconds)\"}}]}"
     );
 }
