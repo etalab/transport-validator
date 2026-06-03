@@ -179,7 +179,7 @@ fn test() {
     };
 
     let mut issues = validate(&gtfs, &custom_rules);
-    issues.sort_by(|a, b| a.issue_type.cmp(&b.issue_type));
+    issues.sort_by_key(|a| a.issue_type);
 
     assert_eq!(5, issues.len());
 

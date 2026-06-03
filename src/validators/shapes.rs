@@ -21,13 +21,13 @@ pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
         });
     let invalid_shape_id = gtfs
         .trips
-        .iter()
-        .filter_map(|(_id, trip)| create_invalid_shape_id_issue(trip, gtfs));
+        .values()
+        .filter_map(|trip| create_invalid_shape_id_issue(trip, gtfs));
 
     let used_shape_id: HashSet<&String> = gtfs
         .trips
-        .iter()
-        .filter_map(|(_trip_id, trip)| trip.shape_id.as_ref())
+        .values()
+        .filter_map(|trip| trip.shape_id.as_ref())
         .collect();
 
     let existing_shape_id: HashSet<&String> = gtfs.shapes.keys().collect();
