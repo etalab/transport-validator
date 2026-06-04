@@ -1,3 +1,7 @@
+#[cfg(feature = "jemalloc")]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 use clap::{Parser, ValueEnum};
 #[cfg(feature = "daemon")]
 use validator::daemon;
@@ -54,6 +58,14 @@ struct Opt {
 fn main() -> Result<(), anyhow::Error> {
     #[cfg(feature = "daemon")]
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    log::info!(
+        "Allocator: {}",
+        if cfg!(feature = "jemalloc") {
+            "jemalloc"
+        } else {
+            "system"
+        }
+    );
 
     let opt = Opt::parse();
     let custom_rules = custom_rules::custom_rules(opt.custom_rules);

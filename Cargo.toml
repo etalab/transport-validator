@@ -13,7 +13,8 @@ codegen-units = 1 # Reduce number of codegen units to increase optimizations.
 panic = 'abort'   # Abort on panic
 
 [features]
-default = ["daemon"]
+default = ["daemon", "jemalloc"]
+jemalloc = ["tikv-jemallocator"]
 daemon = ["actix-web", "actix-rt", "futures", "read-url", "env_logger"]
 read-url = ["gtfs-structures/read-url"]
 
@@ -38,6 +39,7 @@ actix-web = { version = "4.9", optional = true }
 actix-rt = { version = "2.10", optional = true }
 geojson = "0.24"
 rgb = "0.8"
+tikv-jemallocator = { version = "0.7", optional = true }
 
 [dev-dependencies]
 tempfile = "3.13"
