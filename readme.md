@@ -1,21 +1,34 @@
 # Validate GTFS files
 
-The General Transit Feed Specification ([GTFS](https://gtfs.org/)) defines a common format for public transportation schedules and associated geographic information.
+The General Transit Feed Specification ([GTFS](https://gtfs.org/)) defines a
+common format for public transportation schedules and associated geographic
+information.
 
-This project is a validating tool for such files and can perform checks ranging from simple ones (the archive is not valid, a file is missing) to more complex ones (a vehicle is moving too fast).
+This project is a validating tool for such files and can perform checks ranging
+from simple ones (the archive is not valid, a file is missing) to more complex
+ones (a vehicle is moving too fast).
 
 ## Online tool
 
-transport-validator is the tool used by the [French National Access Point](https://transport.data.gouv.fr/) to validate GTFS files. If you want to use it online, you can validate your own files at [this address](https://transport.data.gouv.fr/validation?locale=en).
+transport-validator is the tool used by the
+[French National Access Point](https://transport.data.gouv.fr/) to validate GTFS
+files. If you want to use it online, you can validate your own files at
+[this address](https://transport.data.gouv.fr/validation?locale=en).
 
 ## Validation output
 
 Validation output is twofold:
 
-- it gives useful information about the validated file, under the `metadata` entry
-- it lists a serie of validation items, with a corresponding severity, under the `validations` entry. When relevant, geographical data ([GeoJSON](https://geojson.org/)) related to the issue is given to ease file debugging.
+- it gives useful information about the validated file, under the `metadata`
+  entry
+- it lists a serie of validation items, with a corresponding severity, under the
+  `validations` entry. When relevant, geographical data
+  ([GeoJSON](https://geojson.org/)) related to the issue is given to ease file
+  debugging.
 
-The output is by default formatted in `json`, but `yaml` is also available. See [Options](https://github.com/etalab/transport-validator#options) for more information.
+The output is by default formatted in `json`, but `yaml` is also available. See
+[Options](https://github.com/etalab/transport-validator#options) for more
+information.
 
 ```json
 {
@@ -37,9 +50,9 @@ Give useful information about the validated file content:
 | start_date                   | "YYYY-MM-DD"    | The starting date of the calendar information (both `calendar.txt` and `calendar_dates.txt` are taken into account).                                                                                                                        |
 | end_date                     | "YYYY-MM-DD"    | The ending date of the calendar information (both `calendar.txt` and `calendar_dates.txt` are taken into account).                                                                                                                          |
 | networks_start_end_dates     | map             | Gives the starting and ending dates of the calendar information for each network. For example: `{"agency name 1":{"start_date":"2022-08-18","end_date":"2022-10-23"}, "agency name 2":{"start_date":"2020-08-18","end_date":"2023-10-23"}}` |
-| feed_contact_emails     | map             | Gives the feed contact email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "contact@example.com"}` |
-| feed_start_dates     | map             | Gives the feed start email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "2025-02-20"}` |
-| feed_end_dates     | map             | Gives the feed end email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "2025-02-20"}` |
+| feed_contact_emails          | map             | Gives the feed contact email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "contact@example.com"}`                                                                                              |
+| feed_start_dates             | map             | Gives the feed start email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "2025-02-20"}`                                                                                                         |
+| feed_end_dates               | map             | Gives the feed end email, read from `feed_info.txt`, for each feed publisher name. For example: `{"agency name 1": "2025-02-20"}`                                                                                                           |
 | networks                     | list of strings | A list of unique agencies names, found in `agency.txt`                                                                                                                                                                                      |
 | modes                        | list of strings | A list of the `route_types` found in `routes.txt`                                                                                                                                                                                           |
 | issues_count                 | Object          | A summary of the validation issues found in the `validations` section. Keys of the object are the issue name, values are the number of corresponding issues found.                                                                          |
@@ -73,7 +86,10 @@ There is also a `stats` object inside with various statistics about the data:
 | fares_products_count             | integer         | Number of fares products                                                                                                |
 | fares_media_count                | integer         | Number of fares media                                                                                                   |
 
-Note: For the `stops_with_wheelchair_info_count`, the information can be specified at the stop level (`wheelchair_boarding` equal to `1` or `2`), or inherited from its parent station. Can be `null` if the GTFS contains errors preventing to compute this field.
+Note: For the `stops_with_wheelchair_info_count`, the information can be
+specified at the stop level (`wheelchair_boarding` equal to `1` or `2`), or
+inherited from its parent station. Can be `null` if the GTFS contains errors
+preventing to compute this field.
 
 #### Example
 
@@ -140,62 +156,66 @@ Each check is associated with a severity level.
 
 ### List of checks
 
-The validator performs a number of checks. The list of checks can be seen in the file [issues.rs](https://github.com/etalab/transport-validator/blob/master/src/issues.rs#L21-L83).
+The validator performs a number of checks. The list of checks can be seen in the
+file
+[issues.rs](https://github.com/etalab/transport-validator/blob/master/src/issues.rs#L21-L83).
 
 Here is a human friendly list of them :
 
-| check name                       | Severity    | Description                                                                                                                                                                              |
-| -------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| UnusedStop                       | Information | A stop is not used.                                                                                                                                                                      |
-| Slow                             | Information | The speed between two stops is too low.                                                                                                                                                  |
-| ExcessiveSpeed                   | Information | The speed between two stops is too high.                                                                                                                                                 |
-| CloseStops                       | Information | Two stops very close to each other in the same trips                                                                                                                                     |
-| InvalidRouteType                 | Information | The type of a route is not valid.                                                                                                                                                        |
-| DuplicateStops                   | Information | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
-| DuplicateStopSequence            | Error       | Several stop times in a trip have the same `stop_sequence` value. The stop_sequence values within a trip must be unique.                                                                 |
-| ExtraFile                        | Information | The file does not belong to a GTFS archive                                                                                                                                               |
-| UnusedShapeId                    | Information | A shape_id defined in shapes.txt is not used elsewhere in the GTFS                                                                                                                       |
-| UnusableTrip                     | Warning     | A trip must visit more than one stop in stop_times.txt to be usable by passengers for boarding and alighting.                                                                            |
-|                                  |             |                                                                                                                                                                                          |
-| NegativeTravelTime               | Warning     | The travel duration between two stops is negative.                                                                                                                                       |
-| NegativeStopDuration             | Warning     | The `departure_time` at a stop is earlier than its `arrival_time`.                                                                                                                       |
-| MissingAgencyId                  | Error       | When there are multiple agencies, the `agency_id` must be filled for each route.                                                                                                           |
-| MissingName                      | Error       | An agency, a route or a stop has its name missing.                                                                                                                                       |
-| MissingCoordinates               | Warning     | A shape point or a stop is missing its coordinate(s).                                                                                                                                    |
-| NullDuration                     | Warning     | The travel duration between two stops is null.                                                                                                                                           |
+| check name                       | Severity         | Description                                                                                                                                                                              |
+| -------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UnusedStop                       | Information      | A stop is not used.                                                                                                                                                                      |
+| Slow                             | Information      | The speed between two stops is too low.                                                                                                                                                  |
+| ExcessiveSpeed                   | Information      | The speed between two stops is too high.                                                                                                                                                 |
+| CloseStops                       | Information      | Two stops very close to each other in the same trips                                                                                                                                     |
+| InvalidRouteType                 | Information      | The type of a route is not valid.                                                                                                                                                        |
+| DuplicateStops                   | Information      | Two stop points or stop areas look identical. They share the same name, and are geographically very close. This check is not applied to station entrances (`location_type` equal to `2`) |
+| DuplicateStopSequence            | Error            | Several stop times in a trip have the same `stop_sequence` value. The stop_sequence values within a trip must be unique.                                                                 |
+| ExtraFile                        | Information      | The file does not belong to a GTFS archive                                                                                                                                               |
+| UnusedShapeId                    | Information      | A shape_id defined in shapes.txt is not used elsewhere in the GTFS                                                                                                                       |
+| UnusableTrip                     | Warning          | A trip must visit more than one stop in stop_times.txt to be usable by passengers for boarding and alighting.                                                                            |
+|                                  |                  |                                                                                                                                                                                          |
+| NegativeTravelTime               | Warning          | The travel duration between two stops is negative.                                                                                                                                       |
+| NegativeStopDuration             | Warning          | The `departure_time` at a stop is earlier than its `arrival_time`.                                                                                                                       |
+| MissingAgencyId                  | Error            | When there are multiple agencies, the `agency_id` must be filled for each route.                                                                                                         |
+| MissingName                      | Error            | An agency, a route or a stop has its name missing.                                                                                                                                       |
+| MissingCoordinates               | Warning          | A shape point or a stop is missing its coordinate(s).                                                                                                                                    |
+| NullDuration                     | Warning          | The travel duration between two stops is null.                                                                                                                                           |
 | MissingLanguage                  | Warning \| Error | The publisher language code is missing.                                                                                                                                                  |
-| InvalidLanguage                  | Warning     | The publisher language code is not valid.                                                                                                                                                |
-| DuplicateObjectId                | Error       | The object has at least one object with the same ID.                                                                                                                                     |
-| InvalidStopLocationTypeInTrip    | Warning     | Only Stop Points are allowed to be used in a Trip                                                                                                                                        |
-| InvalidStopParent                | Warning     | The parent station of this stop is not a valid one                                                                                                                                       |
-| IdNotAscii                       | Warning     | The identifier is not only ASCII characters                                                                                                                                              |
-|                                  |             |                                                                                                                                                                                          |
-| MissingId                        | Error       | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing.                                                                                                      |
-| MissingUrl                       | Error       | An agency or a feed publisher is missing its URL.                                                                                                                                        |
-| NoCalendar                       | Error     | The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service is never running.                                                                                        |
-| InvalidUrl                       | Error       | The URL of an agency or a feed publisher is not valid.                                                                                                                                   |
-| InvalidCoordinates               | Error       | The coordinates of a shape point or a stop are not valid.                                                                                                                                |
-| InvalidTimezone                  | Error       | The TimeZone of an agency is not valid.                                                                                                                                                  |
-| MissingPrice                     | Error       | A fare is missing its price.                                                                                                                                                             |
-| InvalidCurrency                  | Error       | The currency of a fare is not valid                                                                                                                                                      |
-| InvalidTransfers                 | Error       | The number of transfers of a fare is not valid.                                                                                                                                          |
-| InvalidTransferDuration          | Error       | The transfer duration of a fare is not valid.                                                                                                                                            |
-| ImpossibleToInterpolateStopTimes | Error       | It's impossible to interpolate the departure/arrival of some stoptimes of the trip                                                                                                       |
-| InvalidShapeId                   | Error       | A shape_id referenced in trips.txt does not exist in shapes.txt                                                                                                                          |
-|                                  |             |                                                                                                                                                                                          |
-| InvalidReference                 | Fatal       | Reference not valid. For example a stop referenced by a stop time that does not exist                                                                                                    |
-| InvalidArchive                   | Fatal       | .zip Archive not valid.                                                                                                                                                                  |
-| UnloadableModel                  | Fatal       | A fatal error has occured by building the links in the model                                                                                                                             |
-| MissingMandatoryFile             | Fatal       | Mandatory file missing                                                                                                                                                                   |
-| SubFolder                        | Error       | Files were in a subfolder, which is [explicitly forbidden by the specification](https://gtfs.org/schedule/reference/#file-requirements)                                                  |
+| InvalidLanguage                  | Warning          | The publisher language code is not valid.                                                                                                                                                |
+| DuplicateObjectId                | Error            | The object has at least one object with the same ID.                                                                                                                                     |
+| InvalidStopLocationTypeInTrip    | Warning          | Only Stop Points are allowed to be used in a Trip                                                                                                                                        |
+| InvalidStopParent                | Warning          | The parent station of this stop is not a valid one                                                                                                                                       |
+| IdNotAscii                       | Warning          | The identifier is not only ASCII characters                                                                                                                                              |
+|                                  |                  |                                                                                                                                                                                          |
+| MissingId                        | Error            | An agency, a calendar, a route, a shape point, a stop or a trip has its Id missing.                                                                                                      |
+| MissingUrl                       | Error            | An agency or a feed publisher is missing its URL.                                                                                                                                        |
+| NoCalendar                       | Error            | The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service is never running.                                                                                        |
+| InvalidUrl                       | Error            | The URL of an agency or a feed publisher is not valid.                                                                                                                                   |
+| InvalidCoordinates               | Error            | The coordinates of a shape point or a stop are not valid.                                                                                                                                |
+| InvalidTimezone                  | Error            | The TimeZone of an agency is not valid.                                                                                                                                                  |
+| MissingPrice                     | Error            | A fare is missing its price.                                                                                                                                                             |
+| InvalidCurrency                  | Error            | The currency of a fare is not valid                                                                                                                                                      |
+| InvalidTransfers                 | Error            | The number of transfers of a fare is not valid.                                                                                                                                          |
+| InvalidTransferDuration          | Error            | The transfer duration of a fare is not valid.                                                                                                                                            |
+| ImpossibleToInterpolateStopTimes | Error            | It's impossible to interpolate the departure/arrival of some stoptimes of the trip                                                                                                       |
+| InvalidShapeId                   | Error            | A shape_id referenced in trips.txt does not exist in shapes.txt                                                                                                                          |
+|                                  |                  |                                                                                                                                                                                          |
+| InvalidReference                 | Fatal            | Reference not valid. For example a stop referenced by a stop time that does not exist                                                                                                    |
+| InvalidArchive                   | Fatal            | .zip Archive not valid.                                                                                                                                                                  |
+| UnloadableModel                  | Fatal            | A fatal error has occured by building the links in the model                                                                                                                             |
+| MissingMandatoryFile             | Fatal            | Mandatory file missing                                                                                                                                                                   |
+| SubFolder                        | Error            | Files were in a subfolder, which is [explicitly forbidden by the specification](https://gtfs.org/schedule/reference/#file-requirements)                                                  |
 
 ### Geojson information
 
-When relevant for the check, geojson information is added for each check output, making the GTFS debug process easier.
+When relevant for the check, geojson information is added for each check output,
+making the GTFS debug process easier.
 
 ### Example
 
-Here is a validation output containing one warning, triggered by a non Ascii Stop id:
+Here is a validation output containing one warning, triggered by a non Ascii
+Stop id:
 
 ```json
 "validations": {
@@ -225,7 +245,8 @@ Here is a validation output containing one warning, triggered by a non Ascii Sto
 }
 ```
 
-Another example showing the GeoJSON information for an information about two stops too close:
+Another example showing the GeoJSON information for an information about two
+stops too close:
 
 ```json
     "validations": {
@@ -296,11 +317,12 @@ Another example showing the GeoJSON information for an information about two sto
 
 ## Installation
 
-1. This project is written in Rust. You need to first [install Rust](https://rustup.rs/) on your machine.
+1. This project is written in Rust. You need to first
+   [install Rust](https://rustup.rs/) on your machine.
 
 2. Clone the project:
 
-```
+```bash
 git clone https://github.com/etalab/transport-validator/
 cd transport-validator
 ```
@@ -327,14 +349,15 @@ If you are developping on the validator, you can also run a debug build:
 
 The validator can read a zip file, or an url:
 
-```
+```bash
 cargo run --release -- -i some_gtfs.zip
 cargo run --release -- -i https://example.com/network.gfts
 ```
 
-If you do not intend to run the validator as a dæmon, it can be compiled without dæmon support, saving on compile time and binary size:
+If you do not intend to run the validator as a dæmon, it can be compiled without
+dæmon support, saving on compile time and binary size:
 
-```
+```bash
 cargo run --release --no-default-features -- -i some_gtfs.zip
 ```
 
@@ -342,7 +365,8 @@ cargo run --release --no-default-features -- -i some_gtfs.zip
 
 The validator can run as a HTTP dæmon to validate any file from a url.
 
-For now the call is synchronous. Be aware that if the file is large, the time required to download the GTFS zip, the request might time out.
+For now the call is synchronous. Be aware that if the file is large, the time
+required to download the GTFS zip, the request might time out.
 
 The command to launch the dæmon is:
 
@@ -354,14 +378,19 @@ You can then ask for a validation:
 
 ## Options
 
-- `--input` or `-i`: Path (can be a directory or a zip file) or HTTP URL (file will be downloaded) of the GTFS file.
-- `--max-issues` or `-m`: The maxium number of issues per type. Defaults to 1000.
-- `--output-format` or `-f`: Output format (when using the validator in command line). Value by default is `json`, but `yaml` is also available.
-- `--custom-rules` or `-c`: Path to a YAML file containing custom values to use during the validation.
+- `--input` or `-i`: Path (can be a directory or a zip file) or HTTP URL (file
+  will be downloaded) of the GTFS file.
+- `--max-issues` or `-m`: The maxium number of issues per type. Defaults to
+  1000.
+- `--output-format` or `-f`: Output format (when using the validator in command
+  line). Value by default is `json`, but `yaml` is also available.
+- `--custom-rules` or `-c`: Path to a YAML file containing custom values to use
+  during the validation.
 
 ## Custom rules
 
-Some values used during the validations can be customized by using the `--custom-rules` option and providing a path to a YAML file.
+Some values used during the validations can be customized by using the
+`--custom-rules` option and providing a path to a YAML file.
 
 Available customizations are:
 
@@ -387,7 +416,8 @@ max_bus_speed: 120
 max_gondola_speed: 50
 ```
 
-If you need to customize other values, please [let us know](https://github.com/etalab/transport-validator/issues/new).
+If you need to customize other values, please
+[let us know](https://github.com/etalab/transport-validator/issues/new).
 
 ## Lint
 
@@ -395,19 +425,20 @@ To lint our code we use [rustfmt](https://github.com/rust-lang-nursery/rustfmt)
 
 Install it running:
 
-```
+```bash
 rustup component add rustfmt-preview
 ```
 
 Lint your code running:
 
-```
+```bash
 cargo fmt --all -- --write-mode=diff
 ```
 
 ## Contact
 
-Questions? Comments? Get in touch with the transport.data.gouv.fr's technical team: [tech@transport.beta.gouv.fr](mailto:tech@transport.beta.gouv.fr)
+Questions? Comments? Get in touch with the transport.data.gouv.fr's technical
+team: [tech@transport.beta.gouv.fr](mailto:tech@transport.beta.gouv.fr)
 
 ## Alternatives
 
