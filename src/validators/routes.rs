@@ -4,8 +4,8 @@ use gtfs_structures::{Gtfs, Route, RouteType};
 pub fn validate(gtfs: &Gtfs) -> Vec<Issue> {
     let invalid_route_type =
         gtfs.routes
-            .iter()
-            .filter_map(|(_, route)| get_non_standard_route_type(route))
+            .values()
+            .filter_map(get_non_standard_route_type)
             .map(|(route, route_type)| {
                 Issue::new_with_obj(Severity::Information, IssueType::InvalidRouteType, route)
                     .details(&format!(

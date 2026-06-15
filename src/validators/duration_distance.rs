@@ -1,6 +1,6 @@
 use crate::custom_rules;
 use crate::issues::{Issue, IssueType, Severity};
-use geo::algorithm::haversine_distance::HaversineDistance;
+use geo::{Distance as _, Haversine};
 use gtfs_structures::RouteType::*;
 use itertools::Itertools;
 
@@ -20,7 +20,7 @@ fn distance_and_duration(
             let dep_point = geo::Point::new(d_lon, d_lat);
             let arr_point = geo::Point::new(a_lon, a_lat);
             let duration = f64::from(arrival) - f64::from(departure);
-            let distance = dep_point.haversine_distance(&arr_point);
+            let distance = Haversine.distance(dep_point, arr_point);
 
             Some((distance, duration))
         }
@@ -179,7 +179,7 @@ fn test() {
     };
 
     let mut issues = validate(&gtfs, &custom_rules);
-    issues.sort_by(|a, b| a.issue_type.cmp(&b.issue_type));
+    issues.sort_by_key(|a| a.issue_type);
 
     assert_eq!(5, issues.len());
 

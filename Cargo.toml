@@ -24,24 +24,24 @@ chrono-tz = "0.10"
 env_logger = { version = "0.11", optional = true }
 anyhow = "1"
 futures = { version = "0.3", optional = true }
-geo = "0.28"
-gtfs-structures = { version = "0.46.1", default-features = false }
+geo = "0.33"
+gtfs-structures = { version = "0.47.0", default-features = false }
 iso4217 = "0.3"
-isolang = "2.1"
-itertools = "0.13"
+isolang = "2.4"
+itertools = "0.14"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_norway = "0.9"
-clap = { version = "4.5", features = ["derive"] }
+clap = { version = "4.6", features = ["derive"] }
 url = "2.5"
-actix-web = { version = "4.9", optional = true }
-actix-rt = { version = "2.10", optional = true }
-geojson = "0.24"
+actix-web = { version = "4.13", optional = true }
+actix-rt = { version = "2.11", optional = true }
+geojson = "1.0"
 rgb = "0.8"
 tikv-jemallocator = { version = "0.7", optional = true }
 
 [dev-dependencies]
-tempfile = "3.13"
-walkdir = "2.4"
-zip = "2.2"
+tempfile = "3.27"
+walkdir = "2.5"
+zip = "8.6"

@@ -129,8 +129,7 @@ fn test_duplicates() {
     // many_dup_shp has 11 duplicated pt_sequences (all by the first one), we only display the first 10
     let many_dup_shape_issue = issues
         .iter()
-        .filter(|i| i.object_id.as_str() == "many_dup_shp")
-        .next();
+        .find(|i| i.object_id.as_str() == "many_dup_shp");
     assert_eq!(
         Some(
             &Issue::new(
@@ -143,10 +142,7 @@ fn test_duplicates() {
         ),
         many_dup_shape_issue
     );
-    let a_shape_issue = issues
-        .iter()
-        .filter(|i| i.object_id.as_str() == "A_shp")
-        .next();
+    let a_shape_issue = issues.iter().find(|i| i.object_id.as_str() == "A_shp");
     assert_eq!(
         Some(
             &Issue::new(Severity::Error, IssueType::DuplicateObjectId, "A_shp")

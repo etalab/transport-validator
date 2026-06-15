@@ -1,6 +1,5 @@
 use crate::issues::*;
-use geo::Point;
-use geo::algorithm::haversine_distance::HaversineDistance;
+use geo::{Distance as _, Haversine, Point};
 use itertools::Itertools;
 
 pub fn validate(gtfs: &gtfs_structures::Gtfs) -> Vec<Issue> {
@@ -31,8 +30,8 @@ fn too_close_stops(stop_a: &gtfs_structures::Stop, stop_b: &gtfs_structures::Sto
             let a = Point::new(lon_a, lat_a);
             let b = Point::new(lon_b, lat_b);
             match stop_a.location_type {
-                gtfs_structures::LocationType::StopPoint => a.haversine_distance(&b) < 2.,
-                gtfs_structures::LocationType::StopArea => a.haversine_distance(&b) < 100.,
+                gtfs_structures::LocationType::StopPoint => Haversine.distance(a, b) < 2.,
+                gtfs_structures::LocationType::StopArea => Haversine.distance(a, b) < 100.,
                 _ => false,
             }
         }

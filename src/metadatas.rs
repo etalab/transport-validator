@@ -330,7 +330,7 @@ fn networks_start_end_dates(
         let mut agencies_start_end_dates: HashMap<Option<String>, Interval> = HashMap::default();
         let services_start_end_dates = compute_services_start_end_dates(gtfs);
 
-        for (agency_id, service_id) in gtfs.trips.iter().filter_map(|(_trip_id, trip)| {
+        for (agency_id, service_id) in gtfs.trips.values().filter_map(|trip| {
             gtfs.get_route(&trip.route_id)
                 .map(|route| (route.agency_id.clone(), trip.service_id.as_str()))
                 .ok()
