@@ -103,6 +103,8 @@ pub enum IssueType {
     /// The GTFS is empty for both `calendar.txt` and `calendar_dates.txt`. The service
     /// is never running.
     NoCalendar,
+    /// A stop_time has only one of arrival_time or departure_time defined (both or neither are expected).
+    MissingArrivalOrDepartureTime,
 }
 
 /// Represents an object related to another object that is causing an issue.

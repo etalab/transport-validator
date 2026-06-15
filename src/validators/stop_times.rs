@@ -75,23 +75,48 @@ fn check_valid_stop_sequence(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item
 
 fn check_times_increase(gtfs: &gtfs_structures::Gtfs) -> impl Iterator<Item = Issue> + '_ {
     gtfs.trips.values().flat_map(|trip| {
-        trip.stop_times
-            .iter()
-            .filter_map(move |st| match (st.arrival_time, st.departure_time) {
-                (Some(arrival), Some(departure)) if arrival > departure => {
-                    let issue = Issue::new_with_obj(
-                        Severity::Warning,
-                        IssueType::NegativeStopDuration,
-                        trip,
-                    )
-                    .details(&format!(
-                        "Departure time before arrival time at stop sequence {}",
-                        st.stop_sequence
-                    ));
-                    Some(issue)
+        let mut issues = Vec::new();
+        let mut prev_departure: Option<u32> = None;
+
+        for st in &trip.stop_times {
+            match (st.arrival_time, st.departure_time) {
+                (Some(arrival), Some(departure)) => {
+                    if arrival > departure {
+                        issues.push(
+                            Issue::new_with_obj(Severity::Error, IssueType::NegativeStopDuration, trip)
+                                .details(&format!(
+                                    "Departure time before arrival time at stop sequence {}",
+                                    st.stop_sequence
+                                )),
+                        );
+                    }
+                    if let Some(prev_dep) = prev_departure {
+                        if arrival < prev_dep {
+                            issues.push(
+                                Issue::new_with_obj(Severity::Error, IssueType::NegativeStopDuration, trip)
+                                    .details(&format!(
+                                        "Arrival time at stop sequence {} is earlier than departure time at the previous stop",
+                                        st.stop_sequence
+                                    )),
+                            );
+                        }
+                    }
+                    prev_departure = Some(departure);
                 }
-                _ => None,
-            })
+                (Some(_), None) | (None, Some(_)) => {
+                    issues.push(
+                        Issue::new_with_obj(Severity::Warning, IssueType::MissingArrivalOrDepartureTime, trip)
+                            .details(&format!(
+                                "Only one of arrival_time or departure_time is defined at stop sequence {}",
+                                st.stop_sequence
+                            )),
+                    );
+                }
+                (None, None) => {}
+            }
+        }
+
+        issues
     })
 }
 
@@ -114,7 +139,14 @@ fn test_location_type() {
 #[test]
 fn test_stop_sequences() {
     let gtfs = gtfs_structures::Gtfs::new("test_data/duplicate_stop_sequence").unwrap();
-    let mut issues = dbg!(validate(&gtfs));
+    let all_issues = dbg!(validate(&gtfs));
+
+    // Filter to only DuplicateStopSequence issues; duplicate sequences cause non-deterministic
+    // stop_time ordering which may also trigger NegativeStopDuration issues.
+    let mut issues: Vec<_> = all_issues
+        .into_iter()
+        .filter(|i| i.issue_type == IssueType::DuplicateStopSequence)
+        .collect();
 
     assert_eq!(2, issues.len());
 
@@ -156,6 +188,39 @@ fn test_times_increase() {
     assert_eq!("ITB1", first_issue.object_id);
     assert_eq!(
         Some("Departure time before arrival time at stop sequence 8"),
+        first_issue.details.as_deref()
+    );
+}
+
+#[test]
+fn test_times_decrease_between_stops() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/stop_times_decrease").unwrap();
+    let issues = dbg!(validate(&gtfs));
+
+    assert_eq!(1, issues.len());
+    let first_issue = &issues[0];
+    assert_eq!(IssueType::NegativeStopDuration, first_issue.issue_type);
+    assert_eq!("ITB1", first_issue.object_id);
+    assert_eq!(
+        Some("Arrival time at stop sequence 5 is earlier than departure time at the previous stop"),
+        first_issue.details.as_deref()
+    );
+}
+
+#[test]
+fn test_missing_arrival_or_departure_time() {
+    let gtfs = gtfs_structures::Gtfs::new("test_data/stop_times_missing_time").unwrap();
+    let issues = dbg!(validate(&gtfs));
+
+    assert_eq!(1, issues.len());
+    let first_issue = &issues[0];
+    assert_eq!(
+        IssueType::MissingArrivalOrDepartureTime,
+        first_issue.issue_type
+    );
+    assert_eq!("ITB1", first_issue.object_id);
+    assert_eq!(
+        Some("Only one of arrival_time or departure_time is defined at stop sequence 2"),
         first_issue.details.as_deref()
     );
 }

@@ -1,0 +1,2 @@
+route_id,route_short_name,route_long_name,route_type,route_url,route_color
+ITB,ITB,Ilztalbahn im Donau-Moldau-Verbund,2,http://ilztalbahn.eu/,b7bd00
